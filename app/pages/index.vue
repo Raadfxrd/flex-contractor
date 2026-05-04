@@ -1,8 +1,14 @@
-<script setup lang="ts">
-import { onMounted } from 'vue'
+<script lang="ts" setup>
+import {onMounted} from 'vue'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import {ScrollTrigger} from 'gsap/ScrollTrigger'
+import Hero from '../../components/Hero.vue'
+import StorySection from '../../components/StorySection.vue'
+import ProcessSection from '../../components/ProcessSection.vue'
+import PortfolioScroller from '../../components/PortfolioScroller.vue'
+import ContactSection from '../../components/ContactSection.vue'
 
+// Register plugins
 gsap.registerPlugin(ScrollTrigger)
 
 // Story sections data
@@ -10,18 +16,18 @@ const storyData = [
   {
     title: 'Foundations',
     description:
-      'We build on solid ground. Our foundation work ensures every project stands strong and lasts for generations. Precision engineering meets attention to detail.',
+        'We build on solid ground. Our foundation work ensures every project stands strong and lasts for generations. Precision engineering meets attention to detail.',
     imageUrl:
-      'https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=1600&h=900&fit=crop',
+        '/img/600x600.png',
     imageAlt: 'Foundation work',
     index: 0,
   },
   {
     title: 'Electrical',
     description:
-      'From residential wiring to industrial systems, our electrical experts ensure safety, efficiency, and compliance. Modern technology meets expert craftsmanship.',
+        'From residential wiring to industrial systems, our electrical experts ensure safety, efficiency, and compliance. Modern technology meets expert craftsmanship.',
     imageUrl:
-      'https://images.unsplash.com/photo-1512207736139-c3dc16f17969?w=1600&h=900&fit=crop',
+        '/img/600x800.png',
     imageAlt: 'Electrical work',
     index: 1,
     reverse: true,
@@ -29,18 +35,18 @@ const storyData = [
   {
     title: 'Structural Work',
     description:
-      'The backbone of any project. Our structural engineers design and execute solutions that are both robust and elegant. We turn visions into steel-strong realities.',
+        'The backbone of any project. Our structural engineers design and execute solutions that are both robust and elegant. We turn visions into steel-strong realities.',
     imageUrl:
-      'https://images.unsplash.com/photo-1504917595217-3404ee9c6e65?w=1600&h=900&fit=crop',
+        '/img/800x600.png',
     imageAlt: 'Structural work',
     index: 2,
   },
   {
     title: 'Finishing & Renovation',
     description:
-      'The final touches that transform spaces into masterpieces. From paint to cabinetry, we handle every detail with perfectionism. Your dream space awaits.',
+        'The final touches that transform spaces into masterpieces. From paint to cabinetry, we handle every detail with perfectionism. Your dream space awaits.',
     imageUrl:
-      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=1600&h=900&fit=crop',
+        '/img/600x600.png',
     imageAlt: 'Finishing work',
     index: 3,
     reverse: true,
@@ -48,41 +54,38 @@ const storyData = [
 ]
 
 onMounted(() => {
-  // Enable smooth scrolling behavior
-  if (process.client) {
-    // Refresh ScrollTrigger on mount
-    window.addEventListener('load', () => {
-      ScrollTrigger.refresh()
-    })
-  }
+  // Refresh ScrollTrigger on mount and window load
+  window.addEventListener('load', () => {
+    ScrollTrigger.refresh()
+  })
 })
 </script>
 
 <template>
   <div class="w-full bg-black">
     <!-- Hero Section -->
-    <Hero />
+    <Hero/>
 
     <!-- Story Sections -->
     <StorySection
-      v-for="story in storyData"
-      :key="story.index"
-      :title="story.title"
-      :description="story.description"
-      :image-url="story.imageUrl"
-      :image-alt="story.imageAlt"
-      :reverse="story.reverse || false"
-      :index="story.index"
+        v-for="story in storyData"
+        :key="story.index"
+        :description="story.description"
+        :image-alt="story.imageAlt"
+        :image-url="story.imageUrl"
+        :index="story.index"
+        :reverse="story.reverse || false"
+        :title="story.title"
     />
 
     <!-- Process Section -->
-    <ProcessSection />
+    <ProcessSection/>
 
     <!-- Portfolio Section -->
-    <PortfolioScroller />
+    <PortfolioScroller/>
 
     <!-- Contact Section -->
-    <ContactSection />
+    <ContactSection/>
 
     <!-- Footer -->
     <footer class="w-full bg-black border-t border-gray-800/30 px-6 md:px-12 py-12">
@@ -101,17 +104,17 @@ onMounted(() => {
             <h4 class="font-semibold text-white mb-4">Company</h4>
             <ul class="space-y-2 text-sm">
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   About Us
                 </a>
               </li>
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   Services
                 </a>
               </li>
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   Portfolio
                 </a>
               </li>
@@ -133,17 +136,17 @@ onMounted(() => {
             <h4 class="font-semibold text-white mb-4">Follow Us</h4>
             <ul class="space-y-2 text-sm">
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   LinkedIn
                 </a>
               </li>
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   Instagram
                 </a>
               </li>
               <li>
-                <a href="#" class="text-gray-400 hover:text-accent transition-colors">
+                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
                   Facebook
                 </a>
               </li>
