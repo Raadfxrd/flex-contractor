@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    width: 100%;
+    min-height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background-color: #0a0a0a;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+}
+
+/* Smooth scrolling container */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Section utilities */
+@layer components {
+    .section-container {
+        @apply w-full h-screen relative overflow-hidden;
+    }
+
+    .section-title {
+        @apply text-6xl md:text-7xl font-bold text-white leading-tight;
+    }
+
+    .section-subtitle {
+        @apply text-xl md:text-2xl text-gray-300 font-light;
+    }
+
+    .gradient-overlay {
+        @apply absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent;
+    }
+
+    .scroll-indicator {
+        @apply absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2;
+    }
+}
+
+/* Smooth page transition */
+.layout-enter-active, .layout-leave-active {
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.layout-enter-from, .layout-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
