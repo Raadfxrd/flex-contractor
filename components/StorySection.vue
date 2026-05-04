@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -56,43 +56,43 @@ onMounted(() => {
   // Fade and slide in title
   if (titleRef.value) {
     gsap.fromTo(
-      titleRef.value,
-      { opacity: 0, x: props.reverse ? -50 : 50 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top 60%',
-          end: 'top 40%',
-          scrub: 0.5,
-          markers: false,
-        },
-      }
+        titleRef.value,
+        {opacity: 0, x: props.reverse ? -50 : 50},
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: sectionRef.value,
+            start: 'top 60%',
+            end: 'top 40%',
+            scrub: 0.5,
+            markers: false,
+          },
+        }
     )
   }
 
   // Fade and slide in description
   if (descRef.value) {
     gsap.fromTo(
-      descRef.value,
-      { opacity: 0, x: props.reverse ? -30 : 30 },
-      {
-        opacity: 1,
-        x: 0,
-        duration: 1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top 55%',
-          end: 'top 35%',
-          scrub: 0.5,
+        descRef.value,
+        {opacity: 0, x: props.reverse ? -30 : 30},
+        {
+          opacity: 1,
+          x: 0,
+          duration: 1,
+          ease: 'power2.out',
           delay: 0.2,
-          markers: false,
-        },
-      }
+          scrollTrigger: {
+            trigger: sectionRef.value,
+            start: 'top 55%',
+            end: 'top 35%',
+            scrub: 0.5,
+            markers: false,
+          },
+        }
     )
   }
 
@@ -115,22 +115,22 @@ onMounted(() => {
 
 <template>
   <section
-    ref="sectionRef"
-    class="section-container relative w-full h-screen flex items-center overflow-hidden"
+      ref="sectionRef"
+      class="section-container relative w-full h-screen flex items-center overflow-hidden"
   >
     <!-- Background Image -->
     <div
-      ref="imageRef"
-      class="absolute inset-0 w-full h-full bg-cover bg-center"
-      :style="{ backgroundImage: `url(${imageUrl})` }"
+        ref="imageRef"
+        class="absolute inset-0 w-full h-full bg-cover bg-center"
+        :style="{ backgroundImage: `url(${imageUrl})` }"
     />
 
     <!-- Overlay Gradient -->
-    <div class="story-overlay absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
+    <div class="story-overlay absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"/>
 
     <!-- Content -->
     <div
-      :class="[
+        :class="[
         'relative z-10 px-6 md:px-12 lg:px-20 flex-1 max-w-2xl',
         reverse ? 'ml-auto text-right' : 'text-left',
       ]"
