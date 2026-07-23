@@ -40,13 +40,13 @@ onMounted(() => {
         {
           opacity: 1,
           y: 0,
-          duration: 1,
-          ease: 'power2.out',
+          duration: 0.8,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 60%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }
@@ -61,14 +61,14 @@ onMounted(() => {
         {
           opacity: 1,
           y: 0,
-          duration: 1,
-          ease: 'power2.out',
-          delay: 0.2,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 0.1,
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 60%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }
@@ -83,47 +83,18 @@ onMounted(() => {
         {
           opacity: 1,
           y: 0,
-          duration: 1,
-          ease: 'power2.out',
-          delay: 0.4,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 0.2,
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 60%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }
     )
-  }
-
-  // Add focus animation to inputs
-  inputRefs.value.forEach((input) => {
-    input?.addEventListener('focus', () => {
-      gsap.to(input, {borderColor: '#FFA500', duration: 0.3})
-    })
-    input?.addEventListener('blur', () => {
-      gsap.to(input, {borderColor: 'rgba(107, 114, 128, 0.5)', duration: 0.3})
-    })
-  })
-
-  if (textareaRef.value) {
-    textareaRef.value.addEventListener('focus', () => {
-      gsap.to(textareaRef.value, {borderColor: '#FFA500', duration: 0.3})
-    })
-    textareaRef.value.addEventListener('blur', () => {
-      gsap.to(textareaRef.value, {borderColor: 'rgba(107, 114, 128, 0.5)', duration: 0.3})
-    })
-  }
-
-  // Add button hover animation
-  if (buttonRef.value) {
-    buttonRef.value.addEventListener('mouseenter', () => {
-      gsap.to(buttonRef.value, {scale: 1.05, duration: 0.3})
-    })
-    buttonRef.value.addEventListener('mouseleave', () => {
-      gsap.to(buttonRef.value, {scale: 1, duration: 0.3})
-    })
   }
 })
 </script>
@@ -253,7 +224,6 @@ onMounted(() => {
 /* Contact section specific styles */
 select {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23999' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 1rem center;
   padding-right: 2.5rem;

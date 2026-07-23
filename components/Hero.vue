@@ -66,7 +66,7 @@ onMounted(() => {
     <div
         class="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed overflow-hidden"
         :style="{
-          backgroundImage: `url('/img/800x600.png')`,
+          backgroundImage: `url('/img/hero.jpg')`,
           filter: 'brightness(0.3)',
         }"
     />

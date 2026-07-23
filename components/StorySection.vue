@@ -20,38 +20,12 @@ const props = withDefaults(defineProps<Props>(), {
 
 const sectionRef = ref<HTMLDivElement>()
 const imageRef = ref<HTMLDivElement>()
-const contentRef = ref<HTMLDivElement>()
 const titleRef = ref<HTMLElement>()
 const descRef = ref<HTMLElement>()
 
 onMounted(() => {
   if (!sectionRef.value) return
 
-  // Parallax effect on background image
-  if (imageRef.value) {
-    gsap.to(imageRef.value, {
-      y: -100,
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: 1,
-        markers: false,
-      },
-    })
-
-    // Subtle zoom effect on image
-    gsap.to(imageRef.value, {
-      scale: 1.05,
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top bottom',
-        end: 'bottom top',
-        scrub: 1,
-        markers: false,
-      },
-    })
-  }
 
   // Fade and slide in title
   if (titleRef.value) {
@@ -61,13 +35,13 @@ onMounted(() => {
         {
           opacity: 1,
           x: 0,
-          duration: 1,
-          ease: 'power2.out',
+          duration: 0.8,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 60%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }
@@ -82,14 +56,14 @@ onMounted(() => {
         {
           opacity: 1,
           x: 0,
-          duration: 1,
-          ease: 'power2.out',
-          delay: 0.2,
+          duration: 0.8,
+          ease: 'power3.out',
+          delay: 0.1,
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 55%',
-            end: 'top 35%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }

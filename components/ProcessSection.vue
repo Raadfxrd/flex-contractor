@@ -49,13 +49,13 @@ onMounted(() => {
         {
           opacity: 1,
           y: 0,
-          duration: 1,
-          ease: 'power2.out',
+          duration: 0.8,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 60%',
-            end: 'top 40%',
-            scrub: 0.5,
+            start: 'top 70%',
+            end: 'top 50%',
+            scrub: false,
             markers: false,
           },
         }
@@ -70,16 +70,16 @@ onMounted(() => {
         {
           opacity: 1,
           y: 0,
-          duration: 0.8,
-          ease: 'power2.out',
+          duration: 0.7,
+          ease: 'power3.out',
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: `top 50%`,
-            end: `top 30%`,
-            scrub: 0.5,
+            start: 'top 65%',
+            end: 'top 45%',
+            scrub: false,
             markers: false,
           },
-          delay: index * 0.15,
+          delay: index * 0.12,
         }
     )
   })
@@ -110,7 +110,7 @@ onMounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="section-container no-snap w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-dark-secondary px-6 py-20"
+      class="section-container w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-dark-secondary px-6 py-20"
   >
     <!-- Title -->
     <div class="text-center mb-20">
@@ -162,4 +162,3 @@ onMounted(() => {
 <style scoped>
 /* Process section specific styles */
 </style>
-

@@ -1,19 +1,16 @@
 <script lang="ts" setup>
-import {onMounted} from 'vue'
+import {onMounted, onUnmounted} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
-import {useScrollSnap} from '../../composables/useScrollSnap'
 import Hero from '../../components/Hero.vue'
 import StorySection from '../../components/StorySection.vue'
 import ProcessSection from '../../components/ProcessSection.vue'
 import PortfolioScroller from '../../components/PortfolioScroller.vue'
 import ContactSection from '../../components/ContactSection.vue'
+import ScrollToTopButton from '../../components/ScrollToTopButton.vue'
 
 // Register plugins
 gsap.registerPlugin(ScrollTrigger)
-
-// Initialize scroll snap
-useScrollSnap()
 
 // Story sections data
 const storyData = [
@@ -22,7 +19,7 @@ const storyData = [
     description:
         'We build on solid ground. Our foundation work ensures every project stands strong and lasts for generations. Precision engineering meets attention to detail.',
     imageUrl:
-        '/img/600x600.png',
+        '/img/foundations.jpg',
     imageAlt: 'Foundation work',
     index: 0,
   },
@@ -31,7 +28,7 @@ const storyData = [
     description:
         'From residential wiring to industrial systems, our electrical experts ensure safety, efficiency, and compliance. Modern technology meets expert craftsmanship.',
     imageUrl:
-        '/img/600x800.png',
+        '/img/electrical.jpg',
     imageAlt: 'Electrical work',
     index: 1,
     reverse: true,
@@ -41,7 +38,7 @@ const storyData = [
     description:
         'The backbone of any project. Our structural engineers design and execute solutions that are both robust and elegant. We turn visions into steel-strong realities.',
     imageUrl:
-        '/img/800x600.png',
+        '/img/structural.jpg',
     imageAlt: 'Structural work',
     index: 2,
   },
@@ -50,23 +47,61 @@ const storyData = [
     description:
         'The final touches that transform spaces into masterpieces. From paint to cabinetry, we handle every detail with perfectionism. Your dream space awaits.',
     imageUrl:
-        '/img/600x600.png',
+        '/img/renovation.avif',
     imageAlt: 'Finishing work',
     index: 3,
     reverse: true,
   },
 ]
 
+const setSnapEnabled = (enabled: boolean) => {
+  document.documentElement.classList.toggle('snap-disabled', !enabled)
+  document.body.classList.toggle('snap-disabled', !enabled)
+}
+
+let snapEnabled = true
+
+const updateSnapMode = () => {
+  const portfolioSection = document.getElementById('portfolio-section')
+  if (!portfolioSection) return
+
+  const portfolioTop = portfolioSection.offsetTop
+  const scrollY = window.scrollY
+  const reEnableThreshold = portfolioTop - window.innerHeight * 0.5
+
+  if (snapEnabled && scrollY >= portfolioTop) {
+    snapEnabled = false
+  } else if (!snapEnabled && scrollY < reEnableThreshold) {
+    snapEnabled = true
+  }
+
+  setSnapEnabled(snapEnabled)
+}
+
+const handleWindowLoad = () => {
+  ScrollTrigger.refresh()
+  updateSnapMode()
+}
+
 onMounted(() => {
   // Refresh ScrollTrigger on mount and window load
-  window.addEventListener('load', () => {
-    ScrollTrigger.refresh()
-  })
+  window.addEventListener('load', handleWindowLoad)
+  window.addEventListener('scroll', updateSnapMode, {passive: true})
+  updateSnapMode()
+})
+
+onUnmounted(() => {
+  window.removeEventListener('load', handleWindowLoad)
+  window.removeEventListener('scroll', updateSnapMode)
+  setSnapEnabled(true)
 })
 </script>
 
 <template>
   <div class="w-full bg-black">
+    <!-- Scroll to Top Button -->
+    <ScrollToTopButton/>
+
     <!-- Hero Section -->
     <Hero/>
 
@@ -83,10 +118,10 @@ onMounted(() => {
     />
 
     <!-- Process Section -->
-    <ProcessSection/>
+    <ProcessSection id="process-section"/>
 
     <!-- Portfolio Section -->
-    <PortfolioScroller/>
+    <PortfolioScroller id="portfolio-section" class="section-container"/>
 
     <!-- Contact Section -->
     <ContactSection/>
@@ -172,4 +207,3 @@ onMounted(() => {
 <style scoped>
 /* Page-specific styles */
 </style>
-
