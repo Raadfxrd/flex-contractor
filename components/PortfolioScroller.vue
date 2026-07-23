@@ -10,9 +10,6 @@ interface Project {
 
 const scrollContainer = ref<HTMLElement | null>(null)
 
-// Translate vertical wheel movement into horizontal scrolling while there is
-// still room to scroll sideways. Once the container hits either edge, we let
-// the wheel event fall through so the page keeps scrolling vertically.
 const handleWheel = (event: WheelEvent) => {
   const el = scrollContainer.value
   if (!el) return

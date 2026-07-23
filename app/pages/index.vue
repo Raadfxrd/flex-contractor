@@ -7,7 +7,6 @@ import StorySection from '../../components/StorySection.vue'
 import ProcessSection from '../../components/ProcessSection.vue'
 import PortfolioScroller from '../../components/PortfolioScroller.vue'
 import ContactSection from '../../components/ContactSection.vue'
-import ScrollToTopButton from '../../components/ScrollToTopButton.vue'
 
 // Register plugins
 gsap.registerPlugin(ScrollTrigger)
@@ -99,9 +98,6 @@ onUnmounted(() => {
 
 <template>
   <div class="w-full bg-black">
-    <!-- Scroll to Top Button -->
-    <ScrollToTopButton/>
-
     <!-- Hero Section -->
     <Hero/>
 
@@ -196,7 +192,7 @@ onUnmounted(() => {
         <!-- Divider -->
         <div class="border-t border-gray-800/30 pt-8">
           <p class="text-center text-gray-500 text-sm">
-            © 2024 Flex Contractor. All rights reserved.
+            © 2026 Flex Contractor. All rights reserved.
           </p>
         </div>
       </div>

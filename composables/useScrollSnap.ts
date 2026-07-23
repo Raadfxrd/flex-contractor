@@ -66,7 +66,7 @@ export const useScrollSnap = () => {
 
         const now = Date.now()
         if (!handleWheel.lastTime) handleWheel.lastTime = now
-        if (now - handleWheel.lastTime < 500) return // Ignore rapid scrolls
+        if (now - handleWheel.lastTime < 500) return
         handleWheel.lastTime = now
 
         const currentIndex = findCurrentSection()
