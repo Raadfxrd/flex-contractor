@@ -60,11 +60,11 @@ onMounted(() => {
 <template>
   <section
       ref="heroRef"
-      class="section-container relative w-full h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-gray-900 via-black to-black"
+      class="section-container relative w-full h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-black to-black"
   >
     <!-- Background Image/Overlay -->
     <div
-        class="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed"
+        class="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed overflow-hidden"
         :style="{
           backgroundImage: `url('/img/800x600.png')`,
           filter: 'brightness(0.3)',

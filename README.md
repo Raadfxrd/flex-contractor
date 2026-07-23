@@ -1,10 +1,13 @@
-# Flex Contractor - Scroll-Driven Portfolio Website
+# Flex Contractor
 
-A high-end, scroll-driven portfolio website for a construction company built with **Nuxt 3**, **Vue 3**, **GSAP**, and **Tailwind CSS**. This project delivers a cinematic, interactive storytelling experience with smooth animations and premium scrolling interactions.
+A high-end, scroll-driven portfolio website for a construction company built with **Nuxt 3**, **Vue 3**, **GSAP**, and
+**Tailwind CSS**. This project delivers a cinematic, interactive storytelling experience with smooth animations and
+premium scrolling interactions.
 
-## 🎬 Features
+## Features
 
 ### Scroll-Driven Animations
+
 - **GSAP ScrollTrigger** integration for smooth, performant scroll animations
 - Parallax effects on background images with 0.5x speed ratio
 - Staggered text animations on scroll
@@ -12,6 +15,7 @@ A high-end, scroll-driven portfolio website for a construction company built wit
 - Section pinning and scrubbing animations
 
 ### Design System
+
 - **Dark theme** with charcoal/black backgrounds
 - **Orange accent color** (#FFA500) for construction-inspired branding
 - Clean, minimal typography using Inter font
@@ -27,7 +31,7 @@ A high-end, scroll-driven portfolio website for a construction company built wit
 5. **Contact Section**: Clean contact form with animations
 6. **Footer**: Company info, links, contact details
 
-## 🛠️ Tech Stack
+## 🛠Tech Stack
 
 - **Nuxt 3** - Vue 3 full-stack framework
 - **Vue 3** - Composition API for component logic
@@ -36,7 +40,7 @@ A high-end, scroll-driven portfolio website for a construction company built wit
 - **GSAP 3** - Advanced animations with ScrollTrigger
 - **Vite** - Fast build tool
 
-## 📦 Quick Start
+## Quick Start
 
 ```bash
 # Install dependencies
@@ -49,7 +53,7 @@ npm run dev
 npm run build
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 components/          # Reusable Vue components
@@ -71,14 +75,14 @@ app/               # Nuxt app root
       └── default.vue
 ```
 
-## 🎨 Color Palette
+## Color Palette
 
 - Primary Background: `#0a0a0a`
 - Secondary Background: `#1a1a1a`
 - Text: `#ffffff`
 - Accent: `#FFA500` (Orange)
 
-## ✨ Key Components
+## Key Components
 
 All components use GSAP for animations and support responsive, mobile-first design:
 
@@ -88,7 +92,7 @@ All components use GSAP for animations and support responsive, mobile-first desi
 - **PortfolioScroller**: Horizontal scrolling with velocity effects
 - **ContactSection**: Form with input animations
 
-## 🎬 Animation Details
+## Animation Details
 
 - Parallax: 50% speed ratio relative to scroll
 - Text Fades: Triggered at 60% viewport visibility
@@ -96,14 +100,14 @@ All components use GSAP for animations and support responsive, mobile-first desi
 - Easing: power2.out for most animations
 - Performance: 60fps hardware-accelerated transforms
 
-## 📱 Responsive
+## Responsive
 
 - Mobile: Single column, optimized sizes
 - Tablet: Medium spacing, adjusted typography
 - Desktop: Full-width sections, premium styling
 - All sections are fully responsive
 
-## 🚀 Deployment
+## Deployment
 
 ```bash
 # Build production-ready project
@@ -113,19 +117,14 @@ npm run build
 npm run preview
 ```
 
-Recommended hosting:
-- **Vercel** (best for Nuxt)
-- **Netlify**
-- **AWS Amplify**
-
-## 📝 Development
+## Development
 
 - **TypeScript**: Full type safety
 - **Composition API**: Modern Vue 3 patterns
 - **Scoped Styles**: No CSS conflicts
 - **Auto-imports**: Composables and components
 
-## 🎓 Resources
+## Resources
 
 - [Nuxt Docs](https://nuxt.com)
 - [Vue 3](https://vuejs.org)

@@ -2,6 +2,7 @@
 import {onMounted} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
+import {useScrollSnap} from '../../composables/useScrollSnap'
 import Hero from '../../components/Hero.vue'
 import StorySection from '../../components/StorySection.vue'
 import ProcessSection from '../../components/ProcessSection.vue'
@@ -10,6 +11,9 @@ import ContactSection from '../../components/ContactSection.vue'
 
 // Register plugins
 gsap.registerPlugin(ScrollTrigger)
+
+// Initialize scroll snap
+useScrollSnap()
 
 // Story sections data
 const storyData = [
@@ -88,7 +92,7 @@ onMounted(() => {
     <ContactSection/>
 
     <!-- Footer -->
-    <footer class="w-full bg-black border-t border-gray-800/30 px-6 md:px-12 py-12">
+    <footer class="w-full bg-black border-t border-gray-800/30 px-6 md:px-12 py-12 no-snap">
       <div class="max-w-6xl mx-auto">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <!-- About -->

@@ -116,12 +116,12 @@ onMounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="section-container relative w-full h-screen flex items-center overflow-hidden"
+      class="section-container relative w-full h-screen flex items-center"
   >
     <!-- Background Image -->
     <div
         ref="imageRef"
-        class="absolute inset-0 w-full h-full bg-cover bg-center"
+        class="absolute inset-0 w-full h-full bg-cover bg-center overflow-hidden"
         :style="{ backgroundImage: `url(${imageUrl})` }"
     />
 

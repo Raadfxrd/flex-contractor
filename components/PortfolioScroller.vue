@@ -151,7 +151,7 @@ onMounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="section-container relative w-full h-screen bg-black overflow-hidden"
+      class="section-container no-snap relative w-full h-screen bg-black"
   >
     <!-- Title (outside scroll container) -->
     <div class="absolute top-0 left-0 right-0 z-20 pt-12 px-6 md:px-12">

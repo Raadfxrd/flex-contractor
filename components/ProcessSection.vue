@@ -10,7 +10,7 @@ interface Step {
   number: string
   title: string
   description: string
-  icon: any // Vue component from @heroicons/vue
+  icon: any
 }
 
 const steps: Step[] = [
@@ -92,12 +92,12 @@ onMounted(() => {
         {scaleX: 0},
         {
           scaleX: 1,
-          duration: 1,
+          duration: 2.5,
           ease: 'power2.inOut',
           scrollTrigger: {
             trigger: sectionRef.value,
-            start: 'top 50%',
-            end: 'top 30%',
+            start: 'top 30%',
+            end: 'top -20%',
             scrub: 0.5,
             markers: false,
           },
@@ -110,7 +110,7 @@ onMounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="section-container w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-dark-secondary px-6 py-20"
+      class="section-container no-snap w-full h-screen flex flex-col items-center justify-center bg-gradient-to-b from-black to-dark-secondary px-6 py-20"
   >
     <!-- Title -->
     <div class="text-center mb-20">

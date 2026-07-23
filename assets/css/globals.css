@@ -20,7 +20,6 @@ html, body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Smooth scrolling container */
 html {
     scroll-behavior: smooth;
 }
@@ -28,7 +27,7 @@ html {
 /* Section utilities */
 @layer components {
     .section-container {
-        @apply w-full h-screen relative overflow-hidden;
+        @apply w-full h-screen relative;
     }
 
     .section-title {
@@ -57,4 +56,3 @@ html {
     opacity: 0;
     transform: translateY(10px);
 }
-

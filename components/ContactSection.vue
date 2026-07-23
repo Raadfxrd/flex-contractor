@@ -131,7 +131,7 @@ onMounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="section-container w-full h-screen flex items-center justify-center bg-gradient-to-br from-black via-dark-secondary to-black px-6 py-20"
+      class="section-container no-snap w-full h-screen flex items-center justify-center bg-gradient-to-br from-black via-dark-secondary to-black px-6 py-20"
   >
     <div class="max-w-2xl w-full space-y-12">
       <!-- Heading -->
