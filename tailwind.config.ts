@@ -1,13 +1,13 @@
 import type {Config} from 'tailwindcss'
-import defaultTheme = require('tailwindcss/defaultTheme');
+import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
     content: [
+        // `components/` and `composables/` sit OUTSIDE the Nuxt 4 srcDir
+        // (app/), so the module's own globs miss them. Everything under app/
+        // is added automatically by @nuxtjs/tailwindcss.
         './components/**/*.{js,vue,ts}',
-        './layouts/**/*.vue',
-        './pages/**/*.vue',
-        './plugins/**/*.{js,ts}',
-        './app.vue',
+        './composables/**/*.{js,ts}',
     ],
     theme: {
         extend: {
@@ -17,7 +17,7 @@ export default {
             colors: {
                 dark: '#0a0a0a',
                 'dark-secondary': '#1a1a1a',
-                // Use a neutral white accent for a premium black & white look
+                // Neutral white accent for the black & white look.
                 accent: '#ffffff',
             },
             spacing: {

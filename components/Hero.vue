@@ -1,60 +1,70 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
+import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
-const heroRef = ref<HTMLDivElement>()
+// Hero drives a ScrollTrigger of its own, so it must register the plugin
+// itself rather than relying on another component's module side effect.
+gsap.registerPlugin(ScrollTrigger)
+
+const heroRef = ref<HTMLElement>()
 const headlineRef = ref<HTMLElement>()
 const subheadlineRef = ref<HTMLElement>()
-const scrollIndicatorRef = ref<HTMLDivElement>()
+const scrollIndicatorRef = ref<HTMLElement>()
+
+let ctx: gsap.Context
 
 onMounted(() => {
   if (!heroRef.value) return
 
-  // Animate headline
-  if (headlineRef.value) {
-    gsap.from(headlineRef.value, {
-      opacity: 0,
-      y: 50,
-      duration: 1.2,
-      ease: 'power2.out',
-      delay: 0.3,
-    })
-  }
+  // gsap.context scopes every tween/ScrollTrigger created inside it so a single
+  // revert() on unmount tears them all down (HMR would otherwise stack them up).
+  ctx = gsap.context(() => {
+    if (headlineRef.value) {
+      gsap.from(headlineRef.value, {
+        opacity: 0,
+        y: 50,
+        duration: 1.2,
+        ease: 'power2.out',
+        delay: 0.3,
+      })
+    }
 
-  // Animate subheadline
-  if (subheadlineRef.value) {
-    gsap.from(subheadlineRef.value, {
-      opacity: 0,
-      y: 30,
-      duration: 1,
-      ease: 'power2.out',
-      delay: 0.6,
-    })
-  }
+    if (subheadlineRef.value) {
+      gsap.from(subheadlineRef.value, {
+        opacity: 0,
+        y: 30,
+        duration: 1,
+        ease: 'power2.out',
+        delay: 0.6,
+      })
+    }
 
-  // Animate scroll indicator
-  if (scrollIndicatorRef.value) {
-    gsap.to(scrollIndicatorRef.value, {
-      opacity: 0.5,
-      y: 10,
-      duration: 1.5,
-      ease: 'sine.inOut',
-      repeat: -1,
-      yoyo: true,
-    })
-  }
+    if (scrollIndicatorRef.value) {
+      gsap.to(scrollIndicatorRef.value, {
+        opacity: 0.5,
+        y: 10,
+        duration: 1.5,
+        ease: 'sine.inOut',
+        repeat: -1,
+        yoyo: true,
+      })
+    }
 
-  // Subtle zoom effect on scroll
-  gsap.to(heroRef.value, {
-    scale: 1.05,
-    scrollTrigger: {
-      trigger: heroRef.value,
-      start: 'top top',
-      end: 'bottom center',
-      scrub: 1,
-    },
-  })
+    // Subtle zoom on scroll
+    gsap.to(heroRef.value!, {
+      scale: 1.05,
+      scrollTrigger: {
+        trigger: heroRef.value,
+        start: 'top top',
+        end: 'bottom center',
+        scrub: 1,
+      },
+    })
+  }, heroRef.value)
 })
+
+onUnmounted(() => ctx?.revert())
 </script>
 
 <template>
@@ -64,7 +74,7 @@ onMounted(() => {
   >
     <!-- Background Image/Overlay -->
     <div
-        class="absolute inset-0 w-full h-full bg-cover bg-center bg-fixed overflow-hidden"
+        class="absolute inset-0 w-full h-full bg-cover bg-center overflow-hidden"
         :style="{
           backgroundImage: `url('/img/hero.jpg')`,
           filter: 'brightness(0.3)',

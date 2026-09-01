@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
@@ -9,9 +9,6 @@ const sectionRef = ref<HTMLDivElement>()
 const titleRef = ref<HTMLElement>()
 const subtitleRef = ref<HTMLElement>()
 const formRef = ref<HTMLFormElement>()
-const inputRefs = ref<HTMLInputElement[]>([])
-const textareaRef = ref<HTMLTextAreaElement>()
-const buttonRef = ref<HTMLButtonElement>()
 
 const formData = ref({
   name: '',
@@ -29,74 +26,81 @@ const submitForm = () => {
   formData.value = {name: '', email: '', phone: '', project: '', message: ''}
 }
 
+let ctx: gsap.Context
+
 onMounted(() => {
   if (!sectionRef.value) return
 
-  // Animate title
-  if (titleRef.value) {
-    gsap.fromTo(
-        titleRef.value,
-        {opacity: 0, y: 30},
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
+  ctx = gsap.context(() => {
 
-  // Animate subtitle
-  if (subtitleRef.value) {
-    gsap.fromTo(
-        subtitleRef.value,
-        {opacity: 0, y: 20},
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          delay: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
+    // Animate title
+    if (titleRef.value) {
+      gsap.fromTo(
+          titleRef.value,
+          {opacity: 0, y: 30},
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+              scrub: false,
+              markers: false,
+            },
+          }
+      )
+    }
 
-  // Animate form elements
-  if (formRef.value) {
-    gsap.fromTo(
-        formRef.value,
-        {opacity: 0, y: 30},
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          delay: 0.2,
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
+    // Animate subtitle
+    if (subtitleRef.value) {
+      gsap.fromTo(
+          subtitleRef.value,
+          {opacity: 0, y: 20},
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.1,
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+              scrub: false,
+              markers: false,
+            },
+          }
+      )
+    }
+
+    // Animate form elements
+    if (formRef.value) {
+      gsap.fromTo(
+          formRef.value,
+          {opacity: 0, y: 30},
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.2,
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+              scrub: false,
+              markers: false,
+            },
+          }
+      )
+    }
+  }, sectionRef.value)
 })
+
+onUnmounted(() => ctx?.revert())
 </script>
 
 <template>
@@ -128,8 +132,7 @@ onMounted(() => {
                 v-model="formData.name"
                 type="text"
                 required
-                ref="(el) => { if (el) inputRefs[0] = el }"
-                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-300"
+                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-300"
                 placeholder="John Doe"
             />
           </div>
@@ -142,8 +145,7 @@ onMounted(() => {
                 v-model="formData.email"
                 type="email"
                 required
-                ref="(el) => { if (el) inputRefs[1] = el }"
-                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-300"
+                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-300"
                 placeholder="john@example.com"
             />
           </div>
@@ -159,8 +161,7 @@ onMounted(() => {
                 id="phone"
                 v-model="formData.phone"
                 type="tel"
-                ref="(el) => { if (el) inputRefs[2] = el }"
-                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-300"
+                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-300"
                 placeholder="+1 (555) 123-4567"
             />
           </div>
@@ -171,8 +172,7 @@ onMounted(() => {
             <select
                 id="project"
                 v-model="formData.project"
-                ref="(el) => { if (el) inputRefs[3] = el }"
-                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-300"
+                class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-300"
             >
               <option value="">Select a project type</option>
               <option value="residential">Residential</option>
@@ -193,9 +193,8 @@ onMounted(() => {
               id="message"
               v-model="formData.message"
               required
-              ref="textareaRef"
               rows="5"
-              class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none transition-colors duration-300 resize-none"
+              class="w-full px-6 py-3 bg-dark-secondary border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors duration-300 resize-none"
               placeholder="Tell us about your project..."
           />
         </div>
@@ -203,9 +202,8 @@ onMounted(() => {
         <!-- Submit Button -->
         <div class="pt-4">
           <button
-              ref="buttonRef"
               type="submit"
-              class="w-full px-8 py-4 bg-accent hover:bg-accent/90 text-black font-bold rounded-lg transition-all duration-300 transform"
+              class="w-full px-8 py-4 bg-accent hover:bg-accent/90 text-black font-bold rounded-lg transition-all duration-300 transform focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-black"
           >
             Send Inquiry
           </button>

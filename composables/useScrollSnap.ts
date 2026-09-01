@@ -1,3 +1,12 @@
+/**
+ * JS-driven section snapping.
+ *
+ * NOTE: this is NOT wired up, and it deliberately duplicates what
+ * `scroll-snap-type: y mandatory` in assets/css/globals.css already does. The
+ * two will fight each other -- the wheel handler calls preventDefault and
+ * animates scrollTop while the CSS snap engine is also correcting position.
+ * If you adopt this, drop the CSS snap first.
+ */
 import {onMounted, onUnmounted} from 'vue'
 
 export const useScrollSnap = () => {
@@ -61,13 +70,14 @@ export const useScrollSnap = () => {
         }
     }
 
+    let lastWheelTime = 0
+
     const handleWheel = (event: WheelEvent) => {
         if (isSnapping) return
 
         const now = Date.now()
-        if (!handleWheel.lastTime) handleWheel.lastTime = now
-        if (now - handleWheel.lastTime < 500) return
-        handleWheel.lastTime = now
+        if (now - lastWheelTime < 500) return
+        lastWheelTime = now
 
         const currentIndex = findCurrentSection()
         const delta = event.deltaY
@@ -95,11 +105,5 @@ export const useScrollSnap = () => {
         window.removeEventListener('scroll', handleScroll)
         window.removeEventListener('wheel', handleWheel)
     })
-}
-
-declare global {
-    interface Function {
-        lastTime?: number
-    }
 }
 

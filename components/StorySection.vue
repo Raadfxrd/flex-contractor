@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
@@ -18,73 +18,72 @@ const props = withDefaults(defineProps<Props>(), {
   reverse: false,
 })
 
-const sectionRef = ref<HTMLDivElement>()
-const imageRef = ref<HTMLDivElement>()
+const sectionRef = ref<HTMLElement>()
 const titleRef = ref<HTMLElement>()
 const descRef = ref<HTMLElement>()
+
+let ctx: gsap.Context
 
 onMounted(() => {
   if (!sectionRef.value) return
 
+  ctx = gsap.context(() => {
+    // Fade and slide in title
+    if (titleRef.value) {
+      gsap.fromTo(
+          titleRef.value,
+          {opacity: 0, x: props.reverse ? -50 : 50},
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+            },
+          }
+      )
+    }
 
-  // Fade and slide in title
-  if (titleRef.value) {
-    gsap.fromTo(
-        titleRef.value,
-        {opacity: 0, x: props.reverse ? -50 : 50},
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
+    // Fade and slide in description
+    if (descRef.value) {
+      gsap.fromTo(
+          descRef.value,
+          {opacity: 0, x: props.reverse ? -30 : 30},
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            delay: 0.1,
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+            },
+          }
+      )
+    }
 
-  // Fade and slide in description
-  if (descRef.value) {
-    gsap.fromTo(
-        descRef.value,
-        {opacity: 0, x: props.reverse ? -30 : 30},
-        {
-          opacity: 1,
-          x: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          delay: 0.1,
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
-
-  // Subtle overlay effect
-  const overlay = sectionRef.value.querySelector('.story-overlay')
-  if (overlay) {
-    gsap.to(overlay, {
-      opacity: 0.3,
-      scrollTrigger: {
-        trigger: sectionRef.value,
-        start: 'top center',
-        end: 'bottom center',
-        scrub: 1,
-        markers: false,
-      },
-    })
-  }
+    // Subtle overlay effect
+    const overlay = sectionRef.value!.querySelector('.story-overlay')
+    if (overlay) {
+      gsap.to(overlay, {
+        opacity: 0.3,
+        scrollTrigger: {
+          trigger: sectionRef.value,
+          start: 'top center',
+          end: 'bottom center',
+          scrub: 1,
+        },
+      })
+    }
+  }, sectionRef.value)
 })
+
+onUnmounted(() => ctx?.revert())
 </script>
 
 <template>
@@ -94,7 +93,8 @@ onMounted(() => {
   >
     <!-- Background Image -->
     <div
-        ref="imageRef"
+        role="img"
+        :aria-label="imageAlt"
         class="absolute inset-0 w-full h-full bg-cover bg-center overflow-hidden"
         :style="{ backgroundImage: `url(${imageUrl})` }"
     />
@@ -109,7 +109,7 @@ onMounted(() => {
         reverse ? 'ml-auto text-right' : 'text-left',
       ]"
     >
-      <div ref="contentRef" class="space-y-6">
+      <div class="space-y-6">
         <h2 ref="titleRef" class="section-title text-6xl md:text-7xl font-bold">
           {{ title }}
         </h2>

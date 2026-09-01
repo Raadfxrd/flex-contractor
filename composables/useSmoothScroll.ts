@@ -6,34 +6,34 @@ gsap.registerPlugin(ScrollToPlugin)
 export const useSmoothScroll = () => {
     // Smooth scroll to element
     const scrollTo = (target: Element | string | number, duration: number = 1) => {
-        if (typeof window !== 'undefined') {
-            gsap.to(window, {
-                scrollTo: target,
-                duration,
-                ease: 'power3.inOut',
-            })
-        }
+        if (typeof window === 'undefined') return
+        gsap.to(window, {
+            scrollTo: target,
+            duration,
+            ease: 'power3.inOut',
+        })
     }
 
     // Get current scroll position
     const getScrollPosition = () => {
-        if (typeof window !== 'undefined') {
-            return window.scrollY || window.pageYOffset
-        }
-        return 0
+        if (typeof window === 'undefined') return 0
+        return window.scrollY
     }
 
-    // Enable/disable scroll
+    /*
+     * The root element is the scroll container (see globals.css), so lock it
+     * there rather than on <body>.
+     */
     const disableScroll = () => {
-        if (typeof document !== 'undefined') {
-            document.body.style.overflow = 'hidden'
-        }
+        if (typeof document === 'undefined') return
+        document.documentElement.style.overflow = 'hidden'
     }
 
+    // Clear the inline value rather than hardcoding a value, so the stylesheet
+    // stays the single source of truth for how the page scrolls.
     const enableScroll = () => {
-        if (typeof document !== 'undefined') {
-            document.body.style.overflow = 'auto'
-        }
+        if (typeof document === 'undefined') return
+        document.documentElement.style.overflow = ''
     }
 
     return {
@@ -43,4 +43,3 @@ export const useSmoothScroll = () => {
         enableScroll,
     }
 }
-

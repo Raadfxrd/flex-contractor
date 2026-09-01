@@ -12,9 +12,19 @@ export default defineNuxtConfig({
         },
     },
 
-    // Layout transitions
     app: {
-        layoutTransition: {name: 'layout', mode: 'out-in'}
+        // Layout transitions
+        layoutTransition: {name: 'layout', mode: 'out-in'},
+
+        head: {
+            // Without an explicit lang, screen readers fall back to the user
+            // agent locale and may mispronounce the page.
+            htmlAttrs: {lang: 'en'},
+            meta: [
+                {charset: 'utf-8'},
+                {name: 'viewport', content: 'width=device-width, initial-scale=1'},
+            ],
+        },
     },
 
     // Optimize dependencies for faster builds

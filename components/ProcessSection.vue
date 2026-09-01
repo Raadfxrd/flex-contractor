@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {onMounted, ref} from 'vue'
+import {type Component, onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 import {CheckIcon, ClipboardIcon, WrenchScrewdriverIcon} from '@heroicons/vue/24/outline'
@@ -10,7 +10,7 @@ interface Step {
   number: string
   title: string
   description: string
-  icon: any
+  icon: Component
 }
 
 const steps: Step[] = [
@@ -38,73 +38,80 @@ const sectionRef = ref<HTMLDivElement>()
 const stepRefs = ref<HTMLDivElement[]>([])
 const titleRef = ref<HTMLElement>()
 
+let ctx: gsap.Context
+
 onMounted(() => {
   if (!sectionRef.value) return
 
-  // Animate title
-  if (titleRef.value) {
-    gsap.fromTo(
-        titleRef.value,
-        {opacity: 0, y: 30},
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.8,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 70%',
-            end: 'top 50%',
-            scrub: false,
-            markers: false,
-          },
-        }
-    )
-  }
+  ctx = gsap.context(() => {
 
-  // Animate each step sequentially
-  stepRefs.value.forEach((step, index) => {
-    gsap.fromTo(
-        step,
-        {opacity: 0, y: 30},
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 65%',
-            end: 'top 45%',
-            scrub: false,
-            markers: false,
-          },
-          delay: index * 0.12,
-        }
-    )
-  })
+    // Animate title
+    if (titleRef.value) {
+      gsap.fromTo(
+          titleRef.value,
+          {opacity: 0, y: 30},
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 70%',
+              end: 'top 50%',
+              scrub: false,
+              markers: false,
+            },
+          }
+      )
+    }
 
-  // Connecting line animation
-  const connector = sectionRef.value.querySelector('.step-connector')
-  if (connector) {
-    gsap.fromTo(
-        connector,
-        {scaleX: 0},
-        {
-          scaleX: 1,
-          duration: 2.5,
-          ease: 'power2.inOut',
-          scrollTrigger: {
-            trigger: sectionRef.value,
-            start: 'top 30%',
-            end: 'top -20%',
-            scrub: 0.5,
-            markers: false,
-          },
-        }
-    )
-  }
+    // Animate each step sequentially
+    stepRefs.value.forEach((step, index) => {
+      gsap.fromTo(
+          step,
+          {opacity: 0, y: 30},
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 65%',
+              end: 'top 45%',
+              scrub: false,
+              markers: false,
+            },
+            delay: index * 0.12,
+          }
+      )
+    })
+
+    // Connecting line animation
+    const connector = sectionRef.value!.querySelector('.step-connector')
+    if (connector) {
+      gsap.fromTo(
+          connector,
+          {scaleX: 0},
+          {
+            scaleX: 1,
+            duration: 2.5,
+            ease: 'power2.inOut',
+            scrollTrigger: {
+              trigger: sectionRef.value,
+              start: 'top 30%',
+              end: 'top -20%',
+              scrub: 0.5,
+              markers: false,
+            },
+          }
+      )
+    }
+  }, sectionRef.value)
 })
+
+onUnmounted(() => ctx?.revert())
 </script>
 
 <template>

@@ -58,6 +58,9 @@ const setSnapEnabled = (enabled: boolean) => {
   document.body.classList.toggle('snap-disabled', !enabled)
 }
 
+// Vertical snapping has to stand down over the portfolio, which captures the
+// wheel for its own horizontal scroll. Re-arm half a viewport before the
+// section so snapping is live again by the time it is scrolled back into.
 let snapEnabled = true
 
 const updateSnapMode = () => {
@@ -68,13 +71,16 @@ const updateSnapMode = () => {
   const scrollY = window.scrollY
   const reEnableThreshold = portfolioTop - window.innerHeight * 0.5
 
-  if (snapEnabled && scrollY >= portfolioTop) {
-    snapEnabled = false
-  } else if (!snapEnabled && scrollY < reEnableThreshold) {
-    snapEnabled = true
-  }
+  const next = snapEnabled
+      ? scrollY < portfolioTop
+      : scrollY < reEnableThreshold
 
-  setSnapEnabled(snapEnabled)
+  // Only touch the DOM on an actual state change -- this runs on every
+  // scroll event.
+  if (next !== snapEnabled) {
+    snapEnabled = next
+    setSnapEnabled(snapEnabled)
+  }
 }
 
 const handleWindowLoad = () => {
@@ -83,9 +89,17 @@ const handleWindowLoad = () => {
 }
 
 onMounted(() => {
-  // Refresh ScrollTrigger on mount and window load
-  window.addEventListener('load', handleWindowLoad)
   window.addEventListener('scroll', updateSnapMode, {passive: true})
+
+  // Hydration can finish after 'load' has already fired, in which case the
+  // listener would never run. Call it directly when the document is done.
+  if (document.readyState === 'complete') {
+    handleWindowLoad()
+  } else {
+    window.addEventListener('load', handleWindowLoad)
+  }
+
+  setSnapEnabled(snapEnabled)
   updateSnapMode()
 })
 
@@ -93,6 +107,18 @@ onUnmounted(() => {
   window.removeEventListener('load', handleWindowLoad)
   window.removeEventListener('scroll', updateSnapMode)
   setSnapEnabled(true)
+})
+
+useHead({
+  title: 'Flex Contractor | From foundation to finish',
+  meta: [
+    {
+      name: 'description',
+      content:
+          'Flex Contractor delivers foundations, electrical, structural work, and finishing ' +
+          'and renovation for residential, commercial, and industrial projects.',
+    },
+  ],
 })
 </script>
 

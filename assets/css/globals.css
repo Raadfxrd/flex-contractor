@@ -10,38 +10,53 @@
     box-sizing: border-box;
 }
 
-html,
-body {
+/*
+ * The root element is the ONE scroll container.
+ *
+ * Everything in this project reads the viewport scroller: `window.scrollY` in
+ * app/pages/index.vue, and GSAP ScrollTrigger's default scroller. So <body>
+ * must never become a scroll container of its own.
+ *
+ * The trap: `body { overflow-y: auto }` only reaches the viewport when <html>'s
+ * overflow is `visible` in BOTH axes. Because <html> sets `overflow-x: hidden`,
+ * that propagation is off -- so a 100%-tall <body> with `overflow-y: auto`
+ * scrolls internally while `window.scrollY` stays pinned at 0. Keep the
+ * overflow and snap properties here on <html>, and leave <body> auto-height.
+ */
+html {
     width: 100%;
-    height: 100%;
-    min-height: 100%;
     overflow-x: hidden;
     background-color: #0a0a0a;
     color: #ffffff;
     font-family: 'Inter', sans-serif;
+
+    /* Scroll snapping lives on the scroll container. */
+    scroll-snap-type: y mandatory;
+    scroll-padding-top: 0;
+
+    /*
+     * Deliberately NOT `scroll-behavior: smooth`. It fights `scroll-snap-type:
+     * y mandatory` and breaks ScrollTrigger's scrub. Use useSmoothScroll() or
+     * an explicit scrollTo({behavior:'smooth'}) where a smooth jump is wanted.
+     */
 }
 
 body {
-    overflow-y: auto;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #0a0a0a;
     -webkit-overflow-scrolling: touch;
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 0;
 }
 
 html.snap-disabled,
 body.snap-disabled {
     scroll-snap-type: none !important;
-    scroll-behavior: auto !important;
 }
 
 .snap-disabled .section-container,
 .snap-disabled .no-snap {
     scroll-snap-align: none !important;
     scroll-snap-stop: normal !important;
-}
-
-html {
-    scroll-behavior: smooth;
 }
 
 @layer components {
@@ -51,6 +66,11 @@ html {
         scroll-snap-stop: always;
     }
 
+    /*
+     * Must stay declared AFTER .section-container: both are single-class
+     * selectors, so source order is what lets an element carry
+     * `section-container no-snap` and opt out of snapping.
+     */
     .no-snap {
         scroll-snap-align: none;
         scroll-snap-stop: normal;
