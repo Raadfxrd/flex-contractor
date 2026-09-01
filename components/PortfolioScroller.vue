@@ -44,25 +44,58 @@ onMounted(() => {
    * the portfolio is pinned, and contact and the footer both opt out.
    *
    * So rather than coordinating with the pin frame by frame, switch snapping
-   * off wholesale for the whole region. One boundary, no race. Handing over at
-   * 'top center' -- rather than when the pin engages -- leaves the process
-   * section still snappable on the way in, and re-arms it on the way back up.
+   * off wholesale for the whole region: one threshold, crossed once.
    *
    * Created outside the matchMedia block on purpose: it must hold on mobile
    * and under reduced motion too, where there is no pin at all.
    */
+  /*
+   * `!!` is load-bearing. ScrollTrigger only assigns `isActive` inside its
+   * update(), which create() defers -- so it reads back `undefined` here. And
+   * classList.toggle(name, undefined) is spec'd to behave as if the second
+   * argument were omitted: it FLIPS the class instead of forcing it off. That
+   * silently disabled snapping on every page load until the first toggle
+   * fired with a real boolean.
+   */
+  const setSnapDisabled = (off: boolean) => {
+    /*
+     * Both elements: globals.css sets scroll-snap-type on html AND body
+     * (UAs disagree about whether the viewport reads it off the root or has it
+     * propagated up from body), and the disable selector covers both.
+     */
+    document.documentElement.classList.toggle('snap-disabled', off)
+    document.body.classList.toggle('snap-disabled', off)
+  }
+
   snapGate = ScrollTrigger.create({
     trigger: sectionRef.value,
-    start: 'top center',
+    /*
+     * 'top 80%', not 'top center'. Between the process section's snap position
+     * and this threshold, mandatory snapping is still live with the process
+     * section as the only reachable snap point, so that gap is a zone the
+     * scroll can get pulled back into. 80% leaves only a fifth of a viewport of
+     * it while still letting the process section snap normally either way.
+     */
+    start: 'top 80%',
     end: 'max',
-    onToggle: (self) => {
-      document.documentElement.classList.toggle('snap-disabled', self.isActive)
-    },
+    /*
+     * A one-way switch on the start threshold -- deliberately NOT keyed off
+     * `self.isActive`.
+     *
+     * ScrollTrigger computes `isActive` as `progress > 0 && progress < 1`
+     * (ScrollTrigger.js:1681). With `end: 'max'`, scrolling to the very bottom
+     * of the page puts progress at exactly 1, so isActive flips back to false
+     * there -- which would re-arm mandatory snapping at the one place with no
+     * snap points below it, snapping the page back up to the process section.
+     */
+    onEnter: () => setSnapDisabled(true),
+    onLeaveBack: () => setSnapDisabled(false),
+    // Covers loading part-way down, and re-derives after images and the pin
+    // below change the layout.
+    onRefresh: (self) => setSnapDisabled(self.scroll() >= self.start),
   })
 
-  // onToggle only fires on a state change, so seed the initial value -- a
-  // reload partway down the page would otherwise start in the wrong mode.
-  document.documentElement.classList.toggle('snap-disabled', snapGate.isActive)
+  setSnapDisabled(window.scrollY >= snapGate.start)
 
   mm = gsap.matchMedia()
 
@@ -106,6 +139,7 @@ onUnmounted(() => {
   snapGate?.kill()
   mm?.revert()
   document.documentElement.classList.remove('snap-disabled')
+  document.body.classList.remove('snap-disabled')
 })
 </script>
 

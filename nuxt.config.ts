@@ -4,6 +4,8 @@ export default defineNuxtConfig({
     devtools: {enabled: true},
     modules: ['@nuxtjs/tailwindcss', '@nuxt/image'],
 
+    css: ['~~/assets/css/globals.css'],
+
     image: {
         /*
          * Screens cap at 1280 which, doubled by the 2x density variant, lands
