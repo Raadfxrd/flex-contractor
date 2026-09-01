@@ -1,15 +1,9 @@
 <script lang="ts" setup>
-import {onMounted, onUnmounted} from 'vue'
-import gsap from 'gsap'
-import {ScrollTrigger} from 'gsap/ScrollTrigger'
 import Hero from '../../components/Hero.vue'
 import StorySection from '../../components/StorySection.vue'
 import ProcessSection from '../../components/ProcessSection.vue'
 import PortfolioScroller from '../../components/PortfolioScroller.vue'
 import ContactSection from '../../components/ContactSection.vue'
-
-// Register plugins
-gsap.registerPlugin(ScrollTrigger)
 
 // Story sections data
 const storyData = [
@@ -53,62 +47,6 @@ const storyData = [
   },
 ]
 
-const setSnapEnabled = (enabled: boolean) => {
-  document.documentElement.classList.toggle('snap-disabled', !enabled)
-  document.body.classList.toggle('snap-disabled', !enabled)
-}
-
-// Vertical snapping has to stand down over the portfolio, which captures the
-// wheel for its own horizontal scroll. Re-arm half a viewport before the
-// section so snapping is live again by the time it is scrolled back into.
-let snapEnabled = true
-
-const updateSnapMode = () => {
-  const portfolioSection = document.getElementById('portfolio-section')
-  if (!portfolioSection) return
-
-  const portfolioTop = portfolioSection.offsetTop
-  const scrollY = window.scrollY
-  const reEnableThreshold = portfolioTop - window.innerHeight * 0.5
-
-  const next = snapEnabled
-      ? scrollY < portfolioTop
-      : scrollY < reEnableThreshold
-
-  // Only touch the DOM on an actual state change -- this runs on every
-  // scroll event.
-  if (next !== snapEnabled) {
-    snapEnabled = next
-    setSnapEnabled(snapEnabled)
-  }
-}
-
-const handleWindowLoad = () => {
-  ScrollTrigger.refresh()
-  updateSnapMode()
-}
-
-onMounted(() => {
-  window.addEventListener('scroll', updateSnapMode, {passive: true})
-
-  // Hydration can finish after 'load' has already fired, in which case the
-  // listener would never run. Call it directly when the document is done.
-  if (document.readyState === 'complete') {
-    handleWindowLoad()
-  } else {
-    window.addEventListener('load', handleWindowLoad)
-  }
-
-  setSnapEnabled(snapEnabled)
-  updateSnapMode()
-})
-
-onUnmounted(() => {
-  window.removeEventListener('load', handleWindowLoad)
-  window.removeEventListener('scroll', updateSnapMode)
-  setSnapEnabled(true)
-})
-
 useHead({
   title: 'Flex Contractor | From foundation to finish',
   meta: [
@@ -143,7 +81,7 @@ useHead({
     <ProcessSection id="process-section"/>
 
     <!-- Portfolio Section -->
-    <PortfolioScroller id="portfolio-section" class="section-container"/>
+    <PortfolioScroller id="portfolio-section"/>
 
     <!-- Contact Section -->
     <ContactSection/>

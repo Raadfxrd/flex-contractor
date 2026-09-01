@@ -3,8 +3,6 @@ import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
-// Hero drives a ScrollTrigger of its own, so it must register the plugin
-// itself rather than relying on another component's module side effect.
 gsap.registerPlugin(ScrollTrigger)
 
 const heroRef = ref<HTMLElement>()
@@ -12,32 +10,26 @@ const headlineRef = ref<HTMLElement>()
 const subheadlineRef = ref<HTMLElement>()
 const scrollIndicatorRef = ref<HTMLElement>()
 
-let ctx: gsap.Context
+let mm: gsap.MatchMedia
 
 onMounted(() => {
   if (!heroRef.value) return
 
-  // gsap.context scopes every tween/ScrollTrigger created inside it so a single
-  // revert() on unmount tears them all down (HMR would otherwise stack them up).
-  ctx = gsap.context(() => {
+  /*
+   * gsap.matchMedia does two jobs here: it scopes every tween so a single
+   * revert() tears them down, and it gates them on prefers-reduced-motion.
+   * When motion is not wanted the callback never runs, so the content simply
+   * renders in its final state -- no opacity:0 left stranded.
+   */
+  mm = gsap.matchMedia()
+
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
     if (headlineRef.value) {
-      gsap.from(headlineRef.value, {
-        opacity: 0,
-        y: 50,
-        duration: 1.2,
-        ease: 'power2.out',
-        delay: 0.3,
-      })
+      gsap.from(headlineRef.value, {opacity: 0, y: 50, duration: 1.2, ease: 'power2.out', delay: 0.3})
     }
 
     if (subheadlineRef.value) {
-      gsap.from(subheadlineRef.value, {
-        opacity: 0,
-        y: 30,
-        duration: 1,
-        ease: 'power2.out',
-        delay: 0.6,
-      })
+      gsap.from(subheadlineRef.value, {opacity: 0, y: 30, duration: 1, ease: 'power2.out', delay: 0.6})
     }
 
     if (scrollIndicatorRef.value) {
@@ -51,7 +43,6 @@ onMounted(() => {
       })
     }
 
-    // Subtle zoom on scroll
     gsap.to(heroRef.value!, {
       scale: 1.05,
       scrollTrigger: {
@@ -61,24 +52,31 @@ onMounted(() => {
         scrub: 1,
       },
     })
-  }, heroRef.value)
+  })
 })
 
-onUnmounted(() => ctx?.revert())
+onUnmounted(() => mm?.revert())
 </script>
 
 <template>
   <section
       ref="heroRef"
-      class="section-container relative w-full h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-black to-black"
+      class="section-container relative w-full h-screen flex items-center justify-center bg-black"
   >
-    <!-- Background Image/Overlay -->
-    <div
-        class="absolute inset-0 w-full h-full bg-cover bg-center overflow-hidden"
-        :style="{
-          backgroundImage: `url('/img/hero.jpg')`,
-          filter: 'brightness(0.3)',
-        }"
+    <!--
+      A real <img> rather than a CSS background: this is the LCP element, and a
+      background-image is not preload-discoverable, so the browser only finds it
+      after the stylesheet resolves.
+    -->
+    <NuxtImg
+        src="/img/hero.jpg"
+        alt=""
+        aria-hidden="true"
+        preload
+        fetchpriority="high"
+        loading="eager"
+        sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:100vw"
+        class="absolute inset-0 w-full h-full object-cover brightness-[0.3]"
     />
 
     <!-- Gradient Overlay -->
@@ -109,14 +107,10 @@ onUnmounted(() => ctx?.revert())
           viewBox="0 0 24 24"
           stroke="currentColor"
           stroke-width="1.5"
+          aria-hidden="true"
       >
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
       </svg>
     </div>
   </section>
 </template>
-
-<style scoped>
-/* Hero-specific styles can go here */
-</style>
-

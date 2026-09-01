@@ -38,12 +38,16 @@ const sectionRef = ref<HTMLDivElement>()
 const stepRefs = ref<HTMLDivElement[]>([])
 const titleRef = ref<HTMLElement>()
 
-let ctx: gsap.Context
+let mm: gsap.MatchMedia
 
 onMounted(() => {
   if (!sectionRef.value) return
 
-  ctx = gsap.context(() => {
+  mm = gsap.matchMedia()
+
+  // Gated on prefers-reduced-motion: when it does not match nothing runs,
+  // so content renders in place rather than stranded at opacity 0.
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
 
     // Animate title
     if (titleRef.value) {
@@ -59,8 +63,6 @@ onMounted(() => {
               trigger: sectionRef.value,
               start: 'top 70%',
               end: 'top 50%',
-              scrub: false,
-              markers: false,
             },
           }
       )
@@ -80,8 +82,6 @@ onMounted(() => {
               trigger: sectionRef.value,
               start: 'top 65%',
               end: 'top 45%',
-              scrub: false,
-              markers: false,
             },
             delay: index * 0.12,
           }
@@ -103,15 +103,14 @@ onMounted(() => {
               start: 'top 30%',
               end: 'top -20%',
               scrub: 0.5,
-              markers: false,
             },
           }
       )
     }
-  }, sectionRef.value)
+  })
 })
 
-onUnmounted(() => ctx?.revert())
+onUnmounted(() => mm?.revert())
 </script>
 
 <template>

@@ -30,7 +30,17 @@ html {
     color: #ffffff;
     font-family: 'Inter', sans-serif;
 
-    /* Scroll snapping lives on the scroll container. */
+    /*
+     * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens
+     * to end near a snap point, which reads as snapping that works half the
+     * time. The section-by-section feel needs mandatory.
+     *
+     * The usual objection to mandatory -- that it traps you on content taller
+     * than the viewport -- does not apply here, because every snap point is a
+     * full-screen section. The two sections that are or can be taller than the
+     * viewport (contact, footer) opt out with .no-snap, and snapping is switched
+     * off entirely from the portfolio down (see PortfolioScroller).
+     */
     scroll-snap-type: y mandatory;
     scroll-padding-top: 0;
 
@@ -46,8 +56,16 @@ body {
     min-height: 100vh;
     background-color: #0a0a0a;
     -webkit-overflow-scrolling: touch;
+
+    /* See the note on <html>: mirrored so either propagation model works. */
+    scroll-snap-type: y mandatory;
 }
 
+/*
+ * Snapping is stood down while the portfolio section is pinned -- a pin and the
+ * snap engine will otherwise fight over scroll position. PortfolioScroller
+ * toggles this class from its own ScrollTrigger.
+ */
 html.snap-disabled,
 body.snap-disabled {
     scroll-snap-type: none !important;
@@ -101,4 +119,28 @@ body.snap-disabled {
 .layout-enter-from, .layout-leave-to {
     opacity: 0;
     transform: translateY(10px);
+}
+
+/*
+ * Respect a reduced-motion preference: no snapping, no smooth scrolling, and
+ * transitions collapse to near-instant. GSAP animations are gated separately
+ * via gsap.matchMedia() in each component.
+ */
+@media (prefers-reduced-motion: reduce) {
+    html,
+    body {
+        scroll-snap-type: none;
+    }
+
+    .section-container {
+        scroll-snap-align: none;
+        scroll-snap-stop: normal;
+    }
+
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
 }

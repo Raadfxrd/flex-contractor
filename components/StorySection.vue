@@ -22,52 +22,37 @@ const sectionRef = ref<HTMLElement>()
 const titleRef = ref<HTMLElement>()
 const descRef = ref<HTMLElement>()
 
-let ctx: gsap.Context
+let mm: gsap.MatchMedia
 
 onMounted(() => {
   if (!sectionRef.value) return
 
-  ctx = gsap.context(() => {
-    // Fade and slide in title
+  mm = gsap.matchMedia()
+
+  // Gated on prefers-reduced-motion: when it does not match, the copy renders
+  // in place instead of being animated in from opacity 0.
+  mm.add('(prefers-reduced-motion: no-preference)', () => {
+    const from = {opacity: 0, x: props.reverse ? -50 : 50}
+    const reveal = {
+      trigger: sectionRef.value,
+      start: 'top 70%',
+      end: 'top 50%',
+    }
+
     if (titleRef.value) {
-      gsap.fromTo(
-          titleRef.value,
-          {opacity: 0, x: props.reverse ? -50 : 50},
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: sectionRef.value,
-              start: 'top 70%',
-              end: 'top 50%',
-            },
-          }
-      )
+      gsap.fromTo(titleRef.value, from, {
+        opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
+        scrollTrigger: reveal,
+      })
     }
 
-    // Fade and slide in description
     if (descRef.value) {
-      gsap.fromTo(
-          descRef.value,
-          {opacity: 0, x: props.reverse ? -30 : 30},
-          {
-            opacity: 1,
-            x: 0,
-            duration: 0.8,
-            ease: 'power3.out',
-            delay: 0.1,
-            scrollTrigger: {
-              trigger: sectionRef.value,
-              start: 'top 70%',
-              end: 'top 50%',
-            },
-          }
-      )
+      gsap.fromTo(descRef.value, {opacity: 0, x: props.reverse ? -30 : 30}, {
+        opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', delay: 0.1,
+        scrollTrigger: reveal,
+      })
     }
 
-    // Subtle overlay effect
     const overlay = sectionRef.value!.querySelector('.story-overlay')
     if (overlay) {
       gsap.to(overlay, {
@@ -80,10 +65,10 @@ onMounted(() => {
         },
       })
     }
-  }, sectionRef.value)
+  })
 })
 
-onUnmounted(() => ctx?.revert())
+onUnmounted(() => mm?.revert())
 </script>
 
 <template>
@@ -92,11 +77,12 @@ onUnmounted(() => ctx?.revert())
       class="section-container relative w-full h-screen flex items-center"
   >
     <!-- Background Image -->
-    <div
-        role="img"
-        :aria-label="imageAlt"
-        class="absolute inset-0 w-full h-full bg-cover bg-center overflow-hidden"
-        :style="{ backgroundImage: `url(${imageUrl})` }"
+    <NuxtImg
+        :src="imageUrl"
+        :alt="imageAlt"
+        loading="lazy"
+        sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:100vw"
+        class="absolute inset-0 w-full h-full object-cover"
     />
 
     <!-- Overlay Gradient -->

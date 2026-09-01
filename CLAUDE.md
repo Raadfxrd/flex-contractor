@@ -24,7 +24,8 @@ The project runs **Nuxt 4** (`nuxt@^4.4.4`), so `srcDir` is `app/`. But `compone
 
 - **Auto-imports do not apply to them.** `app/pages/index.vue` imports components with explicit relative paths (`import Hero from '../../components/Hero.vue'`). Follow that pattern; do not assume `<Hero />` resolves on its own. Same for composables — `useX()` is not auto-injected.
 - **Tailwind only scans root `components/`/`composables/` because `tailwind.config.ts` hardcodes those two globs.** Everything under `app/` is covered by globs the `@nuxtjs/tailwindcss` module injects. If you add a new class-bearing directory at the root, add a matching `content` glob or its classes will be purged.
-- Global CSS is not registered via `nuxt.config.ts` — `app/app.vue` imports `../assets/css/globals.css` directly.
+- **Path aliases follow srcDir, not the repo root.** `~` and `@` resolve to `app/`; `~~` and `@@` resolve to the repo root. Since `assets/`, `components/`, and `composables/` are all at the root, any alias pointing at them needs `~~`.
+- **Global CSS is imported from `app/app.vue` (`import '../assets/css/globals.css'`), NOT registered via `css: []` in `nuxt.config.ts`.** This looks non-idiomatic and is deliberate: moving it into `nuxt.config` makes the production build emit a per-module stylesheet link for every component instead of bundling into `entry.css`, and those links 404 when served from `.output` — the site loads essentially unstyled. Verify any change here by building and fetching every `<link rel="stylesheet">` from the running server.
 
 Moving `components/`/`composables/` under `app/` would restore auto-imports and let you delete the manual imports, but that is a deliberate refactor, not a drive-by.
 
@@ -32,11 +33,11 @@ Moving `components/`/`composables/` under `app/` would restore auto-imports and 
 
 Scrolling is the core feature and is split across three cooperating mechanisms:
 
-1. **CSS scroll-snap** (`assets/css/globals.css`) — the **root element is the one and only scroll container**, and carries `overflow-x: hidden` + `scroll-snap-type: y mandatory`. Never give `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`, body's overflow does not propagate to the viewport, so body would scroll internally while `window.scrollY` — which the snap logic and ScrollTrigger both read — stayed pinned at 0. `scroll-behavior: smooth` is deliberately absent for the same reason (it fights mandatory snap and breaks scrub). The `.section-container` class is the snap point; `.no-snap` opts out and must stay declared after it in the stylesheet. **Every new full-screen section needs one of these two classes**, or it will snap unpredictably.
-2. **Runtime snap toggle** (`app/pages/index.vue`) — a scroll listener adds `.snap-disabled` to `<html>`/`<body>` once `scrollY` reaches `#portfolio-section`, and removes it half a viewport before. This exists because vertical snapping fights the portfolio's horizontal scroll. `.snap-disabled` rules in `globals.css` neutralize snapping with `!important`.
-3. **Wheel capture** (`components/PortfolioScroller.vue`) — translates vertical wheel deltas into `scrollLeft`, and stops calling `preventDefault` at either edge so vertical scrolling resumes.
+1. **CSS scroll-snap** (`assets/css/globals.css`) — snap is `y mandatory`, set on **both** `html` and `body` (UAs disagree about whether it is read off the root or propagated up from body; it is ignored on whichever is not the scroll container). Do not "soften" this to `proximity` — proximity only snaps when a scroll happens to end near a snap point, which reads as snapping that works half the time.
 
-Changing any one of these three usually requires touching the others.
+   Details: — the **root element is the one and only scroll container**, and carries `overflow-x: hidden` + `scroll-snap-type: y mandatory`. Never give `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`, body's overflow does not propagate to the viewport, so body would scroll internally while `window.scrollY` — which the snap logic and ScrollTrigger both read — stayed pinned at 0. `scroll-behavior: smooth` is deliberately absent for the same reason (it fights mandatory snap and breaks scrub). The `.section-container` class is the snap point; `.no-snap` opts out and must stay declared after it in the stylesheet. **Every new full-screen section needs one of these two classes**, or it will snap unpredictably.
+2. **Runtime snap gate** — every snap point on the page (hero, the four story sections, the process section) sits *above* `PortfolioScroller`; below it there are none, since the portfolio is pinned and contact and the footer both carry `.no-snap`. So `PortfolioScroller` owns a single `ScrollTrigger` (`start: 'top center'`, `end: 'max'`) that toggles `.snap-disabled` on `<html>` for that whole region — one hard boundary rather than per-frame coordination with the pin. It is created outside the `matchMedia` block so it still holds on mobile and under reduced motion, where there is no pin, and its initial state is seeded explicitly because `onToggle` only fires on a change. `index.vue` has no scroll logic at all.
+3. **Pinned horizontal scroll** (`components/PortfolioScroller.vue`) — the section pins and the track translates by exactly its overflow width, driven by scroll position. Below `md`, or under reduced motion, it degrades to a native `overflow-x-auto` scroller (`pinned` ref switches the wrapper's overflow). A pinned section must **not** also carry `.section-container`.
 
 ### GSAP
 
@@ -44,9 +45,15 @@ Changing any one of these three usually requires touching the others.
 
 Each component registers plugins itself (`gsap.registerPlugin(ScrollTrigger)` at module scope) and creates all animations inside `onMounted` — that's what keeps them out of SSR. Preserve that shape; GSAP touching the DOM at setup time will break the server render.
 
-Every component wraps its `onMounted` animations in a `gsap.context(..., scopeEl)` and calls `ctx.revert()` in `onUnmounted`. Keep that shape for new animated components — without it, ScrollTriggers survive HMR and stack up.
+Every component registers its `onMounted` animations inside `gsap.matchMedia()` under `'(prefers-reduced-motion: no-preference)'`, and calls `mm.revert()` in `onUnmounted`. That one pattern does two jobs: it scopes the tweens so they tear down cleanly (without it ScrollTriggers survive HMR and stack up), and it gates them on reduced motion — when the query does not match nothing runs, so content renders in its final state rather than stranded at `opacity: 0`. Keep that shape for new animated components.
 
-`composables/useScrollAnimation.ts`, `useSmoothScroll.ts`, and `useScrollSnap.ts` are **currently imported by nothing**. `DEVELOPMENT.md` describes them as the animation architecture, but components animate inline instead. Treat them as an unadopted abstraction. `useScrollSnap` in particular duplicates and would fight the CSS snap — read its header comment before wiring it up.
+`composables/useScrollAnimation.ts`, `useSmoothScroll.ts`, and `useScrollSnap.ts` are still **imported by nothing** — `PortfolioScroller` implements its pin inline rather than calling `createHorizontalScroll`, because it needs component-specific `onUpdate`/`onToggle` callbacks. `DEVELOPMENT.md` describes them as the animation architecture, but components animate inline instead. Treat them as an unadopted abstraction. `useScrollSnap` in particular duplicates and would fight the CSS snap — read its header comment before wiring it up.
+
+### Images
+
+Served through `@nuxt/image` (`<NuxtImg>`, IPX provider). Sources in `public/img` are capped at 2560px; `nuxt.config.ts` caps `screens` at `xl: 1280` so the 2x density variant lands exactly on 2560 and no variant is ever an upscale.
+
+**`sizes` must be screen-keyed** — `sizes="xs:100vw sm:100vw ..."`. A bare `sizes="100vw"` is parsed by `parseSizes` as the breakpoint key `"1px"` and silently emits a **1-pixel-wide** image (`/_ipx/w_1/...`). This fails silently: the build passes and the page renders.
 
 ### Design tokens
 
