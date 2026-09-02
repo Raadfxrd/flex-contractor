@@ -114,7 +114,10 @@ left:
 - [ ] **Photography.** The four photos taken from the live site are stock (Pexels) and only 1280px wide,
       which caps where they can be used — see the note in `CLAUDE.md`. Real project photography would be a
       genuine upgrade, and would also let `/projects` come back.
-- [ ] **`favicon.ico`** — still the Nuxt default; the live site has one.
+- [x] **Favicon** — built from the logo's circular FC monogram (the wordmark and tagline bands removed so
+      the ring closes). `favicon.ico` carries 16/32/48; `apple-touch-icon.png` and `icon-512.png` cover
+      iOS and large contexts. The live site's own favicon is a plain black **F** on white, unrelated to the
+      logo — swap to that instead if it is the established mark.
 
 ## Notes
 
