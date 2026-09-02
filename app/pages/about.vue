@@ -17,8 +17,6 @@ useSeo({
         :eyebrow="c.about.eyebrow"
         :lede="c.about.lede"
         :title="c.about.title"
-        image="/img/afwerking.jpg"
-        image-alt=""
     />
 
     <section class="border-b border-white/10 bg-surface">

@@ -94,9 +94,10 @@ Most of the invented content is gone. The company details, the twelve specialism
 value propositions and all three testimonials are the firm's own, taken from flexcontractor.nl. What is
 left:
 
-- [ ] **Service descriptions.** The live site gives only the six service *names*. Their summaries, bodies,
-      `includes` lists and FAQs in `content/nl.ts` were written for this site and nobody at the firm has
-      approved them. They describe real services, but the words are not theirs yet.
+- [ ] **Service and specialism descriptions.** The live site gives only the six service *names* and the
+      twelve original trade names. The six service bodies and FAQs, and the six specialism-area
+      descriptions, were written for this site — nobody at the firm has approved those words yet. The trade
+      names themselves are preserved verbatim in each area's `includes` list.
 - [ ] **`site.vat`** — ships empty. A BTW-id is a legal identifier that resolves to a specific registered
       company, so it is left blank rather than invented; it renders behind `v-if` in the footer and on the
       about page, so filling it in is the only change needed. Never put a placeholder number here — it
@@ -111,10 +112,28 @@ left:
       name) and whether a verwerkersovereenkomst is in place.
 - [ ] **Logo resolution.** `public/logo.png` is 200×186. Fine at header size, soft anywhere larger and
       unusable as an OG image. An SVG would fix both.
-- [ ] **Photography.** The four photos taken from the live site are stock (Pexels) and only 1280px wide,
-      which caps where they can be used — see the note in `CLAUDE.md`. Real project photography would be a
-      genuine upgrade, and would also let `/projects` come back.
+- [ ] **Photography.** Five of the six specialism areas have a photo; **Buitenruimte / Outdoor space has
+      none.** Unsplash had nothing usable — the closest results were a 3D render, a derelict rooftop and a
+      palm tree — and a wrong photo is worse than an honest gap, so the card renders as type. A real shot of
+      a garden or roof terrace the firm has built would fill it.
+- [ ] **Photo resolution.** The four photos from the live site are 1280px, which caps where they can be
+      used — see the note in `CLAUDE.md`. Real project photography would be a genuine upgrade, and would
+      also let `/projects` come back.
 - [ ] **`favicon.ico`** — still the Nuxt default; the live site has one.
+
+## Image credits
+
+| File | Source |
+|---|---|
+| `logo.png` | The company's own mark |
+| `keuken.jpg`, `afwerking.jpg`, `trap-en-vloer.jpg` | Max Vakhtbovych — Pexels, already in use on flexcontractor.nl |
+| `verbouwing.jpg` | Monica Silvestre — Pexels, already in use on flexcontractor.nl |
+| `installaties.jpg` | [Brett Jordan — Unsplash](https://unsplash.com/photos/a-radiator-and-wires-on-a-white-wall-2PTfY_xxbe0) |
+| `hero.jpg` | Predates this work; origin unrecorded — **verify the licence before launch** |
+
+The Unsplash and Pexels licences both allow commercial use without attribution, but crediting the
+photographers is the decent default and costs nothing. Replace all of it with real photography of the
+firm's own work when there is some.
 
 ## Notes
 
