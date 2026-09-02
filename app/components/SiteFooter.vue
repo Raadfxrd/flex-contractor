@@ -7,17 +7,12 @@ const year = new Date().getFullYear()
 </script>
 
 <template>
-  <!--
-    `.no-snap` is load-bearing on the homepage: the footer is taller than the
-    viewport on small screens, and a mandatory snap point on a block you cannot
-    see the bottom of traps the scroll.
-  -->
-  <footer class="no-snap border-t border-white/10 bg-ink">
+  <footer class="border-t border-white/10 bg-ink">
     <div class="wrap py-16 md:py-20">
       <div class="grid grid-cols-2 gap-10 md:grid-cols-4 lg:grid-cols-5">
         <div class="col-span-2 lg:col-span-2">
           <NuxtImg
-              src="/logo.png"
+              src="/logo-white.png"
               :alt="site.name"
               width="200"
               height="186"

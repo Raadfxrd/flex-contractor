@@ -36,9 +36,9 @@ onMounted(() => {
     if (contentRef.value) {
       /*
        * Children stagger off one trigger rather than each element carrying its
-       * own ScrollTrigger. On a mandatory-snap page the section arrives at the
-       * top almost instantly, so several independent triggers all fire in the
-       * same frame and the intended sequence collapses -- a timeline keeps it.
+       * own ScrollTrigger. Independent triggers on elements this close together
+       * fire within a frame or two of each other and the intended sequence
+       * collapses -- one timeline keeps it.
        */
       gsap.from(contentRef.value.children, {
         opacity: 0,

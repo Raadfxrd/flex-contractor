@@ -35,12 +35,16 @@ export default defineNuxtConfig({
             {code: 'nl', language: 'nl-NL', name: 'Nederlands'},
             {code: 'en', language: 'en-GB', name: 'English'},
         ],
-        detectBrowserLanguage: {
-            useCookie: true,
-            cookieKey: 'i18n_locale',
-            alwaysRedirect: false,
-            redirectOn: 'root',
-        },
+        /*
+         * Browser detection is OFF: `/` is always Dutch.
+         *
+         * With it on, a visitor whose browser reports English was redirected
+         * from `/` to `/en` before they saw anything -- which for a firm whose
+         * customers are Dutch homeowners is the wrong default, and it made the
+         * site look English-first to anyone testing it. English is reachable
+         * from the header toggle and by its own URLs; it is just not guessed at.
+         */
+        detectBrowserLanguage: false,
     },
 
     image: {

@@ -78,13 +78,16 @@ watch(() => route.fullPath, () => {
   >
     <div class="wrap flex h-[var(--header-h)] items-center justify-between gap-6">
       <!--
-        The logo is a real image now. It is only 200px wide, which is fine at
-        this height (36px tall renders well under 2x) but not enough for any
-        larger use -- an SVG would be better if one exists.
+        The WHITE logo: the header sits on ink, or transparently over a darkened
+        photograph, so the black variant is invisible in both states. Only the
+        green tagline survives, which reads as a broken image.
+
+        Still 200px wide, which is fine at this height (36-40px renders well
+        under 2x) but not enough for any larger use -- an SVG would be better.
       -->
       <NuxtLink :to="localePath('/')" class="flex items-center" :aria-label="`${site.name} — home`">
         <NuxtImg
-            src="/logo.png"
+            src="/logo-white.png"
             :alt="site.name"
             width="200"
             height="186"
