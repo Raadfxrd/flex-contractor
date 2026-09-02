@@ -86,8 +86,9 @@ Scrolling is the homepage's core feature and is split across three cooperating m
    appears to teleport. There is no animation being skipped; the browser never started one.
 
    `scroll-behavior: smooth` does **not** fix this. Per spec, it applies to navigation and scripted scrolls only,
-   explicitly *not* to input scrolling — and it breaks ScrollTrigger's scrub as a bonus. So the handler `preventDefault`
-   s the wheel, finds the next snap point in the direction of travel, and tweens the scroll position itself.
+   explicitly *not* to input scrolling — and it breaks ScrollTrigger's scrub as a bonus. So the handler calls
+   `preventDefault` on the wheel event, finds the next snap point in the direction of travel, and tweens the
+   scroll position itself.
 
    Four things that handler must keep doing:
     - **Stand CSS snap down for the length of the tween** via `.snap-animating`. It is
@@ -117,7 +118,7 @@ Scrolling is the homepage's core feature and is split across three cooperating m
    the same reason (it fights mandatory snap and breaks scrub). `.section-container` is the snap point; `.no-snap` opts
    out. **Every new full-screen section on the homepage needs one of those two classes**, or it will snap unpredictably.
 
-2. **Runtime snap gate.** Every snap point on the homepage (hero, the four-story sections, the process section) sits
+2. **Runtime snap gate.** Every snap point on the homepage (hero, the four story sections, the process section) sits
    *above* `PortfolioScroller`; below it there are none, since the portfolio is pinned and contact and the footer both
    carry `.no-snap`. So
    `PortfolioScroller` owns a single `ScrollTrigger` (`start: 'top 80%'`, `end: 'max'`)
