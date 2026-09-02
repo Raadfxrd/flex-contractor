@@ -27,9 +27,21 @@ export default {
             },
             colors: {
                 /*
-                 * Strict monochrome -- there is deliberately no accent hue.
-                 * Emphasis is carried by surface layering, hairlines, weight
-                 * and scale instead of colour.
+                 * Monochrome ground, one brand signal.
+                 *
+                 * The green is sampled from the logo itself -- the "MET PASSIE
+                 * VOOR PERFECTIE" tagline -- not from the old site's CSS, which
+                 * carried a near-duplicate #46b82e next to leftover Divi theme
+                 * defaults.
+                 *
+                 * CONTRAST, measured against our own surfaces:
+                 *   #45b939 on #0a0a0a  ->  7.8:1   passes AA and AAA
+                 *   #0a0a0a on #45b939  ->  8.3:1   passes AA and AAA
+                 *   #ffffff on #45b939  ->  2.5:1   FAILS everything
+                 *
+                 * So a green fill always carries a BLACK label, never white.
+                 * That is why `.btn-primary` is `text-ink`, and it is the one
+                 * rule to keep in mind when using this colour anywhere new.
                  *
                  * Surfaces step 0a -> 12 -> 1a -> 24 so a card can sit on a
                  * panel on the page ground and still be told apart without
@@ -46,15 +58,17 @@ export default {
                     3: '#242424',
                 },
 
-                /*
-                 * Kept as aliases so any external reference to these names
-                 * keeps resolving. `accent` is white because in a strict
-                 * monochrome system the emphasis colour genuinely is white --
-                 * an inverted fill, not a hue.
-                 */
+                brand: {
+                    DEFAULT: '#45b939',
+                    hover: '#3aa42e',
+                },
+
+                // Aliases kept so any external reference still resolves.
+                // `accent` is the brand green now: the palette has a real
+                // accent hue for the first time.
                 dark: '#0a0a0a',
                 'dark-secondary': '#1a1a1a',
-                accent: '#ffffff',
+                accent: '#45b939',
             },
             letterSpacing: {
                 eyebrow: '0.18em',

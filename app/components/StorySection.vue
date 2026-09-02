@@ -11,14 +11,12 @@ interface Props {
   imageAlt: string
   reverse?: boolean
   index: number
-  /** When set, the section links through to the matching service page. */
-  slug?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  reverse: false,
-  slug: undefined,
-})
+const props = withDefaults(defineProps<Props>(), {reverse: false})
+
+const c = useContent()
+const localePath = useLocalePath()
 
 const sectionRef = ref<HTMLElement>()
 const contentRef = ref<HTMLElement>()
@@ -48,10 +46,7 @@ onMounted(() => {
         duration: 0.75,
         ease: 'power3.out',
         stagger: 0.09,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top 70%',
-        },
+        scrollTrigger: {trigger: sectionRef.value, start: 'top 70%'},
       })
     }
 
@@ -59,12 +54,7 @@ onMounted(() => {
     if (overlay) {
       gsap.to(overlay, {
         opacity: 0.45,
-        scrollTrigger: {
-          trigger: sectionRef.value,
-          start: 'top center',
-          end: 'bottom center',
-          scrub: 1,
-        },
+        scrollTrigger: {trigger: sectionRef.value, start: 'top center', end: 'bottom center', scrub: 1},
       })
     }
   })
@@ -75,11 +65,16 @@ onUnmounted(() => mm?.revert())
 
 <template>
   <section ref="sectionRef" class="section-container isolate flex items-center">
+    <!--
+      These photos are 1280px wide, so `sizes` caps at 600px: at the xl
+      breakpoint the pipeline asks for 2x, and anything above 640 would make
+      IPX upscale past the source. Full-bleed 100vw is not available here.
+    -->
     <NuxtImg
         :src="imageUrl"
         :alt="imageAlt"
         loading="lazy"
-        sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:100vw"
+        sizes="xs:420px sm:600px md:600px lg:600px xl:600px"
         class="absolute inset-0 -z-10 h-full w-full object-cover"
     />
 
@@ -95,31 +90,23 @@ onUnmounted(() => mm?.revert())
     <div class="wrap">
       <div :class="['max-w-xl', reverse ? 'ml-auto' : '']">
         <div ref="contentRef" :class="reverse ? 'text-right' : 'text-left'">
-          <!--
-            The ordinal is the orienting device the palette no longer has a
-            colour to spend on: four sections in sequence, each one numbered.
-          -->
           <p class="eyebrow">
-            <span class="numeral text-white">{{ number }}</span>
+            <span class="numeral">{{ number }}</span>
             <span class="mx-3 text-neutral-700">—</span>
-            <span>Capability</span>
+            <span>{{ c.specialisms.eyebrow }}</span>
           </p>
 
           <h2 class="display-2 mt-6">{{ title }}</h2>
 
-          <div
-              :class="['mt-8 h-px w-16 bg-white/30', reverse ? 'ml-auto' : '']"
-              aria-hidden="true"
-          />
+          <div :class="['mt-8 h-px w-16 bg-brand', reverse ? 'ml-auto' : '']" aria-hidden="true"/>
 
           <p class="lede mt-8">{{ description }}</p>
 
           <NuxtLink
-              v-if="slug"
-              :to="`/services/${slug}`"
-              class="btn-ghost mt-8 !text-white hover:!text-neutral-300"
+              :to="localePath('/specialisms')"
+              class="btn-ghost mt-8 !text-white hover:!text-brand"
           >
-            <span class="border-b border-white/30 pb-1">Explore {{ title.toLowerCase() }}</span>
+            <span class="border-b border-white/30 pb-1">{{ c.actions.allSpecialisms }}</span>
             <span aria-hidden="true">→</span>
           </NuxtLink>
         </div>

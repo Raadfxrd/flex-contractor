@@ -8,18 +8,12 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 export const site = {
-    name: 'Flex Contractor',
-    legalName: 'Flex Contractor B.V.',
-    tagline: 'From foundation to finish',
-    description:
-        'Flex Contractor delivers foundations, electrical, structural work, and '
-        + 'finishing and renovation for residential, commercial, and industrial '
-        + 'projects across Amsterdam and Noord-Holland.',
-
+    name: 'Flexcontractor',
+    legalName: 'Flexcontractor B.V.',
     phone: '+31 6 38929808',
     phoneHref: 'tel:+31638929808',
-    email: 'info@flexcontractor.com',
-    emailHref: 'mailto:info@flexcontractor.com',
+    email: 'info@flexcontractor.nl',
+    emailHref: 'mailto:info@flexcontractor.nl',
 
     address: {
         street: 'Anna Blamansingel 182',

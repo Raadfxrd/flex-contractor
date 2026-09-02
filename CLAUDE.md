@@ -17,14 +17,29 @@ There is no linter, formatter, or test runner configured. Verification is manual
 
 ## Architecture
 
-Multipage marketing site for a general contractor, built around one scroll-driven homepage. Nine routes: the homepage,
-`/services` + `/services/[slug]`, `/projects` +
-`/projects/[slug]`, `/about`, `/contact`, `/careers`, `/privacy`, plus `app/error.vue`
-for 404/500.
+Bilingual marketing site for Flexcontractor B.V., an Amsterdam renovation firm, built around one
+scroll-driven homepage. Thirteen pages per locale: the homepage, `/services` + `/services/[slug]` (six),
+`/specialisms`, `/about`, `/contact`, `/careers`, `/privacy`, plus `app/error.vue` for 404/500.
 
-details, the four service divisions and the five case studies. The homepage story panels, the footer, the sitemap and
-the cross-links between services and projects are all derived from those arrays — **add content there, not in a
-template**, or the two copies drift.
+Dutch is the default locale and sits on the bare path; English is prefixed (`/en/...`). Slugs are the Dutch
+words in both languages, so a URL survives a language switch.
+
+There is no `/projects`. It existed, driven by five invented case studies, and was removed when the content
+was replaced with the firm's real offering — the business does kitchens, staircases, floors and dormers, not
+the 14-storey frames that page advertised. Bringing it back needs real project write-ups and real
+photography, not new placeholder ones.
+
+State is module-level data, not a store:
+
+- `app/data/content/{types,nl,en}.ts` — **all copy**, in typed dictionaries, read through `useContent()`
+  rather than a message key, so a rename is a compile error instead of a blank on the page. `types.ts` is the
+  contract; `nl.ts` is the source of truth and English is translated from it.
+- `app/data/site.ts` — locale-independent facts: phone, email, address, KvK, hours, certifications, service
+  area. `addressLines` encodes the Dutch postal order (street, then postcode *before* city, no comma) so no
+  template composes an address itself.
+
+The homepage panels, the footer, the sitemap and the form's project-type list are all derived from those
+files — **add content there, not in a template**, or the copies drift.
 
 ### Directory layout
 
@@ -62,6 +77,29 @@ that `kill %1` does not work across separate shell invocations; kill by port ins
 ```bash
 lsof -tiTCP:3100 -sTCP:LISTEN | xargs -r kill
 ```
+
+### Languages
+
+`@nuxtjs/i18n` with `strategy: 'prefix_except_default'` and `defaultLocale: 'nl'`. It is used for locale
+state, routing and detection **only** — not for message lookup. Copy lives in the typed dictionaries above,
+because the content is structured (arrays of services and specialisms, each with several fields) and a flat
+message catalogue would turn that into stringly-typed keys like `services.3.faqs.1.answer` with no type
+checking.
+
+Three things that are easy to get wrong:
+
+- **`lang` is set in `app.vue`, from the active locale.** It used to be hardcoded in `nuxt.config.ts`, which
+  applies to every route — that would label every Dutch page as English, and a screen reader would read it
+  with English pronunciation rules.
+- **Links must go through `useLocalePath()`.** A bare `to="/services"` sends an English visitor to the Dutch
+  page.
+- **`useSeo()` builds the canonical from the current route**, not from a hand-passed path, and emits the
+  `hreflang` set (`nl-NL`, `en-GB`, `x-default` → Dutch). A hand-passed path would point every English
+  page's canonical at its Dutch equivalent, which is how a whole locale drops out of an index.
+
+`SiteHeader` compares against `localePath('/')` rather than `'/'` to decide whether it is on the homepage —
+in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
+
 
 ### Scroll system
 
@@ -173,32 +211,51 @@ in the same frame and the intended stagger never actually reads.
 
 ### Images
 
-Served through `@nuxt/image` (`<NuxtImg>`, IPX provider). Sources in `public/img` are capped at 2560px; `nuxt.config.ts`
-caps `screens` at `xl: 1280` so the 2x density variant lands exactly on 2560 and no variant is ever an upscale.
+Served through `@nuxt/image` (`<NuxtImg>`, IPX provider).
 
-**`sizes` must be screen-keyed** — `sizes="xs:100vw sm:100vw ..."`. A bare `sizes="100vw"`
-is parsed by `parseSizes` as the breakpoint key `"1px"` and silently emits a **1-pixel-wide** image (`/_ipx/w_1/...`).
-This fails silently: the build passes and the page renders. Grep the rendered HTML for `_ipx/w_1/` after adding an
-image.
+**Sources are two different resolutions, and it matters.** The original stock photography in `public/img` is
+2560px, and `nuxt.config.ts` caps `screens` at `xl: 1280` so the 2x density variant lands exactly on 2560 and
+never upscales. But the four photos taken from the live site — `keuken`, `afwerking`, `trap-en-vloer`,
+`verbouwing` — are only **1280px**. At `xl` the pipeline asks for 2x, so their `sizes` must cap at **600px**
+or IPX enlarges past the source and they go soft.
+
+That is why those four are used on cards and story panels with `sizes="…xl:600px"`, and **never full-bleed**.
+`hero.jpg` is 2560px and is the one that carries `100vw`. `public/logo.png` is 200px and is only safe at
+header/footer size.
+
+**`sizes` must be screen-keyed** — `sizes="xs:100vw sm:100vw ..."`. A bare `sizes="100vw"` is parsed by
+`parseSizes` as the breakpoint key `"1px"` and silently emits a **1-pixel-wide** image (`/_ipx/w_1/...`).
+This fails silently: the build passes and the page renders. Grep the rendered HTML for `_ipx/w_1/` after
+adding an image, and check the largest requested `w_` against the source width.
+
 
 ### Design system
 
-Strict monochrome — **there is deliberately no accent hue.** Emphasis is carried by surface layering, hairlines, weight
-and scale. `accent` is `#ffffff` because in this system the emphasis colour genuinely is white: an inverted fill, not a
-colour. The primary button is the only white-filled surface on the page, and that inversion *is* the emphasis — so
-nothing else anywhere gets a white fill.
+Monochrome ground plus one brand signal, taken from the company logo.
+
+The green is `#45b939`, sampled from the logo's own tagline rather than from the old site's CSS (which
+carried a near-duplicate `#46b82e` next to leftover Divi theme defaults). It is used only where the logo
+uses it: eyebrow labels, the primary button, active nav, the progress rail, small rules.
+
+**The one rule to remember: a green fill always carries a black label.** Measured against our surfaces,
+`#45b939` on `#0a0a0a` is 7.8:1 and `#0a0a0a` on `#45b939` is 8.3:1, but `#ffffff` on `#45b939` is
+**2.5:1 and fails everything**. That is why `.btn-primary` is `text-ink`. Focus rings stay white, because a
+focus indicator has to be visible on every surface, including on top of a green button.
+
+`.eyebrow` is green; `.eyebrow-muted` is the same shape in grey, for places where several eyebrows would
+stack up and the green would stop reading as a signal.
 
 `tailwind.config.ts` is the source of truth:
 
-- Surfaces step `ink #0a0a0a` → `surface #121212` → `surface-2 #1a1a1a` → `surface-3 #242424`, so a card on a panel on
-  the page ground is distinguishable without a border.
-- Body text uses Tailwind's built-in **`neutral`** ramp, not `gray`. `gray` is blue-tinted (`#9ca3af`) and reads cold
-  against pure black.
-- Two families: `font-display` (Archivo — headings, numerals, eyebrows, buttons) against
-  `font-sans` (Inter — body). With no accent colour, that contrast is what carries the hierarchy.
-- Fonts are `<link>`ed from `app.head` in `nuxt.config.ts` with preconnects — **not**
-  `@import`ed at the top of globals.css, which is a render-blocking third-party request chained behind our own
-  stylesheet.
+- Surfaces step `ink #0a0a0a` → `surface #121212` → `surface-2 #1a1a1a` → `surface-3 #242424`, so a card on
+  a panel on the page ground is distinguishable without a border.
+- Body text uses Tailwind's built-in **`neutral`** ramp, not `gray`. `gray` is blue-tinted (`#9ca3af`) and
+  reads cold against pure black.
+- Two families: `font-display` (Archivo — headings, numerals, eyebrows, buttons) against `font-sans`
+  (Inter — body).
+- Fonts are `<link>`ed from `app.head` in `nuxt.config.ts` with preconnects — **not** `@import`ed at the top
+  of globals.css, which is a render-blocking third-party request chained behind our own stylesheet.
+
 
 Reusable component classes live in the `@layer components` block of globals.css:
 `.wrap` / `.wrap-narrow` / `.band` (layout), `.eyebrow` / `.display-1..3` / `.lede` /
@@ -236,37 +293,28 @@ added to `STATIC_ROUTES` in sitemap.xml.ts.**
 
 ## Real vs placeholder content
 
-Some of `app/data/site.ts` is **real**: the phone number, the email address, the Anna
-Blamansingel address, the KvK number and the founding year all belong to the business.
-Everything around them is not.
+Most of what used to be invented is gone. The company details, the twelve specialism descriptions, the eight
+value propositions and all three testimonials are the firm's own copy, taken from flexcontractor.nl. The
+testimonials in particular are **real**, with real attributions — the five fabricated ones that used to live
+in `projects.ts` went with that file.
 
-Still invented, and must be replaced or removed before launch: the service area, the
-insurance wording, the certifications, every figure in `companyStats`, all of
-`services.ts`, and all of `projects.ts` — clients, locations, dates and figures.
+What is still not the firm's own words:
 
-`site.vat` is **deliberately empty**. A BTW-id is not marketing copy, it is a legal
-identifier that resolves to a specific registered company; inventing one and attaching it
-to a real, identifiable address — in the `GeneralContractor` structured data no less —
-would point at some other real business. It and `site.kvk` are both rendered behind `v-if`
-in the footer and on the about page, so an empty one is omitted rather than printing a bare
-label. Keep that guard if you touch either surface, and never fill either field with a
-plausible-looking placeholder.
+- **The six service types.** The live site gives only their names. Their summaries, bodies, `includes` lists
+  and FAQs were written for this site. They describe real services, but nobody at the firm has approved
+  them.
+- **`site.certifications`, `site.insurance`, `site.serviceArea`, `site.founded`** — plausible, unverified.
+- **`careers.vue`** — the roles array is deliberately empty so the page renders an honest "nothing
+  advertised" state. Do not populate it with invented vacancies.
 
-`app/data/projects.ts` also ships five **fabricated testimonials**, added so the case-study
-layout can be seen with its quote block populated. Treat them as the most dangerous content
-in the repo, and more so now that the address and phone number are real: invented body copy
-reads as marketing, but an invented quote attributed to a named person at a named company
-reads as a claim that a specific individual said a specific thing. The page renders the
-block only when a project carries a quote, so deleting the field removes it cleanly.
+`site.vat` is **deliberately empty**. A BTW-id is not marketing copy, it is a legal identifier that resolves
+to a specific registered company; inventing one and attaching it to a real, identifiable address — in the
+`GeneralContractor` structured data no less — would point at some other real business. It and `site.kvk`
+(which *is* real) both render behind `v-if`, so an empty one is omitted rather than printing a bare label.
+Keep that guard, and never fill either field with a plausible-looking placeholder.
 
-The site copy is English, and `htmlAttrs.lang` is `en`, deliberately — the *data* is Dutch,
-the language is not. The regulatory references in `services.ts` (NEN 1010, NEN 3140, the
-omgevingsvergunning, monument consent, the Bouwbesluit) and the employment terms in
-`careers.vue` (CAO Bouw & Infra, bpfBOUW, VCA) are Dutch and load-bearing: they stop being
-true if this copy is reused in another country.
-
-`addressLines` in `site.ts` encodes the Dutch postal order — street on one line, then
-postcode *before* city with no comma. Use it rather than composing the address in a
-template; three templates previously hardcoded the US `City, Region ZIP` order.
+The regulatory references in the copy are Dutch and load-bearing — the omgevingsvergunning, monument
+consent, and in `careers` the CAO Bouw & Infra, bpfBOUW and VCA. They stop being true if this copy is reused
+in another country.
 
 `README.md` carries the full before-launch checklist. Keep it accurate when you touch these files.

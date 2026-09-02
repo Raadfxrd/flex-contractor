@@ -1,15 +1,14 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
-import {site} from '~/data/site'
 
 gsap.registerPlugin(ScrollTrigger)
 
+const c = useContent()
+const localePath = useLocalePath()
+
 const heroRef = ref<HTMLElement>()
-const eyebrowRef = ref<HTMLElement>()
-const headlineRef = ref<HTMLElement>()
-const subheadlineRef = ref<HTMLElement>()
-const actionsRef = ref<HTMLElement>()
+const contentRef = ref<HTMLElement>()
 const scrollIndicatorRef = ref<HTMLElement>()
 
 let mm: gsap.MatchMedia
@@ -26,23 +25,17 @@ onMounted(() => {
   mm = gsap.matchMedia()
 
   mm.add('(prefers-reduced-motion: no-preference)', () => {
-    const intro = gsap.timeline({defaults: {ease: 'power3.out'}})
-    const staged = [eyebrowRef, headlineRef, subheadlineRef, actionsRef]
-        .map((r) => r.value)
-        .filter(Boolean) as HTMLElement[]
-
-    // One timeline rather than four tweens with hand-tuned delays: the stagger
-    // stays correct if a line is added or removed.
-    intro.from(staged, {opacity: 0, y: 28, duration: 0.9, stagger: 0.12}, 0.25)
+    if (contentRef.value) {
+      // One timeline rather than a tween per line with hand-tuned delays: the
+      // stagger stays correct if a line is added or removed.
+      gsap.from(contentRef.value.children, {
+        opacity: 0, y: 28, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.25,
+      })
+    }
 
     if (scrollIndicatorRef.value) {
       gsap.to(scrollIndicatorRef.value, {
-        opacity: 0.45,
-        y: 8,
-        duration: 1.6,
-        ease: 'sine.inOut',
-        repeat: -1,
-        yoyo: true,
+        opacity: 0.45, y: 8, duration: 1.6, ease: 'sine.inOut', repeat: -1, yoyo: true,
       })
     }
 
@@ -50,12 +43,7 @@ onMounted(() => {
     // depth rather than as the whole section sliding.
     gsap.to('[data-hero-image]', {
       scale: 1.08,
-      scrollTrigger: {
-        trigger: heroRef.value,
-        start: 'top top',
-        end: 'bottom center',
-        scrub: 1,
-      },
+      scrollTrigger: {trigger: heroRef.value, start: 'top top', end: 'bottom center', scrub: 1},
     })
   })
 })
@@ -64,14 +52,15 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <section
-      ref="heroRef"
-      class="section-container isolate flex items-center overflow-hidden bg-ink"
-  >
+  <section ref="heroRef" class="section-container isolate flex items-center overflow-hidden bg-ink">
     <!--
       A real <img> rather than a CSS background: this is the LCP element, and a
       background-image is not preload-discoverable, so the browser only finds it
       after the stylesheet resolves.
+
+      hero.jpg is one of the 2560px sources, so a full-bleed 100vw is safe here.
+      The four photos from the old site are only 1280px and must NOT be used
+      this way -- see the note in CLAUDE.md.
     -->
     <NuxtImg
         src="/img/hero.jpg"
@@ -94,43 +83,25 @@ onUnmounted(() => mm?.revert())
     <div class="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/40 to-transparent"/>
 
     <div class="wrap">
-      <div class="max-w-3xl">
-        <p ref="eyebrowRef" class="eyebrow">
-          General contractor · Est. {{ site.founded }}
-        </p>
+      <div ref="contentRef" class="max-w-3xl">
+        <p class="eyebrow">{{ c.hero.eyebrow }}</p>
 
-        <!--
-          Plain white, not a clipped gradient. A white-to-grey gradient on
-          display type loses contrast exactly where the line ends, and reads as
-          an effect applied to the headline rather than as the headline.
-        -->
-        <h1 ref="headlineRef" class="display-1 mt-6">
-          From foundation<br>to finish.
-        </h1>
+        <h1 class="display-1 mt-6">{{ c.hero.title }}</h1>
 
-        <p ref="subheadlineRef" class="lede mt-8 max-w-xl">
-          Foundations, electrical, structural work and renovation — delivered by
-          directly employed trades across residential, commercial and industrial
-          projects.
-        </p>
+        <p class="lede mt-8 max-w-xl">{{ c.hero.lede }}</p>
 
-        <div ref="actionsRef" class="mt-10 flex flex-col gap-3 sm:flex-row">
-          <NuxtLink to="/contact" class="btn-primary">Request a quote</NuxtLink>
-          <NuxtLink to="/projects" class="btn-secondary">See our work</NuxtLink>
+        <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+          <NuxtLink :to="localePath('/contact')" class="btn-primary">{{ c.actions.requestQuote }}</NuxtLink>
+          <NuxtLink :to="localePath('/specialisms')" class="btn-secondary">{{ c.actions.seeWork }}</NuxtLink>
         </div>
       </div>
     </div>
 
     <div ref="scrollIndicatorRef" class="scroll-indicator">
-      <span class="eyebrow">Scroll</span>
+      <span class="eyebrow">{{ c.hero.scroll }}</span>
       <svg
-          class="h-5 w-5 text-white"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          stroke-width="1.5"
-          aria-hidden="true"
+          class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" aria-hidden="true"
       >
         <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
       </svg>

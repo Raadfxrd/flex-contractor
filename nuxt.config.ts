@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
     compatibilityDate: '2025-07-15',
     devtools: {enabled: true},
-    modules: ['@nuxtjs/tailwindcss', '@nuxt/image'],
+    modules: ['@nuxtjs/tailwindcss', '@nuxt/image', '@nuxtjs/i18n'],
 
     /*
      * globals.css is handed to the Tailwind module as its `cssPath` rather than
@@ -15,6 +15,32 @@ export default defineNuxtConfig({
      */
     tailwindcss: {
         cssPath: '~/assets/css/globals.css',
+    },
+
+    /*
+     * Dutch is the default and sits at the bare path (`/`, `/services`); English
+     * is prefixed (`/en`, `/en/services`). `prefix_except_default` is what keeps
+     * the primary audience — Dutch homeowners and businesses around Amsterdam —
+     * on clean URLs, while still giving English its own indexable pages rather
+     * than swapping text client-side behind one URL.
+     *
+     * `redirectOn: 'root'` means an English browser landing on `/` is sent to
+     * `/en`, but a Dutch URL shared directly is never hijacked by the visitor's
+     * browser setting.
+     */
+    i18n: {
+        defaultLocale: 'nl',
+        strategy: 'prefix_except_default',
+        locales: [
+            {code: 'nl', language: 'nl-NL', name: 'Nederlands'},
+            {code: 'en', language: 'en-GB', name: 'English'},
+        ],
+        detectBrowserLanguage: {
+            useCookie: true,
+            cookieKey: 'i18n_locale',
+            alwaysRedirect: false,
+            redirectOn: 'root',
+        },
     },
 
     image: {
@@ -45,7 +71,7 @@ export default defineNuxtConfig({
 
         public: {
             // Absolute origin, used for canonical URLs, og:url and sitemap.xml.
-            siteUrl: 'https://www.flexcontractor.com', // NUXT_PUBLIC_SITE_URL
+            siteUrl: 'https://flexcontractor.nl', // NUXT_PUBLIC_SITE_URL
         },
     },
 
@@ -67,9 +93,9 @@ export default defineNuxtConfig({
         layoutTransition: false,
 
         head: {
-            // Without an explicit lang, screen readers fall back to the user
-            // agent locale and may mispronounce the page.
-            htmlAttrs: {lang: 'en'},
+            // NOTE: `lang` is deliberately NOT set here. It is derived from the
+            // active i18n locale in app.vue — hardcoding it would label every
+            // Dutch page as English and mispronounce it in a screen reader.
             meta: [
                 {charset: 'utf-8'},
                 {name: 'viewport', content: 'width=device-width, initial-scale=1'},

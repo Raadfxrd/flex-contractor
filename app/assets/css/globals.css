@@ -162,8 +162,16 @@ body.snap-animating {
 	 * reads as an accident.
 	 */
 	.eyebrow {
-		@apply font-display text-[0.6875rem] uppercase tracking-eyebrow text-neutral-500;
+		@apply font-display text-[0.6875rem] uppercase tracking-eyebrow text-brand;
 		font-weight: 600;
+	}
+
+	/*
+	 * The same shape in grey, for places where several eyebrows would stack up
+	 * and the green would stop reading as a signal.
+	 */
+	.eyebrow-muted {
+		@apply eyebrow text-neutral-500;
 	}
 
 	.display-1 {
@@ -218,12 +226,14 @@ body.snap-animating {
 	}
 
 	/*
-	 * With no accent hue, the primary action is the only inverted surface on
-	 * the page. That inversion IS the emphasis -- which is why nothing else
-	 * anywhere gets a white fill.
+	 * The primary action is the only saturated surface on the page, which is
+	 * what makes it read as the action. `text-ink`, not `text-white`, is
+	 * load-bearing: white on #45b939 measures 2.5:1 and fails every contrast
+	 * threshold, while black on it measures 8.3:1. Any new green fill needs a
+	 * black label for the same reason.
 	 */
 	.btn-primary {
-		@apply btn bg-white text-ink hover:bg-neutral-200;
+		@apply btn bg-brand text-ink hover:bg-brand-hover;
 	}
 
 	.btn-secondary {
@@ -248,7 +258,7 @@ body.snap-animating {
 	.field {
 		@apply w-full rounded-none border border-white/15 bg-surface px-4 py-3.5
 		text-base text-white placeholder-neutral-600 transition-colors duration-200
-		focus:border-white focus:outline-none focus:ring-1 focus:ring-white;
+		focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand;
 	}
 
 	.field-error {

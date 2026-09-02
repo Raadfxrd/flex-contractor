@@ -1,6 +1,5 @@
 <script lang="ts" setup>
-import {services} from '~/data/services'
-import {site} from '~/data/site'
+const c = useContent()
 
 /*
  * Scroll snapping is opt-in per page, and this is the page that opts in.
@@ -9,26 +8,19 @@ import {site} from '~/data/site'
 useScrollSnap()
 
 useSeo({
-  title: `${site.name} | ${site.tagline}`,
-  description: site.description,
-  path: '/',
-  image: '/img/hero.jpg',
+  title: c.value.meta.title,
+  description: c.value.meta.description,
+  image: '/img/keuken.jpg',
 })
 
 /*
- * The four story panels are generated from services.ts rather than a second
- * hand-maintained array, so a service and its homepage panel cannot drift
- * apart -- and each panel links through to its own page.
+ * Only the specialisms that carry a photo become full-screen story panels.
+ * Deriving them from the same array the scroller uses means a specialism and
+ * its panel cannot drift apart, and adding a photo to another specialism is
+ * all it takes to promote it.
  */
-const storyData = computed(() => services.map((service, index) => ({
-  slug: service.slug,
-  title: service.title,
-  description: service.summary,
-  imageUrl: service.image,
-  imageAlt: service.imageAlt,
-  index,
-  reverse: index % 2 === 1,
-})))
+const featured = computed(() =>
+    c.value.specialisms.items.filter((s) => s.image).slice(0, 4))
 </script>
 
 <template>
@@ -36,20 +28,21 @@ const storyData = computed(() => services.map((service, index) => ({
     <Hero/>
 
     <StorySection
-        v-for="story in storyData"
-        :key="story.slug"
-        :description="story.description"
-        :image-alt="story.imageAlt"
-        :image-url="story.imageUrl"
-        :index="story.index"
-        :reverse="story.reverse"
-        :slug="story.slug"
-        :title="story.title"
+        v-for="(item, i) in featured"
+        :key="item.slug"
+        :description="item.description"
+        :image-alt="item.imageAlt ?? ''"
+        :image-url="item.image!"
+        :index="i"
+        :reverse="i % 2 === 1"
+        :title="item.title"
     />
 
-    <ProcessSection/>
+    <ValuesSection/>
 
-    <PortfolioScroller/>
+    <SpecialismScroller/>
+
+    <TestimonialsSection/>
 
     <ContactSection/>
   </div>

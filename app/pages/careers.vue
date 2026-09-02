@@ -1,85 +1,44 @@
 <script setup lang="ts">
 import {site} from '~/data/site'
 
+const c = useContent()
+
 useSeo({
-  title: 'Careers | Flex Contractor',
-  description:
-      'Open trade and site management roles across foundations, electrical, structural '
-      + 'work and finishing. Directly employed, not agency.',
-  path: '/careers',
-  image: '/img/residential.jpg',
+  title: `${c.value.careers.eyebrow} | Flexcontractor B.V.`,
+  description: c.value.careers.lede,
+  image: '/img/verbouwing.jpg',
 })
 
 /*
- * PLACEHOLDER VACANCIES -- replace with real openings, or empty the array. The
- * page renders a "no current openings" state when it is empty, so it does not
- * need editing in two places.
+ * Deliberately empty. The live site advertises no vacancies, and an invented
+ * list of open roles attached to a real, identifiable company is a false claim
+ * about that company -- the same reason `site.vat` ships blank.
+ *
+ * The page renders the honest "nothing advertised, send your details" state
+ * from this, so adding a real vacancy here is the only change needed.
  */
-const roles = [
-  {
-    title: 'Site Manager — Commercial',
-    location: 'Amsterdam',
-    type: 'Full time',
-    summary:
-        'Run commercial fit-out and frame packages from mobilisation to handover, with a '
-        + 'directly employed team and one programme.',
-  },
-  {
-    title: 'Electrician — NEN 1010',
-    location: 'Amsterdam Westpoort',
-    type: 'Full time',
-    summary:
-        'Industrial and commercial installation, testing and inspection to NEN 1010 and '
-        + 'NEN 3140. Certification renewal paid.',
-  },
-  {
-    title: 'Groundworker / Machine Operator',
-    location: 'Zaandam',
-    type: 'Full time',
-    summary:
-        'Excavation, drainage and reinforced concrete substructure across residential and '
-        + 'industrial sites.',
-  },
-  {
-    title: 'Finishing Carpenter',
-    location: 'Haarlem',
-    type: 'Full time',
-    summary:
-        'Bespoke joinery and second fix on high-specification residential renovation.',
-  },
-]
-
-const benefits = [
-  'Directly employed, not via an uitzendbureau',
-  'CAO Bouw & Infra terms and conditions',
-  'Pension through bpfBOUW',
-  'Paid VCA and trade certification renewal',
-  'Tools, PPE, vehicle and reiskostenvergoeding',
-  'Overtime paid, not banked',
-]
+const roles: {title: string, location: string, type: string, summary: string}[] = []
 </script>
 
 <template>
   <div>
     <PageHeader
-        eyebrow="Careers"
-        image="/img/residential.jpg"
+        :eyebrow="c.careers.eyebrow"
+        :lede="c.careers.lede"
+        :title="c.careers.title"
+        image="/img/verbouwing.jpg"
         image-alt=""
-        lede="We employ our trades directly, which means we hire steadily rather than in
-              bursts. If the role you want is not listed, send us your details anyway —
-              we keep them on file."
-        title="Work with us."
     />
 
     <section class="wrap band">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p class="eyebrow">Open roles</p>
+          <p class="eyebrow">{{ c.careers.openRolesEyebrow }}</p>
           <h2 class="display-2 mt-5">
-            {{ roles.length ? `${roles.length} positions` : 'No current openings' }}
+            {{ roles.length ? roles.length : c.careers.noOpenings }}
           </h2>
         </div>
-        <a :href="site.emailHref" class="btn-secondary">Send a speculative application</a>
+        <a :href="site.emailHref" class="btn-secondary">{{ c.careers.speculative }}</a>
       </div>
 
       <ul v-if="roles.length" class="mt-14 divide-y divide-white/10 border-y border-white/10">
@@ -91,19 +50,11 @@ const benefits = [
             </p>
           </div>
           <p class="body-copy mt-4 max-w-2xl">{{ role.summary }}</p>
-          <a
-              :href="`${site.emailHref}?subject=${encodeURIComponent('Application — ' + role.title)}`"
-              class="mt-6 inline-flex items-center gap-2 font-display text-xs uppercase tracking-eyebrow text-white"
-          >
-            Apply for this role <span aria-hidden="true">→</span>
-          </a>
         </li>
       </ul>
 
       <p v-else class="lede mt-10 max-w-xl">
-        We have nothing advertised at the moment. Send your details to
         <a :href="site.emailHref" class="text-white underline underline-offset-4">{{ site.email }}</a>
-        and we will get in touch when something opens.
       </p>
     </section>
 
@@ -111,11 +62,11 @@ const benefits = [
       <div class="wrap band">
         <div class="grid gap-14 lg:grid-cols-12 lg:gap-20">
           <div class="lg:col-span-4">
-            <p class="eyebrow">What we offer</p>
-            <h2 class="display-2 mt-5">The terms</h2>
+            <p class="eyebrow">{{ c.careers.benefitsEyebrow }}</p>
+            <h2 class="display-2 mt-5">{{ c.careers.benefitsTitle }}</h2>
           </div>
           <ul class="grid gap-px bg-white/10 sm:grid-cols-2 lg:col-span-8">
-            <li v-for="benefit in benefits" :key="benefit" class="bg-surface px-6 py-6 text-neutral-300">
+            <li v-for="benefit in c.careers.benefits" :key="benefit" class="bg-surface px-6 py-6 text-neutral-300">
               {{ benefit }}
             </li>
           </ul>
