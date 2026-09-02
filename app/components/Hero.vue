@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
+import {site} from '~/data/site'
 
 gsap.registerPlugin(ScrollTrigger)
 
 const heroRef = ref<HTMLElement>()
+const eyebrowRef = ref<HTMLElement>()
 const headlineRef = ref<HTMLElement>()
 const subheadlineRef = ref<HTMLElement>()
+const actionsRef = ref<HTMLElement>()
 const scrollIndicatorRef = ref<HTMLElement>()
 
 let mm: gsap.MatchMedia
@@ -24,27 +26,30 @@ onMounted(() => {
   mm = gsap.matchMedia()
 
   mm.add('(prefers-reduced-motion: no-preference)', () => {
-    if (headlineRef.value) {
-      gsap.from(headlineRef.value, {opacity: 0, y: 50, duration: 1.2, ease: 'power2.out', delay: 0.3})
-    }
+    const intro = gsap.timeline({defaults: {ease: 'power3.out'}})
+    const staged = [eyebrowRef, headlineRef, subheadlineRef, actionsRef]
+        .map((r) => r.value)
+        .filter(Boolean) as HTMLElement[]
 
-    if (subheadlineRef.value) {
-      gsap.from(subheadlineRef.value, {opacity: 0, y: 30, duration: 1, ease: 'power2.out', delay: 0.6})
-    }
+    // One timeline rather than four tweens with hand-tuned delays: the stagger
+    // stays correct if a line is added or removed.
+    intro.from(staged, {opacity: 0, y: 28, duration: 0.9, stagger: 0.12}, 0.25)
 
     if (scrollIndicatorRef.value) {
       gsap.to(scrollIndicatorRef.value, {
-        opacity: 0.5,
-        y: 10,
-        duration: 1.5,
+        opacity: 0.45,
+        y: 8,
+        duration: 1.6,
         ease: 'sine.inOut',
         repeat: -1,
         yoyo: true,
       })
     }
 
-    gsap.to(heroRef.value!, {
-      scale: 1.05,
+    // Slow push on the backdrop only -- the copy stays put, which reads as
+    // depth rather than as the whole section sliding.
+    gsap.to('[data-hero-image]', {
+      scale: 1.08,
       scrollTrigger: {
         trigger: heroRef.value,
         start: 'top top',
@@ -61,7 +66,7 @@ onUnmounted(() => mm?.revert())
 <template>
   <section
       ref="heroRef"
-      class="section-container relative w-full h-screen flex items-center justify-center bg-black"
+      class="section-container isolate flex items-center overflow-hidden bg-ink"
   >
     <!--
       A real <img> rather than a CSS background: this is the LCP element, and a
@@ -72,36 +77,54 @@ onUnmounted(() => mm?.revert())
         src="/img/hero.jpg"
         alt=""
         aria-hidden="true"
+        data-hero-image
         preload
         fetchpriority="high"
         loading="eager"
         sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:100vw"
-        class="absolute inset-0 w-full h-full object-cover brightness-[0.3]"
+        class="absolute inset-0 -z-10 h-full w-full object-cover brightness-[0.32]"
     />
 
-    <!-- Gradient Overlay -->
-    <div class="gradient-overlay"/>
+    <!--
+      Two overlays, not one. The vertical gradient seats the composition on the
+      page ground; the left-weighted one buys contrast for the copy without
+      dimming the whole photograph the way a flat scrim would.
+    -->
+    <div class="absolute inset-0 -z-10 bg-gradient-to-t from-ink via-ink/20 to-ink/60"/>
+    <div class="absolute inset-0 -z-10 bg-gradient-to-r from-ink/85 via-ink/40 to-transparent"/>
 
-    <!-- Content -->
-    <div class="relative z-10 text-center px-4 max-w-4xl mx-auto">
-      <h1
-          ref="headlineRef"
-          class="section-title mb-6 text-7xl md:text-8xl font-black tracking-tighter"
-      >
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
-          Flex Contractor
-        </span>
-      </h1>
-      <p ref="subheadlineRef" class="section-subtitle text-2xl md:text-3xl font-light">
-        From foundation to finish
-      </p>
+    <div class="wrap">
+      <div class="max-w-3xl">
+        <p ref="eyebrowRef" class="eyebrow">
+          General contractor · Est. {{ site.founded }}
+        </p>
+
+        <!--
+          Plain white, not a clipped gradient. A white-to-grey gradient on
+          display type loses contrast exactly where the line ends, and reads as
+          an effect applied to the headline rather than as the headline.
+        -->
+        <h1 ref="headlineRef" class="display-1 mt-6">
+          From foundation<br>to finish.
+        </h1>
+
+        <p ref="subheadlineRef" class="lede mt-8 max-w-xl">
+          Foundations, electrical, structural work and renovation — delivered by
+          directly employed trades across residential, commercial and industrial
+          projects.
+        </p>
+
+        <div ref="actionsRef" class="mt-10 flex flex-col gap-3 sm:flex-row">
+          <NuxtLink to="/contact" class="btn-primary">Request a quote</NuxtLink>
+          <NuxtLink to="/projects" class="btn-secondary">See our work</NuxtLink>
+        </div>
+      </div>
     </div>
 
-    <!-- Scroll Indicator -->
     <div ref="scrollIndicatorRef" class="scroll-indicator">
-      <span class="text-sm font-light text-gray-400">Scroll to explore</span>
+      <span class="eyebrow">Scroll</span>
       <svg
-          class="w-6 h-6 text-accent"
+          class="h-5 w-5 text-white"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
