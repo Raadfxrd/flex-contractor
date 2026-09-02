@@ -84,8 +84,10 @@ results — publishing invented name/address/phone data there is actively harmfu
   scope. Do not ship an FAQ answer you would not stand behind; the FAQ is marked up as structured data.
 - [ ] **`projects.ts`** — replace with real, permissioned work. Client names, locations, dates and figures are all
   fictional.
-- [ ] **Testimonials** — none ship. The type and the case-study page support them; add them only with the
-  client's written permission and their real name and role.
+- [ ] **Testimonials** — ⚠️ the five quotes in `projects.ts` are **fabricated**, and are the highest-risk
+  placeholder in the repo: an invented quote attributed to a named person at a named company reads as a claim
+  that a specific individual said a specific thing. Delete them, or replace them with real quotes you hold the
+  client's written permission to publish, under their real name and role.
 - [ ] **`careers.vue`** — the four vacancies and the benefits list are placeholders.
 - [ ] **`privacy.vue`** — accurately describes what this codebase does today, but it has not been legally reviewed. Have
   it checked, and update it the moment you add analytics, a chat widget or any third-party embed.

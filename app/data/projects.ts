@@ -3,10 +3,16 @@
  * names, locations, dates and figures are invented and must be replaced with
  * real, permissioned work before launch.
  *
- * Note the `testimonial` field is intentionally left unset on every entry. A
- * fabricated quote attributed to a named person at a named company is a
- * different kind of placeholder from invented body copy, so the type supports
- * testimonials and the page renders them, but none ship.
+ * TESTIMONIALS ARE FABRICATED. Every quote, name and role below is invented,
+ * attributed to the invented client companies in this same file. They were
+ * added deliberately so the case-study layout can be seen with its quote block
+ * populated -- they are placeholder copy, not statements anyone made.
+ *
+ * This is the highest-risk placeholder in the repository. Invented body copy
+ * reads as marketing; an invented quote attributed to a named person at a named
+ * company reads as a claim that a specific individual said a specific thing.
+ * Replace or delete every one before the site goes live, and only publish a
+ * real quote with the client's written permission and their real name and role.
  */
 
 export interface Project {
@@ -77,6 +83,15 @@ export const projects: Project[] = [
             {value: '26', label: 'Months on site'},
             {value: '0', label: 'Reportable incidents'},
         ],
+        testimonial: {
+            quote:
+                'The rail boundary was the reason two other contractors declined to bid. Flex '
+                + 'came back with a sequence that never crossed it, and then actually built to '
+                + 'that sequence. Handing over ahead of the date on a site that constrained is '
+                + 'not something we expected.',
+            name: 'Alethea Marchetti',
+            role: 'Development Director, Meridian Property Group',
+        },
     },
     {
         slug: 'harbour-point-residences',
@@ -117,6 +132,14 @@ export const projects: Project[] = [
             {value: '19', label: 'Months on site'},
             {value: '100%', label: 'First-visit pass rate'},
         ],
+        testimonial: {
+            quote:
+                'Four blocks, four handovers, and the first one was letting while the last was '
+                + 'still in first fix. That only works if the early phases hold, and they held. '
+                + 'We were never once waiting on them to tell us where they were.',
+            name: 'Desmond Achterberg',
+            role: 'Project Director, Harbour Point Development',
+        },
     },
     {
         slug: 'northgate-industrial-park',
@@ -158,6 +181,14 @@ export const projects: Project[] = [
             {value: '100%', label: 'Bays passed first survey'},
             {value: '4 days', label: 'Handover to fit-out'},
         ],
+        testimonial: {
+            quote:
+                'Our automation contractor changed the power positions in month nine and it '
+                + 'cost us four days, not four weeks, because the busbar had been specified for '
+                + 'exactly that. Somebody thought about it before we had to.',
+            name: 'Rosalind Ferreira-Nkemdirim',
+            role: 'Head of Operations, Northgate Logistics',
+        },
     },
     {
         slug: 'ashcombe-house',
@@ -198,6 +229,15 @@ export const projects: Project[] = [
             {value: '11', label: 'Months on site'},
             {value: '0mm', label: 'Recorded movement'},
         ],
+        testimonial: {
+            quote:
+                'I was told the ceilings would probably crack and that we should accept it. '
+                + 'They did not crack. The propping went in at closer centres than anyone else '
+                + 'proposed and it took eight weeks instead of three, and I would make that trade '
+                + 'again.',
+            name: 'Imogen Vasquez-Lindqvist',
+            role: 'Homeowner',
+        },
     },
     {
         slug: 'crescent-retail-centre',
@@ -236,6 +276,14 @@ export const projects: Project[] = [
             {value: '11', label: 'Atrium cut segments'},
             {value: '22', label: 'Months on site'},
         ],
+        testimonial: {
+            quote:
+                'Twenty-two months of structural work above our busiest walkway and we did not '
+                + 'lose a single trading hour. The hoarding line went up and came down every '
+                + 'night without fail. Our tenants never had cause to raise it with us.',
+            name: 'Terrence Oyelaran',
+            role: 'Centre Manager, Crescent Asset Management',
+        },
     },
 ]
 

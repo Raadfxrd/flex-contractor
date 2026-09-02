@@ -124,8 +124,10 @@ useSeo({
     </section>
 
     <!--
-      Rendered only when a real, permissioned quote exists. None of the seeded
-      case studies carry one -- see the note at the top of app/data/projects.ts.
+      Rendered only when the project carries a quote, so deleting one from the
+      data removes the block rather than leaving an empty section. The seeded
+      quotes are FABRICATED placeholder copy -- see the note at the top of
+      app/data/projects.ts before this goes anywhere near production.
     -->
     <section v-if="project.testimonial" class="border-t border-white/10">
       <div class="wrap band">
