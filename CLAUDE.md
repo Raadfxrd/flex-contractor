@@ -139,6 +139,31 @@ middleware (no effect — `<NuxtPage>`'s `transition` prop takes precedence), an
 altogether, which is not the point.
 
 
+### The site header
+
+`SiteHeader` is `position: fixed` and holds the mobile menu panel, which is itself `fixed` and sized
+`top-[var(--header-h)] bottom-0`.
+
+**Never put `backdrop-filter`, `filter`, `transform`, `perspective` or `will-change` on the `<header>`
+element itself.** Any of them makes it a containing block for its fixed-position descendants, and the panel
+then resolves those offsets against the 4.5rem-tall header instead of the viewport. Measured, that computed
+to a panel **1px tall**: the menu opened, the icon flipped to a cross, and nothing was on screen.
+
+It was `backdrop-blur-md` that did it, and the failure was total rather than intermittent because `solid`
+includes `menuOpen` — the blur appears at the exact moment it breaks the menu, so the panel never worked on
+any page, in either language. The tinted, blurred bar is now an `absolute inset-0 -z-10` **layer inside**
+the header, which leaves the header itself free of the property. Anything similar added later belongs on
+that layer for the same reason.
+
+Two other things the panel depends on:
+
+- **The scroll lock is `html.menu-open { overflow: hidden }`**, toggled from a watcher on `menuOpen`. It has
+  to be on `<html>` for the same reason as the overflow rules below — `<html>` is the scroll container, so
+  the same rule on `<body>` would do nothing. `overflow: hidden` rather than `position: fixed` holds the
+  scroll position instead of resetting it, which keeps `window.scrollY` where every ScrollTrigger expects it.
+- **The panel keeps generous bottom padding.** A `fixed` element's `bottom: 0` is the edge of the *large*
+  viewport, so on a phone still showing its chrome the last controls would otherwise sit underneath it.
+
 ### Scrolling
 
 **There is no scroll snapping.** The page scrolls normally.
@@ -152,8 +177,19 @@ oversight.
 
 What remains:
 
-- **`.section-container`** is now purely a layout class — `w-full h-screen relative`. It carries no scroll
+- **`.section-container`** is now purely a layout class — `w-full min-h-svh relative`. It carries no scroll
   behaviour. Full-viewport sections are a layout choice, nothing more, and a new one needs no opt-in class.
+
+  Both halves of `min-h-svh` are load-bearing, and it used to be `h-screen`:
+
+  - **`min-h`, not `h`.** A fixed-height box does not grow when its content is taller than the viewport —
+    the content spills out and paints over whatever comes next. `ValuesSection`'s eight cards stack into one
+    column below `sm`; measured at 391×696 they overflowed **525px** past the section, straight over the
+    testimonials below.
+  - **`svh`, not `vh`.** On a mobile browser `100vh` is the *large* viewport — the height with the URL bar
+    retracted — so the bottom of every full-viewport section sat under the browser chrome on first paint.
+    Not `dvh`: that changes as the URL bar slides, reflowing the page mid-scroll and making every
+    ScrollTrigger re-measure.
 - **`.no-snap` is gone.** Nothing needs to opt out of anything.
 - **The root element is still the one and only scroll container**, carrying `overflow-x: hidden`. Never give
   `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`, body's overflow does not
@@ -164,10 +200,29 @@ What remains:
   wanted.
 
 **The pinned horizontal scroll survives** (`app/components/SpecialismScroller.vue`). The section pins and the
-track translates by exactly its overflow width, driven by scroll position. Below `md`, or under reduced
-motion, it degrades to a native `overflow-x-auto` scroller (the `pinned` ref switches the wrapper's
-overflow), and that fallback keeps its own **horizontal** CSS snap — `snap-x` on the track, `snap-start` on
-the cards. That is a carousel, unrelated to the page-level system that was removed, and it should stay.
+track translates by exactly its overflow width, driven by scroll position. Outside the pin condition, or
+under reduced motion, it degrades to a native `overflow-x-auto` scroller (the `pinned` ref switches the
+wrapper's overflow), and that fallback keeps its own **horizontal** CSS snap — `snap-x` on the track,
+`snap-start` on the cards. That is a carousel, unrelated to the page-level system that was removed, and it
+should stay.
+
+**The pin condition is height-aware, not just width-aware, and it lives in two places that must agree.**
+`tailwind.config.ts` defines a custom `pin` screen — `(min-width: 768px) and (min-height: 860px)` — and
+`SpecialismScroller` passes the identical query to `gsap.matchMedia()`. Every `pin:` utility in that
+component is the pinned layout; the base utilities are the carousel.
+
+The height half is the part that was missing. A pin only works if the whole card row fits inside one
+viewport, under the heading block and above the progress rail. A card measures 579px and the heading plus
+rail take ~240px, so a shorter viewport pinned anyway and silently clipped the bottom off every card —
+measured at **118px lost on 1024×768 and 52px on 1366×768**, which is a very ordinary laptop. Below the
+threshold the section now falls back to the carousel and sizes to its content.
+
+If the two queries ever drift: CSS full-viewport without the JS pin clips the cards again; the JS pin
+without the CSS height breaks the pin-spacer maths and the section jumps.
+
+The fallback also carries `scroll-pl-*` matching the track's `px-*` and `.wrap`'s gutter. A `snap-start`
+child aligns to the container's *snapport*, which ignores padding unless scroll-padding says otherwise, so
+without it the first card snapped flush to x=0 while the heading above sat on the page gutter.
 
 
 ### GSAP

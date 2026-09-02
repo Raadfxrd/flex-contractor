@@ -56,7 +56,18 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <section ref="heroRef" class="section-container isolate flex items-center overflow-hidden bg-ink">
+  <!--
+    The copy is vertically centred, so it needs both ends held off explicitly:
+    `pt` the height of the fixed header, and `pb` enough to clear the scroll
+    indicator anchored at `bottom-8`. Without them, a short viewport (landscape,
+    or a large system font) tucks the eyebrow under the header bar and runs the
+    buttons into the indicator. With `min-h-svh` on `.section-container` the
+    padding is inside the viewport height, not added to it.
+  -->
+  <section
+      ref="heroRef"
+      class="section-container isolate flex items-center overflow-hidden bg-ink pb-28 pt-[var(--header-h)]"
+  >
     <!--
       A real <img> rather than a CSS background: this is the LCP element, and a
       background-image is not preload-discoverable, so the browser only finds it

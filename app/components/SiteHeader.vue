@@ -52,6 +52,22 @@ const onKeydown = (event: KeyboardEvent) => {
   if (event.key === 'Escape' && menuOpen.value) closeMenu()
 }
 
+/*
+ * The page behind the open panel must not scroll. The lock goes on <html>,
+ * because <html> is this site's one scroll container (see globals.css) --
+ * `overflow: hidden` on <body> would not reach the viewport and the page would
+ * keep scrolling underneath the menu.
+ *
+ * `overflow: hidden` rather than `position: fixed`: it holds the scroll
+ * position instead of resetting it, so `window.scrollY` -- which every
+ * ScrollTrigger on the page reads -- is exactly where it was when the panel
+ * closes.
+ */
+watch(menuOpen, (open) => {
+  if (import.meta.server) return
+  document.documentElement.classList.toggle('menu-open', open)
+})
+
 onMounted(() => {
   onScroll()
   window.addEventListener('scroll', onScroll, {passive: true})
@@ -61,6 +77,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', onScroll)
   window.removeEventListener('keydown', onKeydown)
+  document.documentElement.classList.remove('menu-open')
 })
 
 // Any navigation closes the panel -- including a link to the page you are on.
@@ -72,10 +89,35 @@ watch(() => route.fullPath, () => {
 <template>
   <header
       :class="[
-        'fixed inset-x-0 top-0 z-50 transition-colors duration-300 ease-out-expo',
-        solid ? 'border-b border-white/10 bg-ink/90 backdrop-blur-md' : 'border-b border-transparent',
+        'fixed inset-x-0 top-0 z-50 border-b transition-colors duration-300 ease-out-expo',
+        solid ? 'border-white/10' : 'border-transparent',
       ]"
   >
+    <!--
+      The tinted, blurred bar is a LAYER inside the header, not properties ON
+      the header. That is load-bearing, not tidiness.
+
+      `backdrop-filter` -- like `filter`, `transform` and `perspective` -- makes
+      an element a containing block for its fixed-position descendants. With
+      `backdrop-blur-md` on <header> itself, the mobile panel below (`fixed`,
+      `top-[var(--header-h)] bottom-0`) resolved those offsets against the
+      4.5rem-tall header instead of the viewport and computed to a height of
+      1px. The menu opened, the icon flipped to a cross, and nothing was on
+      screen. And because `solid` is true whenever `menuOpen` is, that was every
+      page, every time -- the blur only appears at the moment it breaks the menu.
+
+      Keeping the blur on a child leaves <header> free of it, so `fixed` inside
+      still means fixed to the viewport. Anything added here later that creates
+      a containing block belongs on this layer for the same reason.
+    -->
+    <div
+        aria-hidden="true"
+        :class="[
+          'absolute inset-0 -z-10 bg-ink/90 backdrop-blur-md transition-opacity duration-300 ease-out-expo',
+          solid ? 'opacity-100' : 'opacity-0',
+        ]"
+    />
+
     <div class="wrap flex h-[var(--header-h)] items-center justify-between gap-6">
       <!--
         The WHITE logo: the header sits on ink, or transparently over a darkened
@@ -171,7 +213,14 @@ watch(() => route.fullPath, () => {
           id="mobile-menu"
           class="fixed inset-x-0 top-[var(--header-h)] bottom-0 z-40 overflow-y-auto overscroll-contain border-t border-white/10 bg-ink lg:hidden"
       >
-        <nav class="wrap flex flex-col py-8" aria-label="Primary (mobile)">
+        <!--
+          Generous bottom padding, not `py-8`: the panel is `fixed`, so its
+          `bottom: 0` is the edge of the LARGE viewport -- the one with the URL
+          bar retracted. On a phone that still shows its chrome, the last
+          controls would sit underneath it. The padding is what the panel
+          scrolls to reveal.
+        -->
+        <nav class="wrap flex flex-col pb-24 pt-8" aria-label="Primary (mobile)">
           <NuxtLink
               v-for="item in nav"
               :key="item.to"

@@ -104,7 +104,13 @@ const year = new Date().getFullYear()
           </ul>
 
           <h2 class="eyebrow-muted mt-8">{{ c.footer.followLabel }}</h2>
-          <ul class="mt-4 flex gap-4">
+          <!--
+            `flex-wrap`: three labels on one line are wider than this column at
+            the `lg` breakpoint, where the footer goes to five columns but the
+            page gutter also jumps to 4rem. Without it the row ran 7px past the
+            right edge of the viewport at 1024px.
+          -->
+          <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-2">
             <li v-for="channel in site.social" :key="channel.label">
               <a
                   :href="channel.href"
