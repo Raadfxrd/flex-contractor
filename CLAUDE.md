@@ -111,18 +111,25 @@ Three things that are easy to get wrong:
 in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
 
 
-**`app.vue` turns the page transition off for a language switch**, and that is load-bearing rather than
-cosmetic. `useContent()` is reactive to `locale`, so the instant the route changes the page still on screen
-re-renders in the new language; with `mode: 'out-in'` it then sits there fully visible for the length of its
-leave transition before being rebuilt hidden for its entry animation. That was measured at ~50ms of the new
-copy at full opacity, then gone, then fading back in — a very visible flicker. Removing the transition
-collapses the swap into a single frame so the outgoing page is never painted in the wrong language.
+**There is no page transition, and that is deliberate.** `useContent()` is reactive to `locale`, so the
+instant the route changes the page still on screen re-renders in the new language. With a
+`mode: 'out-in'` transition it then sat there fully visible for its whole leave transition before being torn
+down and rebuilt hidden to replay its entry animation — the copy swapped, vanished, then animated back in.
 
-Two things that look like they should fix this and, measured, do not: assigning `to.meta.pageTransition` in
-a route middleware (the documented approach — no effect, because `<NuxtPage>`'s `transition` prop takes
-precedence), and giving `<NuxtPage>` a locale-independent `page-key`. The flag must also be set in
-`router.beforeEach` rather than derived from `route.name` in a computed: the computed resolves in the same
-flush as the route update, which is too late and the flicker returns.
+The fix is two things that only work together, both in place now:
+
+- `pageTransition: false` in nuxt.config. A `<Transition>` tears the component down on every route change
+  regardless of its key. Suppressing it only for language switches, by toggling `<NuxtPage>`'s `transition`
+  prop, is **not** enough — measured, the wrapper is not removed in time and the teardown still happens.
+- A locale-independent `page-key` on `<NuxtPage>` in `app.vue`, so `/` and `/en` are the same page and Vue
+  patches the text in place. Params are part of the key, so two different services stay distinct pages and
+  still get their reveals.
+
+Measured result: on a language switch the `<h1>` node is never replaced and never drops below opacity 1 —
+the words simply change. Verified on both the dev server and the production build.
+
+Also measured and rejected: assigning `to.meta.pageTransition` in a route middleware, the documented way to
+vary a transition per navigation, which had no effect here at all.
 
 
 ### Scrolling

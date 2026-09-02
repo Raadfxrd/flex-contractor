@@ -254,15 +254,11 @@ body {
 
 /* Page transition: opacity only -- anything that moves the page vertically
  * during a route change fights ScrollTrigger's measurements. */
-.page-enter-active,
-.page-leave-active {
-	transition: opacity 0.25s ease-out;
-}
-
-.page-enter-from,
-.page-leave-to {
-	opacity: 0;
-}
+/*
+ * The .page-* transition classes are gone: `pageTransition` is false in
+ * nuxt.config, because a <Transition> remounts the page on every route change
+ * and that is what made a language switch flash. See app/app.vue.
+ */
 
 /*
  * Respect a reduced-motion preference: no smooth scrolling, and
