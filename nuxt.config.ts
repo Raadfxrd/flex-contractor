@@ -111,6 +111,19 @@ export default defineNuxtConfig({
                  * discovered in the initial HTML and races in parallel, and
                  * the two preconnects warm the DNS/TLS handshakes ahead of it.
                  */
+                /*
+                 * Favicon set built from the company logo -- the circular FC
+                 * monogram, with the wordmark and tagline bands removed so the
+                 * ring closes. The full logo is unreadable below about 64px;
+                 * the monogram alone survives to 16.
+                 *
+                 * favicon.ico carries 16/32/48 so Windows and older browsers
+                 * get a sharp size rather than scaling one themselves.
+                 */
+                {rel: 'icon', href: '/favicon.ico', sizes: '32x32'},
+                {rel: 'icon', type: 'image/png', href: '/icon-512.png', sizes: '512x512'},
+                {rel: 'apple-touch-icon', href: '/apple-touch-icon.png'},
+
                 {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
                 {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: ''},
                 {
