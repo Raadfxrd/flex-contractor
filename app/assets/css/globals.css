@@ -1,4 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+/*
+ * Fonts are NOT @import-ed here. An @import at the top of this file is a
+ * render-blocking third-party request chained behind our own stylesheet.
+ * They are <link>ed from nuxt.config.ts's app.head instead, with preconnects.
+ */
 
 @tailwind base;
 @tailwind components;
@@ -10,12 +14,17 @@
 	box-sizing: border-box;
 }
 
+:root {
+	/* Consumed by the fixed site header and by every inner page's top padding. */
+	--header-h: 4.5rem;
+}
+
 /*
  * The root element is the ONE scroll container.
  *
- * Everything in this project reads the viewport scroller: `window.scrollY` in
- * app/pages/index.vue, and GSAP ScrollTrigger's default scroller. So <body>
- * must never become a scroll container of its own.
+ * Everything in this project reads the viewport scroller: GSAP ScrollTrigger's
+ * default scroller, and `window.scrollY` in PortfolioScroller. So <body> must
+ * never become a scroll container of its own.
  *
  * The trap: `body { overflow-y: auto }` only reaches the viewport when <html>'s
  * overflow is `visible` in BOTH axes. Because <html> sets `overflow-x: hidden`,
@@ -28,26 +37,15 @@ html {
 	overflow-x: hidden;
 	background-color: #0a0a0a;
 	color: #ffffff;
-	font-family: 'Inter', sans-serif;
-
-	/*
-	 * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens
-	 * to end near a snap point, which reads as snapping that works half the
-	 * time. The section-by-section feel needs mandatory.
-	 *
-	 * The usual objection to mandatory -- that it traps you on content taller
-	 * than the viewport -- does not apply here, because every snap point is a
-	 * full-screen section. The two sections that are or can be taller than the
-	 * viewport (contact, footer) opt out with .no-snap, and snapping is switched
-	 * off entirely from the portfolio down (see PortfolioScroller).
-	 */
-	scroll-snap-type: y mandatory;
+	font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+	-webkit-text-size-adjust: 100%;
 	scroll-padding-top: 0;
 
 	/*
-	 * Deliberately NOT `scroll-behavior: smooth`. It fights `scroll-snap-type:
-	 * y mandatory` and breaks ScrollTrigger's scrub. Use useSmoothScroll() or
-	 * an explicit scrollTo({behavior:'smooth'}) where a smooth jump is wanted.
+	 * Deliberately NOT `scroll-behavior: smooth`. It fights
+	 * `scroll-snap-type: y mandatory` and breaks ScrollTrigger's scrub.
+	 * Use an explicit scrollTo({behavior:'smooth'}) where a smooth jump is
+	 * wanted -- and only on pages that are not snapping.
 	 */
 }
 
@@ -55,51 +53,212 @@ body {
 	width: 100%;
 	min-height: 100vh;
 	background-color: #0a0a0a;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 	-webkit-overflow-scrolling: touch;
+}
 
-	/* See the note on <html>: mirrored so either propagation model works. */
+/* ── Scroll snapping ──────────────────────────────────────────────────────
+ *
+ * Snapping is OPT-IN PER PAGE, not global. Only the scroll-driven homepage
+ * wants it; /about, /services/*, /projects/* and the rest are ordinary
+ * documents that would jump around if a full-screen block happened to carry
+ * .section-container.
+ *
+ * The opt-in is `useScrollSnap()`, which sets the class through useHead(), so
+ * it is present in the server-rendered HTML (no unsnapped first paint) and is
+ * removed automatically on route change.
+ *
+ * It goes on BOTH <html> and <body>: UAs disagree about whether the viewport
+ * reads scroll-snap-type off the root or has it propagated up from body, and
+ * it is ignored on whichever element is not the scroll container.
+ *
+ * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens to
+ * end near a snap point, which reads as snapping that works half the time.
+ * The usual objection to mandatory -- that it traps you on content taller than
+ * the viewport -- does not apply, because every snap point is a full-screen
+ * section, and the taller ones (contact, footer) opt out with .no-snap.
+ */
+html.snap-enabled,
+body.snap-enabled {
 	scroll-snap-type: y mandatory;
 }
 
 /*
- * Snapping is stood down while the portfolio section is pinned -- a pin and the
- * snap engine will otherwise fight over scroll position. PortfolioScroller
- * toggles this class from its own ScrollTrigger.
+ * Two independent reasons to stand snapping down. They are separate classes so
+ * they can be set and cleared without clobbering each other:
+ *
+ *   .snap-disabled   PortfolioScroller owns this. From the portfolio section
+ *                    down the page is pinned, and a pin and the snap engine
+ *                    otherwise fight over scroll position.
+ *
+ *   .snap-animating  useScrollSnap() owns this, for the length of one
+ *                    section-to-section wheel transition. `mandatory` snapping
+ *                    would re-target on every frame of that tween and fight it
+ *                    to a standstill.
+ *
+ * Both must beat .snap-enabled, hence !important rather than source order.
  */
 html.snap-disabled,
-body.snap-disabled {
+body.snap-disabled,
+html.snap-animating,
+body.snap-animating {
 	scroll-snap-type: none !important;
 }
 
+.snap-enabled .section-container {
+	scroll-snap-align: start;
+	scroll-snap-stop: always;
+}
+
+/*
+ * Declared AFTER .section-container so an element can carry both
+ * `section-container no-snap` and opt out -- they are equal specificity, so
+ * source order is what decides.
+ */
+.snap-enabled .no-snap,
 .snap-disabled .section-container,
-.snap-disabled .no-snap {
+.snap-disabled .no-snap,
+.snap-animating .section-container,
+.snap-animating .no-snap {
 	scroll-snap-align: none !important;
 	scroll-snap-stop: normal !important;
 }
 
 @layer components {
+	/* ── Layout ─────────────────────────────────────────────────────────── */
 	.section-container {
 		@apply w-full h-screen relative;
-		scroll-snap-align: start;
-		scroll-snap-stop: always;
 	}
 
 	/*
-	 * Must stay declared AFTER .section-container: both are single-class
-	 * selectors, so source order is what lets an element carry
-	 * `section-container no-snap` and opt out of snapping.
+	 * The single page gutter. Every full-width band uses this so the left edge
+	 * of a heading on one section lines up exactly with the left edge of a
+	 * heading on the next -- the thing that most separates a composed page
+	 * from an assembled one.
 	 */
-	.no-snap {
-		scroll-snap-align: none;
-		scroll-snap-stop: normal;
+	.wrap {
+		@apply mx-auto w-full max-w-wrap px-6 md:px-10 lg:px-16;
 	}
 
+	.wrap-narrow {
+		@apply mx-auto w-full max-w-3xl px-6 md:px-10;
+	}
+
+	/* Standard vertical rhythm for an ordinary (non-snapping) page band. */
+	.band {
+		@apply py-20 md:py-28 lg:py-32;
+	}
+
+	.rule {
+		@apply border-0 border-t border-white/10;
+	}
+
+	/* ── Type ───────────────────────────────────────────────────────────── */
+	/*
+	 * The eyebrow does the job an accent colour would do in a palette that had
+	 * one: it labels and orients without competing with the headline. Wide
+	 * tracking at small size reads as deliberate; tight tracking at small size
+	 * reads as an accident.
+	 */
+	.eyebrow {
+		@apply font-display text-[0.6875rem] uppercase tracking-eyebrow text-neutral-500;
+		font-weight: 600;
+	}
+
+	.display-1 {
+		@apply font-display text-5xl leading-[0.95] tracking-[-0.03em] text-white
+		sm:text-6xl md:text-7xl lg:text-8xl;
+		font-weight: 800;
+	}
+
+	.display-2 {
+		@apply font-display text-4xl leading-[1.0] tracking-[-0.025em] text-white
+		sm:text-5xl md:text-6xl;
+		font-weight: 700;
+	}
+
+	.display-3 {
+		@apply font-display text-2xl leading-tight tracking-[-0.015em] text-white md:text-3xl;
+		font-weight: 700;
+	}
+
+	/* Retained: older markup and the scroll sections still reference these. */
 	.section-title {
-		@apply text-6xl md:text-7xl font-bold text-white leading-tight;
+		@apply font-display font-bold text-white leading-[1.0] tracking-[-0.025em]
+		text-5xl sm:text-6xl md:text-7xl;
 	}
 
 	.section-subtitle {
-		@apply text-xl md:text-2xl text-gray-300 font-light;
+		@apply text-lg md:text-xl text-neutral-400 font-light leading-relaxed;
+	}
+
+	.lede {
+		@apply text-lg md:text-xl leading-relaxed text-neutral-300;
+	}
+
+	.body-copy {
+		@apply text-base leading-relaxed text-neutral-400;
+	}
+
+	/* Figures line up in columns only if they are tabular. */
+	.numeral {
+		@apply font-display tabular-nums;
+		font-variant-numeric: tabular-nums;
+	}
+
+	/* ── Controls ───────────────────────────────────────────────────────── */
+	.btn {
+		@apply inline-flex items-center justify-center gap-2 rounded-none
+		px-7 py-4 font-display text-sm uppercase tracking-eyebrow
+		transition-colors duration-200 ease-out-expo
+		focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white
+		focus-visible:ring-offset-2 focus-visible:ring-offset-ink;
+		font-weight: 600;
+	}
+
+	/*
+	 * With no accent hue, the primary action is the only inverted surface on
+	 * the page. That inversion IS the emphasis -- which is why nothing else
+	 * anywhere gets a white fill.
+	 */
+	.btn-primary {
+		@apply btn bg-white text-ink hover:bg-neutral-200;
+	}
+
+	.btn-secondary {
+		@apply btn border border-white/25 text-white hover:border-white hover:bg-white/5;
+	}
+
+	.btn-ghost {
+		@apply btn px-0 py-2 text-neutral-400 hover:text-white;
+	}
+
+	/* ── Forms ──────────────────────────────────────────────────────────── */
+	.field-label {
+		@apply mb-2 block font-display text-xs uppercase tracking-eyebrow text-neutral-400;
+		font-weight: 600;
+	}
+
+	/*
+	 * A single declaration for every input, select and textarea. Previously
+	 * this exact 12-utility string was copy-pasted five times, which is how
+	 * five fields drift out of sync.
+	 */
+	.field {
+		@apply w-full rounded-none border border-white/15 bg-surface px-4 py-3.5
+		text-base text-white placeholder-neutral-600 transition-colors duration-200
+		focus:border-white focus:outline-none focus:ring-1 focus:ring-white;
+	}
+
+	.field-error {
+		@apply border-red-400/70 focus:border-red-400 focus:ring-red-400;
+	}
+
+	/* ── Cards & misc ───────────────────────────────────────────────────── */
+	.card {
+		@apply border border-white/10 bg-surface transition-colors duration-300 ease-out-expo
+		hover:border-white/25;
 	}
 
 	.gradient-overlay {
@@ -107,18 +266,44 @@ body.snap-disabled {
 	}
 
 	.scroll-indicator {
-		@apply absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2;
+		@apply absolute bottom-8 left-1/2 flex -translate-x-1/2 transform flex-col items-center gap-2;
 	}
 }
 
-/* Smooth page transition */
-.layout-enter-active, .layout-leave-active {
-	transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+/* ── Focus ────────────────────────────────────────────────────────────────
+ * A visible focus ring on everything keyboard-reachable. On a page this dark a
+ * 1px ring disappears, so it is 2px with an offset in the page ground colour.
+ */
+:where(a, button, [tabindex]):focus-visible {
+	outline: 2px solid #ffffff;
+	outline-offset: 3px;
+	border-radius: 2px;
 }
 
-.layout-enter-from, .layout-leave-to {
+/* The skip link is off-screen until focused. */
+.skip-link {
+	position: fixed;
+	top: 0.75rem;
+	left: 0.75rem;
+	z-index: 100;
+	transform: translateY(-200%);
+	transition: transform 0.15s ease-out;
+}
+
+.skip-link:focus {
+	transform: translateY(0);
+}
+
+/* Page transition: opacity only -- anything that moves the page vertically
+ * during a route change fights ScrollTrigger's measurements. */
+.page-enter-active,
+.page-leave-active {
+	transition: opacity 0.25s ease-out;
+}
+
+.page-enter-from,
+.page-leave-to {
 	opacity: 0;
-	transform: translateY(10px);
 }
 
 /*
@@ -128,11 +313,13 @@ body.snap-disabled {
  */
 @media (prefers-reduced-motion: reduce) {
 	html,
-	body {
+	body,
+	html.snap-enabled,
+	body.snap-enabled {
 		scroll-snap-type: none;
 	}
 
-	.section-container {
+	.snap-enabled .section-container {
 		scroll-snap-align: none;
 		scroll-snap-stop: normal;
 	}
