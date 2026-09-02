@@ -30,11 +30,28 @@ onMounted(() => {
       scrollTrigger: {trigger: sectionRef.value, start: 'top 75%'},
     })
 
+    /*
+     * `set()` then `to()`, deliberately -- not `from()`.
+     *
+     * A `from()` tween that carries a ScrollTrigger does not apply its start
+     * values until ScrollTrigger's first update, and `create()` defers that
+     * to the next frame. Switching language remounts the whole page, so that
+     * leaves one painted frame where the incoming copy is fully visible
+     * before it is yanked to opacity 0 and animated in -- which reads as the
+     * text flashing in the wrong place.
+     *
+     * `gsap.set()` cannot be deferred: it lands in the same frame as
+     * onMounted, before the browser paints. Both calls sit inside the
+     * matchMedia context, so mm.revert() still restores everything, and
+     * under reduced motion neither runs and the content renders in place.
+     */
     if (headerRef.value) {
-      tl.from(headerRef.value.children, {opacity: 0, y: 24, duration: 0.7, stagger: 0.1})
+      gsap.set(headerRef.value.children, {opacity: 0, y: 24})
+      tl.to(headerRef.value.children, {opacity: 1, y: 0, duration: 0.7, stagger: 0.1})
     }
     if (gridRef.value) {
-      tl.from(gridRef.value.children, {opacity: 0, y: 24, duration: 0.6, stagger: 0.06}, '-=0.4')
+      gsap.set(gridRef.value.children, {opacity: 0, y: 24})
+      tl.to(gridRef.value.children, {opacity: 1, y: 0, duration: 0.6, stagger: 0.06}, '-=0.4')
     }
   })
 })

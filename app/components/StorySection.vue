@@ -40,9 +40,28 @@ onMounted(() => {
        * fire within a frame or two of each other and the intended sequence
        * collapses -- one timeline keeps it.
        */
-      gsap.from(contentRef.value.children, {
-        opacity: 0,
-        x: props.reverse ? -40 : 40,
+      /*
+       * `set()` then `to()`, deliberately -- not `from()`.
+       *
+       * A `from()` tween that carries a ScrollTrigger does not apply its start
+       * values until ScrollTrigger's first update, and `create()` defers that
+       * to the next frame. Switching language remounts the whole page, so that
+       * leaves one painted frame where the incoming copy is fully visible
+       * before it is yanked to opacity 0 and animated in -- which reads as the
+       * text flashing in the wrong place.
+       *
+       * `gsap.set()` cannot be deferred: it lands in the same frame as
+       * onMounted, before the browser paints. Both calls sit inside the
+       * matchMedia context, so mm.revert() still restores everything, and
+       * under reduced motion neither runs and the content renders in place.
+       */
+      const targets = contentRef.value.children
+
+      gsap.set(targets, {opacity: 0, x: props.reverse ? -40 : 40})
+
+      gsap.to(targets, {
+        opacity: 1,
+        x: 0,
         duration: 0.75,
         ease: 'power3.out',
         stagger: 0.09,

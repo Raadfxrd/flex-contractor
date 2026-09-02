@@ -28,8 +28,12 @@ onMounted(() => {
     if (contentRef.value) {
       // One timeline rather than a tween per line with hand-tuned delays: the
       // stagger stays correct if a line is added or removed.
-      gsap.from(contentRef.value.children, {
-        opacity: 0, y: 28, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.25,
+      // Same set()-then-to() shape as the scroll-triggered reveals, so there is
+      // one pattern to recognise and the hidden state is provably synchronous.
+      gsap.set(contentRef.value.children, {opacity: 0, y: 28})
+
+      gsap.to(contentRef.value.children, {
+        opacity: 1, y: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12, delay: 0.25,
       })
     }
 

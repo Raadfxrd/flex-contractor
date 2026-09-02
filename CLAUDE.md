@@ -111,6 +111,14 @@ Three things that are easy to get wrong:
 in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
 
 
+`app/middleware/locale-swap.global.ts` turns the page transition **off** for a language switch. The header,
+footer and `<html lang>` live outside `<NuxtPage>` and re-render the instant the route changes, while
+`mode: 'out-in'` holds the outgoing page for the length of its leave transition — so a fade leaves a window
+with the header in one language and the body in the other. It detects the swap from the route name
+(`<base>___<locale>`) and must assign `to.meta.pageTransition` on **both** branches: `to.meta` belongs to the
+route record, so a bare `if` would leave the fade permanently disabled on any route ever reached by a swap.
+
+
 ### Scrolling
 
 **There is no scroll snapping.** The page scrolls normally.
@@ -160,6 +168,19 @@ than stranded at `opacity: 0`. Keep that shape for new animated components.
 Prefer **one timeline off one trigger** to several elements each carrying their own ScrollTrigger with hand-tuned
 `delay`s. Independent triggers on elements this close together all resolve
 in the same frame and the intended stagger never actually reads.
+
+**Reveals are `gsap.set()` then `gsap.to()`, never `gsap.from()`.**
+
+A `from()` tween that carries a ScrollTrigger does not apply its start values until ScrollTrigger's first
+update, and `create()` defers that to the next frame. On a fresh mount that leaves one painted frame where
+the content is fully visible before it is yanked to `opacity: 0` and animated in. It is easy to miss on a
+normal page load and obvious when switching language, because that remounts the whole page and the flash is
+of text you were just reading in the other language.
+
+`gsap.set()` cannot be deferred — it lands in the same frame as `onMounted`, before the browser paints. Keep
+both calls inside the `matchMedia` context: `mm.revert()` then still restores everything, and under reduced
+motion neither runs, so the content renders in place rather than stranded at `opacity: 0`.
+
 
 ### Images
 
