@@ -111,25 +111,32 @@ Three things that are easy to get wrong:
 in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
 
 
-**There is no page transition, and that is deliberate.** `useContent()` is reactive to `locale`, so the
-instant the route changes the page still on screen re-renders in the new language. With a
-`mode: 'out-in'` transition it then sat there fully visible for its whole leave transition before being torn
-down and rebuilt hidden to replay its entry animation — the copy swapped, vanished, then animated back in.
+**The displayed language lags the URL by one transition, on purpose.** `locale` flips the instant the route
+changes, but the outgoing page is still on screen for the length of its leave transition. If copy tracked
+`locale` directly that page would repaint in the new language, sit there fully visible, and only then be
+replaced by the incoming page animating in — the text swapping, vanishing, and animating back. That was the
+reported flicker.
 
-The fix is two things that only work together, both in place now:
+So copy tracks `useDisplayLocale()` instead of `locale`. `app.vue` advances it in the page transition's
+`onAfterLeave`, which with `mode: 'out-in'` runs once the old page has gone and before the new one is
+created — the one moment at which changing language is invisible. Page, header and footer all change in the
+same beat, and the new copy is only ever seen animating in.
 
-- `pageTransition: false` in nuxt.config. A `<Transition>` tears the component down on every route change
-  regardless of its key. Suppressing it only for language switches, by toggling `<NuxtPage>`'s `transition`
-  prop, is **not** enough — measured, the wrapper is not removed in time and the teardown still happens.
-- A locale-independent `page-key` on `<NuxtPage>` in `app.vue`, so `/` and `/en` are the same page and Vue
-  patches the text in place. Params are part of the key, so two different services stay distinct pages and
-  still get their reveals.
+Three consequences to keep in mind:
 
-Measured result: on a language switch the `<h1>` node is never replaced and never drops below opacity 1 —
-the words simply change. Verified on both the dev server and the production build.
+- The transition is configured in `app.vue`, not `nuxt.config`, because that hook needs the Nuxt context.
+- `useDisplayLocale()` calls `useI18n()` underneath, so it must be resolved at setup. Calling it lazily
+  inside a computed throws a vue-i18n compile error at SSR.
+- There is a `setTimeout` safety net in `app.vue`: if the transition is ever skipped, `onAfterLeave` never
+  fires and the site would sit in the previous language forever.
 
-Also measured and rejected: assigning `to.meta.pageTransition` in a route middleware, the documented way to
-vary a transition per navigation, which had no effect here at all.
+Measured, on the dev server and the production build: peak opacity of the new copy before it is hidden is
+0.00 in both directions, and the header does not change language while the old body copy is still on screen.
+
+Two approaches that look right and, measured, are not: assigning `to.meta.pageTransition` in a route
+middleware (no effect — `<NuxtPage>`'s `transition` prop takes precedence), and a locale-independent
+`page-key` with the transition removed. The second does stop the flicker, but only by removing the animation
+altogether, which is not the point.
 
 
 ### Scrolling

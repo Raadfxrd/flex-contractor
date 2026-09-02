@@ -94,23 +94,10 @@ export default defineNuxtConfig({
          * scroll-driven homepage.
          */
         /*
-         * No page transition.
-         *
-         * `mode: 'out-in'` keeps the outgoing page mounted for the length of
-         * its leave transition, and `useContent()` is reactive to `locale`, so
-         * on a language switch that page re-renders in the NEW language while
-         * still on screen -- then gets torn down and rebuilt hidden to replay
-         * its entry animation. Text swaps, vanishes, animates back in.
-         *
-         * Suppressing the transition only for language switches was not enough:
-         * toggling <NuxtPage>'s `transition` prop mid-navigation does not remove
-         * the <Transition> wrapper in time, so the teardown still happened.
-         * Removing it outright, together with the locale-independent page key in
-         * app.vue, is what actually keeps the component mounted.
-         *
-         * Little is lost: the section reveal animations already carry the sense
-         * of arrival on a normal navigation, so the cross-fade was doing
-         * double duty.
+         * The page transition is configured in app.vue, not here: its
+         * `onAfterLeave` hook is what hands the displayed language over between
+         * pages, and that hook needs the Nuxt context. Leaving this `false`
+         * keeps app.vue the single source -- the prop takes precedence anyway.
          */
         pageTransition: false,
         layoutTransition: false,

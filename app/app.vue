@@ -1,58 +1,67 @@
 <script setup lang="ts">
-/*
- * `lang` is set here, from the active i18n locale, rather than in
- * nuxt.config.ts. A hardcoded value there applies to every route, so it would
- * label the Dutch pages as English and a screen reader would read them with
- * English pronunciation rules.
- */
 const {locale, locales} = useI18n()
 
+/*
+ * The language currently ON SCREEN, which deliberately lags the one in the URL.
+ * See app/composables/useContent.ts for why.
+ *
+ * Resolved here at setup, not lazily inside a computed: it calls `useI18n()`
+ * underneath, and vue-i18n throws if that runs outside a setup context.
+ */
+const displayLocale = useDisplayLocale()
+
+/*
+ * `lang` is set here rather than in nuxt.config.ts, where a hardcoded value
+ * would apply to every route and label the Dutch pages as English.
+ *
+ * It follows the DISPLAYED locale, not the URL's: for the length of the
+ * transition the words on screen are still the old language, and `lang` should
+ * describe what is actually there.
+ */
 const language = computed(() => {
   const match = (locales.value as {code: string, language?: string}[])
-      .find((l) => l.code === locale.value)
-  return match?.language ?? locale.value
+      .find((l) => l.code === displayLocale.value)
+  return match?.language ?? displayLocale.value
 })
 
 useHead(() => ({htmlAttrs: {lang: language.value}}))
 
 /*
- * A locale-independent identity for each page.
+ * The page transition lives here rather than in nuxt.config because its
+ * `onAfterLeave` hook needs the Nuxt context to reach `displayLocale`.
  *
- * `<NuxtPage>` keys on the route by default, so `/` and `/en` count as two
- * different pages and switching language remounts the whole tree -- which hides
- * every animated element and replays its reveal. Combined with `useContent()`
- * being reactive to `locale`, that is the flicker: the copy swaps to the new
- * language, disappears, then animates back in.
- *
- * Keying on the route's base name instead makes `/` and `/en` the same page, so
- * Vue patches the text in place. Nothing unmounts, no animation re-runs, the
- * words simply change.
- *
- * This only works with `pageTransition: false` in nuxt.config -- a
- * `<Transition>` tears the component down on every route change no matter what
- * the key says. Both are required; either alone leaves the remount in place.
- *
- * Params are part of the key so two different services stay distinct pages;
- * `services-slug` alone would stop `/services/verbouwing` remounting into
- * `/services/renovatie` and its reveals would never run.
- *
- * @nuxtjs/i18n names localised routes `<base>___<locale>`.
+ * That hook is the whole mechanism. With `mode: 'out-in'` Vue runs it once the
+ * outgoing page has finished leaving and before the incoming one is created --
+ * exactly the moment at which it is safe to change language. The old page never
+ * repaints in the new words, and the new page is built with them from the
+ * start, hidden, ready for its reveal.
  */
-const pageKey = (route: {name?: unknown, params?: Record<string, unknown>}) => {
-  const base = String(route.name ?? '').split('___')[0]
-  const params = Object.entries(route.params ?? {})
-      .map(([k, v]) => `${k}=${String(v)}`)
-      .sort()
-      .join('&')
-  return params ? `${base}?${params}` : base
+const pageTransition = {
+  name: 'page',
+  mode: 'out-in' as const,
+  onAfterLeave: () => {
+    displayLocale.value = locale.value
+  },
 }
+
+/*
+ * Safety net. If the transition is ever skipped -- reduced motion, a config
+ * change, a hook that does not fire -- `onAfterLeave` never runs and the site
+ * would sit showing the previous language indefinitely. This catches up shortly
+ * after the leave would have finished; when the hook does its job it is a no-op.
+ */
+watch(locale, (next) => {
+  setTimeout(() => {
+    displayLocale.value = next
+  }, 400)
+})
 </script>
 
 <template>
   <div id="app" class="w-full bg-ink">
     <NuxtRouteAnnouncer/>
     <NuxtLayout>
-      <NuxtPage :page-key="pageKey"/>
+      <NuxtPage :transition="pageTransition"/>
     </NuxtLayout>
   </div>
 </template>
