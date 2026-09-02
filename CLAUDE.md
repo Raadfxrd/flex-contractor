@@ -79,6 +79,37 @@ Scrolling is the homepage's core feature and is split across three cooperating m
    Do not "soften" this to `proximity` — proximity only snaps when a scroll happens to end near a snap point, which
    reads as snapping that works half the time.
 
+   `useScrollSnap()` also installs an **animated wheel handler**, because CSS snap on its own does not animate for a
+   plain mouse. `mandatory` snapping only animates the settle when the browser is animating the scroll in the first
+   place: a trackpad emits a stream of small deltas so the browser eases into the snap point, but a mouse emits one
+   large discrete notch — the scroll lands instantly and the snap engine re-targets in the same frame, so the page
+   appears to teleport. There is no animation being skipped; the browser never started one.
+
+   `scroll-behavior: smooth` does **not** fix this. Per spec, it applies to navigation and scripted scrolls only,
+   explicitly *not* to input scrolling — and it breaks ScrollTrigger's scrub as a bonus. So the handler `preventDefault`
+   s the wheel, finds the next snap point in the direction of travel, and tweens the scroll position itself.
+
+   Four things that handler must keep doing:
+    - **Stand CSS snap down for the length of the tween** via `.snap-animating`. It is
+      `mandatory`, so it re-targets on every frame and fights the tween to a standstill. That class is separate from
+      `.snap-disabled` so the two owners never clobber each other.
+    - **Handle the downward exit explicitly.** Below the last snap point there are no more snap points, but CSS snapping
+      stays armed until the portfolio gate fires at `top 80%` — about a fifth of a viewport further down. Handing that
+      boundary back to native scrolling does not work: one mouse notch (~100px) never reaches the gate, so
+      `mandatory` snapping finds the section you just left as the only candidate and yanks straight back. Every notch
+      gets undone and the page is stuck. A trackpad escapes only because one flick travels far enough to trip the gate
+      mid-gesture — which is exactly why this reads as "works on trackpad, broken on mouse". The handler therefore
+      animates all the way to the bottom of the last snapping section, clearing the gate by a full viewport. Going *up*,
+      and at the top of the hero, native scrolling is still correct and the handler must not `preventDefault`.
+    - **Call `ScrollTrigger.update()` before dropping `.snap-animating`.** The gate only runs off scroll events; without
+      a forced update the exit tween can finish before the gate has processed the final position, and re-arming snap a
+      full viewport below its nearest snap point hauls the page back up.
+    - **Release the busy lock on interrupt, not just on complete.** A killed tween that never clears the flag leaves the
+      page unable to respond to the wheel at all.
+
+   It is gated on `prefers-reduced-motion: no-preference` — under reduced motion CSS snapping is already off and the
+   page is a plain document.
+
    Details: the **root element is the one and only scroll container**, and carries
    `overflow-x: hidden`. Never give `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`,
    body's overflow does not propagate to the viewport, so body would scroll internally while `window.scrollY` — which
@@ -208,8 +239,10 @@ added to `STATIC_ROUTES` in sitemap.xml.ts.**
 `app/data/site.ts`, `services.ts` and `projects.ts` are **invented**: 555 phone number, made-up licence number,
 fictional clients and figures. They feed the visible pages *and*
 the LocalBusiness structured data, where publishing invented name/address/phone data is actively harmful.
-`app/data/projects.ts` deliberately ships **no** testimonials — the type supports them
-and the page renders them, but a fabricated quote attributed to a named person is a
-different class of placeholder from invented body copy.
+`app/data/projects.ts` also ships five **fabricated testimonials**, added so the case-study layout can be seen with its
+quote block populated. Treat them as the most dangerous content in the repo: invented body copy reads as marketing, but
+an invented quote attributed to a named person at a named company reads as a claim that a specific individual said a
+specific thing. The page renders the block only when a project carries a quote, so deleting the field removes it
+cleanly.
 
 `README.md` carries the full before-launch checklist. Keep it accurate when you touch these files.
