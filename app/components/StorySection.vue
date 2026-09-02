@@ -83,7 +83,14 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <section ref="sectionRef" class="section-container isolate flex items-center">
+  <!--
+    Symmetric padding the height of the fixed header. The copy is vertically
+    centred, so on a short viewport -- a phone in landscape, or a tall system
+    font -- the top of the block slides under the header bar, which is opaque
+    by the time these panels are on screen. The padding costs nothing when
+    there is room.
+  -->
+  <section ref="sectionRef" class="section-container isolate flex items-center py-[var(--header-h)]">
     <!--
       These photos are 1280px wide, so `sizes` caps at 600px: at the xl
       breakpoint the pipeline asks for 2x, and anything above 640 would make
@@ -107,8 +114,14 @@ onUnmounted(() => mm?.revert())
     />
 
     <div class="wrap">
-      <div :class="['max-w-xl', reverse ? 'ml-auto' : '']">
-        <div ref="contentRef" :class="reverse ? 'text-right' : 'text-left'">
+      <!--
+        The alternation is a two-column idea: on a phone there is only one
+        column, so a right-aligned block does not read as the mirror of the one
+        before it, it reads as a typo. Left-aligned until there is a width to
+        alternate across.
+      -->
+      <div :class="['max-w-xl', reverse ? 'md:ml-auto' : '']">
+        <div ref="contentRef" :class="reverse ? 'text-left md:text-right' : 'text-left'">
           <p class="eyebrow">
             <span class="numeral">{{ number }}</span>
             <span class="mx-3 text-neutral-700">—</span>
@@ -117,7 +130,7 @@ onUnmounted(() => mm?.revert())
 
           <h2 class="display-2 mt-6">{{ title }}</h2>
 
-          <div :class="['mt-8 h-px w-16 bg-brand', reverse ? 'ml-auto' : '']" aria-hidden="true"/>
+          <div :class="['mt-8 h-px w-16 bg-brand', reverse ? 'md:ml-auto' : '']" aria-hidden="true"/>
 
           <p class="lede mt-8">{{ description }}</p>
 

@@ -48,13 +48,17 @@ onUnmounted(() => mm?.revert())
 
 <template>
   <!--
-    `min-h-screen`, not `h-screen`. The form is five fields tall: at a fixed
+    `min-h-svh`, not `h-screen`. The form is five fields tall: at a fixed
     100vh on a short viewport (a phone in landscape, or any browser with large
     text) the content overflowed and collided with the footer below it.
+
+    `svh` rather than `vh` for the same reason as `.section-container`: on a
+    mobile browser `100vh` is the height with the URL bar retracted, so a
+    100vh floor pushes the bottom of the section under the browser chrome.
   -->
   <section
       ref="sectionRef"
-      class="flex min-h-screen w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
+      class="flex min-h-svh w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
   >
     <div class="wrap">
       <div class="grid gap-14 lg:grid-cols-12 lg:gap-20">

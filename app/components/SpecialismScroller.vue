@@ -33,7 +33,13 @@ onMounted(() => {
    */
   mm = gsap.matchMedia()
 
-  mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px)', () => {
+  /*
+   * The query MUST match the `pin` screen in tailwind.config.ts exactly -- that
+   * is where the reasoning for both halves lives. The height half is the one
+   * that is easy to drop: a viewport too short to hold a whole card row under
+   * the heading pins anyway and silently clips the bottom off every card.
+   */
+  mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px) and (min-height: 860px)', () => {
     const track = trackRef.value!
     const distance = () => Math.max(0, track.scrollWidth - window.innerWidth)
 
@@ -71,16 +77,37 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <section ref="sectionRef" class="relative flex h-screen w-full flex-col overflow-hidden bg-ink">
-    <div class="wrap shrink-0 pt-[calc(var(--header-h)+2rem)]">
+  <!--
+    Every `pin:` utility below is the full-viewport, pinned layout; the base
+    utilities are the carousel fallback. `pin` is a custom screen defined in
+    tailwind.config.ts and it is deliberately height-aware as well as
+    width-aware -- see the note there.
+
+    Full-viewport ONLY when pinned. Otherwise the height has to follow the
+    content: a card measures 579px, so a fixed viewport height plus
+    `overflow-hidden` cut the bottom off every card in the row -- 85px lost at
+    391x696, 118px at 1024x768, 52px at 1366x768.
+
+    The top padding clears the fixed header only when pinned, since that is the
+    only time this section sits at the top of the viewport. Anywhere else it is
+    just a gap in the middle of a scrolling page.
+  -->
+  <section ref="sectionRef" class="pin:h-svh relative flex w-full flex-col overflow-hidden bg-ink">
+    <div class="wrap shrink-0 pt-20 pin:pt-[calc(var(--header-h)+2rem)]">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
           <p class="eyebrow">{{ c.specialisms.eyebrow }}</p>
           <h2 class="display-2 mt-5">{{ c.specialisms.title }}</h2>
         </div>
 
-        <div class="flex items-center gap-6">
-          <p class="hidden max-w-xs text-sm text-neutral-500 sm:block">
+        <div class="flex flex-wrap items-center gap-4 pin:gap-6">
+          <!--
+            Shown on every width. It used to be `hidden sm:block`, which hid it
+            on precisely the screens that have no other affordance: the progress
+            rail below is pinned-only, and a touch row gives no hint that it
+            scrolls sideways until you happen to try.
+          -->
+          <p class="max-w-xs text-sm text-neutral-500">
             {{ pinned ? c.specialisms.scrollHint : c.specialisms.swipeHint }}
           </p>
           <NuxtLink :to="localePath('/specialisms')" class="btn-secondary !px-5 !py-2.5 !text-[0.6875rem]">
@@ -90,10 +117,19 @@ onUnmounted(() => mm?.revert())
       </div>
     </div>
 
+    <!--
+      `scroll-pl-*` on the fallback scroller mirrors the track's own `px-*`, and
+      carries the same numbers as `.wrap`. A `snap-start` child aligns to the
+      container's snapport, and the snapport ignores padding unless
+      scroll-padding says otherwise -- so the carousel snapped the first card
+      flush to x=0 while the heading above it sat on the 1.5rem page gutter.
+    -->
     <div
         :class="[
-          'flex min-h-0 flex-1 items-center',
-          pinned ? 'overflow-visible' : 'snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
+          'flex py-10 pin:min-h-0 pin:flex-1 pin:items-center pin:py-0',
+          pinned
+            ? 'overflow-visible'
+            : 'snap-x snap-mandatory scroll-pl-6 overflow-x-auto overflow-y-hidden md:scroll-pl-10 lg:scroll-pl-16',
         ]"
         :tabindex="pinned ? -1 : 0"
         role="group"

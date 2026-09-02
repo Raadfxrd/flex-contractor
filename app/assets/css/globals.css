@@ -49,6 +49,19 @@ html {
 	 */
 }
 
+/*
+ * Scroll lock for the open mobile menu, toggled from SiteHeader.
+ *
+ * It has to be on <html> for the same reason the overflow rules above are:
+ * <html> is the scroll container, and `overflow: hidden` on <body> would not
+ * propagate to the viewport. Holding the position this way rather than with
+ * `position: fixed` keeps `window.scrollY` intact, so the ScrollTriggers are
+ * where they were when the panel closes.
+ */
+html.menu-open {
+	overflow: hidden;
+}
+
 body {
 	width: 100%;
 	min-height: 100vh;
@@ -75,8 +88,26 @@ body {
 
 @layer components {
 	/* ── Layout ─────────────────────────────────────────────────────────── */
+	/*
+	 * A full-viewport layout block. Two deliberate choices, both about phones.
+	 *
+	 * `min-h`, not `h`. A fixed-height box does not grow when its content is
+	 * taller than the viewport -- the content spills out and paints on top of
+	 * whatever comes next. Measured at 391x696, ValuesSection's eight cards
+	 * stack into one column and overflowed 525px past the section, straight
+	 * over the testimonials below it. `min-h` lets the section take the height
+	 * its content actually needs and keeps the full-viewport floor everywhere
+	 * the content fits.
+	 *
+	 * `svh`, not `vh`. On a mobile browser `100vh` is the LARGE viewport -- the
+	 * height with the URL bar retracted -- so the bottom of every full-viewport
+	 * section sat underneath the browser chrome on first paint. `svh` is the
+	 * small viewport, which is what is actually on screen. Not `dvh`: that
+	 * changes as the URL bar slides in and out, which reflows the page
+	 * mid-scroll and makes every ScrollTrigger re-measure.
+	 */
 	.section-container {
-		@apply w-full h-screen relative;
+		@apply w-full min-h-svh relative;
 	}
 
 	/*

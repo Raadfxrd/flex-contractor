@@ -14,6 +14,29 @@ export default {
     ],
     theme: {
         extend: {
+            /*
+             * `pin` is the exact condition under which SpecialismScroller's
+             * pinned horizontal scroll runs, and it exists so the CSS and the
+             * gsap.matchMedia() query cannot drift apart. They MUST stay
+             * identical: if the CSS says full-viewport but the JS does not pin,
+             * the cards are taller than the section and get clipped; if the JS
+             * pins but the CSS has not sized the section, the pin-spacer maths
+             * is wrong and the section jumps.
+             *
+             * The height half is the part that is easy to miss. The pin needs
+             * the whole card row to fit inside one viewport, under the heading
+             * block and above the progress rail. A card measures 579px, and the
+             * heading and rail take ~240px, so anything shorter than ~820px
+             * cuts the bottom off every card -- measured at 118px lost on
+             * 1024x768 and 52px on 1366x768, which is a very ordinary laptop.
+             * 860px leaves a margin for the heading wrapping to a second line.
+             *
+             * Below this the section falls back to the same native carousel it
+             * already uses on phones, which sizes to its content.
+             */
+            screens: {
+                pin: {raw: '(min-width: 768px) and (min-height: 860px)'},
+            },
             fontFamily: {
                 /*
                  * Two families, one request (see the head links in
