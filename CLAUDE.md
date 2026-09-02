@@ -170,9 +170,9 @@ density variant asks for 2560. Anything smaller than that upscales.
 
 | Source | Width | Safe for |
 |---|---|---|
-| `hero.jpg`, `installaties.jpg` | 2560 | full-bleed `100vw` |
+| `hero.jpg`, `installaties.jpg`, `outdoor.jpg` | 2560+ | full-bleed `100vw` |
 | `keuken`, `afwerking`, `trap-en-vloer`, `verbouwing` | **1280** | cards and story panels only — cap `sizes` at 600px |
-| `logo.png` | **200** | header and footer only |
+| `logo-white.png`, `logo-black.png` | **200** | header and footer only |
 
 That is why the four 1280px photos carry `sizes="…xl:600px"` and are **never** full-bleed. After adding an
 image, check the largest requested `w_` against the source width, not just that the page renders.
@@ -181,9 +181,12 @@ image, check the largest requested `w_` against the source width, not just that 
 `parseSizes` as the breakpoint key `"1px"` and silently emits a **1-pixel-wide** image (`/_ipx/w_1/...`).
 This fails silently: the build passes and the page renders. Grep for `_ipx/w_1/`.
 
-One specialism area (Buitenruimte / Outdoor space) deliberately ships **without** a photo. The card markup
-guards on `v-if="item.image"`, so an area without one renders as type. That is the intended fallback — do
-not fill the gap with a stock photo that does not match the work or the country.
+All six specialism areas now carry a photo. The card markup still guards on `v-if="item.image"`, so an
+area without one renders as type rather than breaking — keep that guard if areas are added.
+
+`outdoor.jpg` is the only **portrait** source (2651×3536). The specialism card and the scroller both crop it
+with `object-cover` at a landscape ratio, which takes a band from the middle of the frame. That is fine for
+this photograph, but a portrait image whose subject sits at the top or bottom would lose it.
 
 
 ### Design system

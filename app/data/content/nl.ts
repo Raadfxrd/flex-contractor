@@ -194,6 +194,10 @@ export const nl: Content = {
                     'Schuttingen en bergingen',
                     'Buitenverlichting en buitenkranen',
                 ],
+                image: '/img/outdoor.jpg',
+                imageAlt:
+                    'Rozenpergola met rode klimrozen over een metalen boogconstructie, '
+                    + 'met een grindpad naar een sierhek',
             },
         ],
     },
