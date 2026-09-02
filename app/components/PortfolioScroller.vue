@@ -1,24 +1,9 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
+import {projects} from '~/data/projects'
 
 gsap.registerPlugin(ScrollTrigger)
-
-interface Project {
-  id: number
-  title: string
-  category: string
-  image: string
-}
-
-const projects: Project[] = [
-  {id: 1, title: 'Modern Office Tower', category: 'Commercial', image: '/img/office.jpg'},
-  {id: 2, title: 'Residential Complex', category: 'Residential', image: '/img/residential.jpg'},
-  {id: 3, title: 'Industrial Facility', category: 'Industrial', image: '/img/industrial.jpg'},
-  {id: 4, title: 'Luxury Renovation', category: 'Renovation', image: '/img/luxury.jpg'},
-  {id: 5, title: 'Shopping Mall', category: 'Commercial', image: '/img/shopping-mall.jpg'},
-]
 
 const sectionRef = ref<HTMLElement>()
 const trackRef = ref<HTMLElement>()
@@ -26,9 +11,10 @@ const progressRef = ref<HTMLElement>()
 
 /*
  * When the pinned animation is driving the track we translate it directly, so
- * the wrapper must not clip. When it is NOT driving it (reduced motion, or
- * before hydration) the wrapper stays a plain horizontal scroller -- that is
- * the accessible baseline: real scrollbar, keyboard arrows, touch swipe.
+ * the wrapper must not clip. When it is NOT driving it (reduced motion, small
+ * screens, or before hydration) the wrapper stays a plain horizontal scroller
+ * -- that is the accessible baseline: real scrollbar, keyboard arrows, touch
+ * swipe.
  */
 const pinned = ref(false)
 
@@ -101,6 +87,7 @@ onMounted(() => {
 
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px)', () => {
     const track = trackRef.value!
+    const section = sectionRef.value!
     const distance = () => Math.max(0, track.scrollWidth - window.innerWidth)
 
     pinned.value = true
@@ -109,7 +96,7 @@ onMounted(() => {
       x: () => -distance(),
       ease: 'none',
       scrollTrigger: {
-        trigger: sectionRef.value,
+        trigger: section,
         start: 'top top',
         // Travel exactly as far as the content overflows, recomputed on
         // resize via invalidateOnRefresh.
@@ -126,7 +113,38 @@ onMounted(() => {
       },
     })
 
+    /*
+     * Keyboard parity with the mouse.
+     *
+     * Each card is a link, so tabbing eventually lands on one that the pin has
+     * translated off-screen. The browser's own scroll-into-view then looks for
+     * the nearest scrollable ancestor: <section> is `overflow-hidden`, which is
+     * still programmatically scrollable, so it silently shifts its scrollLeft
+     * and the pinned layout skews.
+     *
+     * Instead: drive the PAGE scroll to the position whose pin progress brings
+     * that card into view, and reset the ancestor's own scroll offsets back to
+     * zero in case the UA got there first. Tabbing now moves the track exactly
+     * as scrolling does.
+     */
+    const st = tween.scrollTrigger!
+
+    const onFocusIn = (event: FocusEvent) => {
+      const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-card-index]')
+      if (!card) return
+
+      const index = Number(card.dataset.cardIndex)
+      const progress = projects.length > 1 ? index / (projects.length - 1) : 0
+
+      window.scrollTo({top: st.start + progress * (st.end - st.start)})
+      section.scrollLeft = 0
+      section.scrollTop = 0
+    }
+
+    section.addEventListener('focusin', onFocusIn)
+
     return () => {
+      section.removeEventListener('focusin', onFocusIn)
       pinned.value = false
       tween.scrollTrigger?.kill()
       tween.kill()
@@ -146,23 +164,30 @@ onUnmounted(() => {
 <template>
   <section
       ref="sectionRef"
-      class="relative w-full h-screen bg-black flex flex-col overflow-hidden"
+      class="relative flex h-screen w-full flex-col overflow-hidden bg-ink"
   >
-    <!-- Title -->
-    <div class="pt-12 px-6 md:px-12 shrink-0">
-      <h2 class="section-title text-4xl md:text-6xl font-bold mb-2">
-        Portfolio
-      </h2>
-      <p class="text-gray-400 text-sm md:text-base">
-        {{ pinned ? 'Keep scrolling to move through the work' : 'Swipe or scroll sideways to see the work' }}
-      </p>
+    <div class="wrap shrink-0 pt-[calc(var(--header-h)+2rem)]">
+      <div class="flex flex-wrap items-end justify-between gap-6">
+        <div>
+          <p class="eyebrow">Selected work</p>
+          <h2 class="display-2 mt-5">Portfolio</h2>
+        </div>
+
+        <div class="flex items-center gap-6">
+          <p class="hidden max-w-xs text-sm text-neutral-500 sm:block">
+            {{ pinned ? 'Keep scrolling to move through the work.' : 'Swipe sideways to see the work.' }}
+          </p>
+          <NuxtLink to="/projects" class="btn-secondary !px-5 !py-2.5 !text-[0.6875rem]">
+            All projects
+          </NuxtLink>
+        </div>
+      </div>
     </div>
 
-    <!-- Track -->
     <div
         :class="[
-          'flex-1 min-h-0 flex items-center',
-          pinned ? 'overflow-visible' : 'overflow-x-auto overflow-y-hidden snap-x snap-mandatory',
+          'flex min-h-0 flex-1 items-center',
+          pinned ? 'overflow-visible' : 'snap-x snap-mandatory overflow-x-auto overflow-y-hidden',
         ]"
         :tabindex="pinned ? -1 : 0"
         role="group"
@@ -170,50 +195,55 @@ onUnmounted(() => {
     >
       <ul
           ref="trackRef"
-          class="flex gap-6 md:gap-8 items-center px-6 md:px-12 w-max list-none"
+          class="flex w-max list-none items-stretch gap-6 px-6 md:gap-10 md:px-10 lg:px-16"
       >
         <li
             v-for="(project, i) in projects"
-            :key="project.id"
-            class="relative shrink-0 w-[20rem] md:w-[34rem] snap-start group"
+            :key="project.slug"
+            :data-card-index="i"
+            class="group relative w-[19rem] shrink-0 snap-start md:w-[30rem]"
         >
-          <div class="relative w-full h-[24rem] md:h-[38rem] rounded-lg overflow-hidden">
-            <NuxtImg
-                :src="project.image"
-                :alt="`${project.title} — ${project.category} project`"
-                :loading="i === 0 ? 'eager' : 'lazy'"
-                sizes="xs:320px sm:320px md:544px lg:544px xl:544px"
-                width="544"
-                height="608"
-                class="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent"/>
-          </div>
-
-          <!--
-            Caption sits below the image rather than inside a hover-only
-            overlay: hover does not exist on touch, so an overlay-only caption
-            is invisible to every phone visitor.
-          -->
-          <div class="flex items-baseline gap-4 pt-5">
-            <span class="text-xs font-mono text-gray-500 tabular-nums">
-              {{ String(i + 1).padStart(2, '0') }}
-            </span>
-            <div>
-              <h3 class="text-xl md:text-2xl font-bold text-white leading-tight">
-                {{ project.title }}
-              </h3>
-              <span class="text-sm text-gray-400">{{ project.category }}</span>
+          <NuxtLink :to="`/projects/${project.slug}`" class="block">
+            <div class="relative h-[20rem] w-full overflow-hidden bg-surface md:h-[30rem]">
+              <NuxtImg
+                  :src="project.image"
+                  :alt="project.imageAlt"
+                  :loading="i === 0 ? 'eager' : 'lazy'"
+                  sizes="xs:304px sm:304px md:480px lg:480px xl:480px"
+                  width="480"
+                  height="480"
+                  class="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
+              />
+              <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent"/>
             </div>
-          </div>
+
+            <!--
+              Caption sits below the image rather than inside a hover-only
+              overlay: hover does not exist on touch, so an overlay-only caption
+              is invisible to every phone visitor.
+            -->
+            <div class="mt-5 flex items-baseline gap-4 border-t border-white/10 pt-5">
+              <span class="numeral shrink-0 text-xs text-neutral-600">
+                {{ String(i + 1).padStart(2, '0') }}
+              </span>
+              <div>
+                <h3 class="display-3 leading-tight transition-colors group-hover:text-neutral-300">
+                  {{ project.title }}
+                </h3>
+                <p class="mt-1.5 text-sm text-neutral-500">
+                  {{ project.category }} · {{ project.year }}
+                </p>
+              </div>
+            </div>
+          </NuxtLink>
         </li>
       </ul>
     </div>
 
     <!-- Progress rail: only meaningful while scroll drives the track -->
-    <div v-show="pinned" class="shrink-0 px-6 md:px-12 pb-10">
+    <div v-show="pinned" class="wrap shrink-0 pb-10">
       <div class="h-px w-full bg-white/15">
-        <div ref="progressRef" class="h-px w-full bg-white origin-left scale-x-0"/>
+        <div ref="progressRef" class="h-px w-full origin-left scale-x-0 bg-white"/>
       </div>
     </div>
   </section>
