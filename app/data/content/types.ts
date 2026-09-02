@@ -27,11 +27,21 @@ export interface ServiceType {
     faqs: Faq[]
 }
 
-/** One of the twelve trades. Copy is taken from the live site. */
+/**
+ * A capability area, not a single trade.
+ *
+ * These started as the twelve individual trades listed on the live site, which
+ * read as a jobbing specialist -- "we do staircases", "we do door frames" --
+ * rather than a firm that takes on a whole renovation. They are grouped into
+ * broad areas instead, with every original trade preserved verbatim in
+ * `includes` so nothing is lost from the offering.
+ */
 export interface Specialism {
     slug: string
     title: string
     description: string
+    /** The specific trades this area covers. */
+    includes: string[]
     /**
      * Only four specialisms carry a photo, and those four become the
      * full-screen story panels on the homepage. The images are 1280px wide, so
@@ -93,6 +103,13 @@ export interface Content {
         eyebrow: string
         title: string
         body: string
+        /**
+         * The range statement: high-end through to everyday work. It is what
+         * stops the site reading as either a budget outfit or an unaffordable
+         * one, and it is the reason the six service types run from a one-day
+         * job to a complete renovation.
+         */
+        range: string
     }
 
     values: {

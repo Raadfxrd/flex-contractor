@@ -53,6 +53,9 @@ onUnmounted(() => mm?.revert())
         <p class="eyebrow">{{ c.values.eyebrow }}</p>
         <h2 class="display-2 mt-6">{{ c.values.title }}</h2>
         <p class="lede mt-6">{{ c.intro.body }}</p>
+        <p class="mt-5 border-l-2 border-brand pl-5 text-base leading-relaxed text-neutral-300">
+          {{ c.intro.range }}
+        </p>
       </div>
 
       <!--

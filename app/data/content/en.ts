@@ -57,6 +57,10 @@ export const en: Content = {
             'Flexcontractor B.V. offers complete renovation and construction services for '
             + 'both commercial and private property. We take care of every detail of your '
             + 'project, from planning through to handover, to the highest standards.',
+        range:
+            'From a single refreshed room to a high-end renovation: we work to every '
+            + 'budget, and we say honestly up front what fits inside yours. There is '
+            + 'something here for everyone.',
     },
 
     values: {
@@ -76,124 +80,116 @@ export const en: Content = {
 
     specialisms: {
         eyebrow: 'Our specialisms',
-        title: 'Twelve trades',
+        title: 'Six areas of work',
         lede:
-            'From a single staircase to a complete renovation. Every specialism is carried '
-            + 'out by our own tradespeople.',
-        scrollHint: 'Keep scrolling to move through the specialisms',
+            'We are a contractor for the whole renovation, not for one part of it. Between '
+            + 'them these six areas cover everything a home or commercial property needs, and '
+            + 'you deal with one firm for all of it.',
+        scrollHint: 'Keep scrolling to move through the areas',
         swipeHint: 'Swipe or scroll sideways',
         items: [
             {
-                slug: 'grindvloer-steentapijt',
-                title: 'Gravel and stone carpet flooring',
+                slug: 'verbouwing-en-uitbouw',
+                title: 'Remodelling and extensions',
                 description:
-                    'Flexcontractor B.V. is your specialist for durable, elegant gravel floors '
-                    + 'and stone carpet. Suited to commercial spaces and private homes alike. We '
-                    + 'offer a wide range of colours and patterns to match your interior.',
-            },
-            {
-                slug: 'aanbouw-en-uitbouw',
-                title: 'Extensions and additions',
-                description:
-                    'Whether you want more room for your family or you are expanding your '
-                    + 'business, Flexcontractor B.V. delivers high-quality extension work. From '
-                    + 'the permit application to the final finish, we arrange everything.',
+                    'More room, a different layout, or an entirely different use for the same '
+                    + 'building. We handle the whole route, from the first sketch and the permit '
+                    + 'application through to the final finish.',
+                includes: [
+                    'Extensions and additions',
+                    'Roof extensions and dormers',
+                    'Openings and layout changes',
+                    'Permit applications and drawings',
+                ],
                 image: '/img/verbouwing.jpg',
                 imageAlt:
                     'A house mid strip-out during renovation, with exposed timber studs and a '
                     + 'ladder',
             },
             {
-                slug: 'tuin-of-dakterras',
-                title: 'Garden or roof terrace',
+                slug: 'keuken-en-badkamer',
+                title: 'Kitchens and bathrooms',
                 description:
-                    'Make the most of your outdoor space with a professionally built garden or '
-                    + 'roof terrace. Flexcontractor B.V. offers bespoke designs that respect '
-                    + 'both your wishes and your budget, for an outdoor space that works and '
-                    + 'looks the part.',
-            },
-            {
-                slug: 'zwevende-trap',
-                title: 'Floating staircase',
-                description:
-                    'For a modern, low-maintenance floor, choose a floating floor from '
-                    + 'Flexcontractor B.V. Suitable for homes and offices alike, these floors '
-                    + 'offer excellent insulation and sound damping.',
-            },
-            {
-                slug: 'traprenovatie',
-                title: 'Staircase renovation or a new staircase',
-                description:
-                    'Give your staircase a new life with our renovation service, or have an '
-                    + 'entirely new one installed. Flexcontractor B.V. delivers craftsmanship '
-                    + 'that guarantees both safety and style.',
-                image: '/img/trap-en-vloer.jpg',
-                imageAlt:
-                    'Open-plan living space with a timber staircase with floating treads and a '
-                    + 'wooden floor',
-            },
-            {
-                slug: 'alle-soorten-vloeren',
-                title: 'Flooring of every kind',
-                description:
-                    'From parquet to laminate, Flexcontractor B.V. lays every kind of floor '
-                    + 'with precision and care. We are glad to advise on the best option for '
-                    + 'your situation and install it properly.',
-            },
-            {
-                slug: 'dakopbouw-of-dakkapel',
-                title: 'Roof extension or dormer',
-                description:
-                    'Add value and usable space to your home with a roof extension or dormer '
-                    + 'from Flexcontractor B.V. Our solutions bring extra room and daylight, '
-                    + 'tailored to what you need.',
-            },
-            {
-                slug: 'raam-en-deurkozijnen',
-                title: 'Window and door frames',
-                description:
-                    'Add character and detail to your home with bespoke window and door '
-                    + 'surrounds from Flexcontractor B.V. Our tradespeople deliver a finish that '
-                    + 'lifts the whole interior.',
-                image: '/img/afwerking.jpg',
-                imageAlt: 'Clean modern kitchen with pale fitted units and a wooden floor',
-            },
-            {
-                slug: 'keuken-installatie',
-                title: 'Kitchen installation',
-                description:
-                    'From design through to installation, Flexcontractor B.V. delivers your '
-                    + 'ideal kitchen. We work with high-quality materials and appliances to '
-                    + 'create a kitchen that is both practical and elegant, and that fits how '
-                    + 'you actually live.',
+                    'The two rooms where the most comes together: pipework, electrics, tiling '
+                    + 'and bespoke joinery, all within a few square metres and all visible the '
+                    + 'moment something is off. We deliver them complete, from design to '
+                    + 'connection.',
+                includes: [
+                    'Kitchen design and installation',
+                    'Bathrooms and sanitaryware',
+                    'Tiling and grouting',
+                    'Water, waste and electrical connections',
+                ],
                 image: '/img/keuken.jpg',
                 imageAlt:
                     'Modern kitchen with dark timber units, a white worktop and black pendant '
                     + 'lights',
             },
             {
-                slug: 'vloerverwarming',
-                title: 'Underfloor heating',
+                slug: 'vloeren-en-trappen',
+                title: 'Floors and staircases',
                 description:
-                    'Enjoy the comfort of underfloor heating, installed by Flexcontractor B.V. '
-                    + 'We offer energy-efficient systems that spread heat evenly through your '
-                    + 'home or office.',
+                    'Everything you walk on every day. From a single floor to a complete '
+                    + 'staircase, in materials that suit how the room is used and what you want '
+                    + 'to spend.',
+                includes: [
+                    'Parquet, laminate and vinyl',
+                    'Gravel and stone carpet flooring',
+                    'Floating and insulated floors',
+                    'Staircase renovation and new staircases',
+                ],
+                image: '/img/trap-en-vloer.jpg',
+                imageAlt:
+                    'Open-plan living space with a timber staircase with floating treads and a '
+                    + 'wooden floor',
             },
             {
-                slug: 'electra-en-loodgieterswerk',
-                title: 'Electrical and plumbing',
+                slug: 'timmerwerk-en-afwerking',
+                title: 'Carpentry and finishing',
                 description:
-                    'For dependable electrical and plumbing work you can rely on the expertise '
-                    + 'of Flexcontractor B.V. Whether it is a complete installation or a repair, '
-                    + 'we guarantee safety and quality.',
+                    'The stage a renovation gets judged on. Made to measure rather than adapted '
+                    + 'from stock, and a snagging list that opens at first fix rather than at '
+                    + 'handover.',
+                includes: [
+                    'Window and door frames',
+                    'Panelling and fitted cabinetry',
+                    'Plastering, painting and spray finishing',
+                    'Ceilings and wall finishes',
+                ],
+                image: '/img/afwerking.jpg',
+                imageAlt: 'Clean modern kitchen with pale fitted units and a wooden floor',
             },
             {
-                slug: 'warmtewinning',
-                title: 'Heat recovery',
+                slug: 'installaties',
+                title: 'Building services',
                 description:
-                    'For sustainable energy solutions such as heat pumps and solar water '
-                    + 'heating, come to Flexcontractor B.V. We help you choose the right system '
-                    + 'and install it properly for maximum savings.',
+                    'Everything behind the wall, and the difference between a room that works '
+                    + 'and a room that only looks right. Installed, tested and documented to '
+                    + 'NEN 1010.',
+                includes: [
+                    'Electrics and consumer units',
+                    'Plumbing and sanitaryware',
+                    'Underfloor heating',
+                    'Heat pumps and solar water heating',
+                ],
+                image: '/img/installaties.jpg',
+                imageAlt:
+                    'A radiator with copper pipework and loose cabling against a white wall '
+                    + 'during a renovation',
+            },
+            {
+                slug: 'buitenruimte',
+                title: 'Outdoor space',
+                description:
+                    'The space that most often comes last and then gets used the most. Garden, '
+                    + 'roof terrace or balcony, set up around what you actually want to do out '
+                    + 'there.',
+                includes: [
+                    'Garden landscaping and paving',
+                    'Roof terraces and balconies',
+                    'Fencing and outbuildings',
+                    'Outdoor lighting and taps',
+                ],
             },
         ],
     },

@@ -94,9 +94,10 @@ Most of the invented content is gone. The company details, the twelve specialism
 value propositions and all three testimonials are the firm's own, taken from flexcontractor.nl. What is
 left:
 
-- [ ] **Service descriptions.** The live site gives only the six service *names*. Their summaries, bodies,
-      `includes` lists and FAQs in `content/nl.ts` were written for this site and nobody at the firm has
-      approved them. They describe real services, but the words are not theirs yet.
+- [ ] **Service and specialism descriptions.** The live site gives only the six service *names* and the
+      twelve original trade names. The six service bodies and FAQs, and the six specialism-area
+      descriptions, were written for this site — nobody at the firm has approved those words yet. The trade
+      names themselves are preserved verbatim in each area's `includes` list.
 - [ ] **`site.vat`** — ships empty. A BTW-id is a legal identifier that resolves to a specific registered
       company, so it is left blank rather than invented; it renders behind `v-if` in the footer and on the
       about page, so filling it in is the only change needed. Never put a placeholder number here — it
@@ -118,6 +119,20 @@ left:
       the ring closes). `favicon.ico` carries 16/32/48; `apple-touch-icon.png` and `icon-512.png` cover
       iOS and large contexts. The live site's own favicon is a plain black **F** on white, unrelated to the
       logo — swap to that instead if it is the established mark.
+
+## Image credits
+
+| File | Source |
+|---|---|
+| `logo.png` | The company's own mark |
+| `keuken.jpg`, `afwerking.jpg`, `trap-en-vloer.jpg` | Max Vakhtbovych — Pexels, already in use on flexcontractor.nl |
+| `verbouwing.jpg` | Monica Silvestre — Pexels, already in use on flexcontractor.nl |
+| `installaties.jpg` | [Brett Jordan — Unsplash](https://unsplash.com/photos/a-radiator-and-wires-on-a-white-wall-2PTfY_xxbe0) |
+| `hero.jpg` | Predates this work; origin unrecorded — **verify the licence before launch** |
+
+The Unsplash and Pexels licences both allow commercial use without attribution, but crediting the
+photographers is the decent default and costs nothing. Replace all of it with real photography of the
+firm's own work when there is some.
 
 ## Notes
 
