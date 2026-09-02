@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {site} from '~/data/site'
+import {addressLines, site} from '~/data/site'
 
 useSeo({
   title: 'Contact | Flex Contractor',
@@ -50,8 +50,7 @@ useSeo({
               <dt class="eyebrow">Office</dt>
               <dd class="mt-2">
                 <address class="text-lg not-italic text-neutral-300">
-                  {{ site.address.street }}<br>
-                  {{ site.address.locality }}, {{ site.address.region }} {{ site.address.postalCode }}
+                  <span v-for="line in addressLines" :key="line" class="block">{{ line }}</span>
                 </address>
               </dd>
             </div>

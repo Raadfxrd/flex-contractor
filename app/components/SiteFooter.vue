@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {primaryNav, site} from '~/data/site'
+import {addressLines, primaryNav, site} from '~/data/site'
 import {services} from '~/data/services'
 
 const year = new Date().getFullYear()
@@ -23,10 +23,19 @@ const year = new Date().getFullYear()
             {{ site.serviceArea.slice(0, 3).join(', ') }} and the surrounding region
             since {{ site.founded }}.</p>
 
-          <dl class="mt-8 space-y-1 text-sm">
-            <div class="flex gap-2">
-              <dt class="sr-only">Licence</dt>
-              <dd class="text-neutral-500">Licence {{ site.licence }}</dd>
+          <!--
+            Registration numbers are guarded: `kvk` and `vat` ship empty on
+            purpose (see the header note in app/data/site.ts), and an empty
+            "KvK" label is worse than no label at all.
+          -->
+          <dl v-if="site.kvk || site.vat" class="mt-8 space-y-1 text-sm">
+            <div v-if="site.kvk" class="flex gap-2">
+              <dt class="sr-only">Chamber of Commerce number</dt>
+              <dd class="text-neutral-500">KvK {{ site.kvk }}</dd>
+            </div>
+            <div v-if="site.vat" class="flex gap-2">
+              <dt class="sr-only">VAT number</dt>
+              <dd class="text-neutral-500">BTW {{ site.vat }}</dd>
             </div>
           </dl>
         </div>
@@ -79,8 +88,7 @@ const year = new Date().getFullYear()
             </li>
             <li>
               <address class="not-italic text-neutral-400">
-                {{ site.address.street }}<br>
-                {{ site.address.locality }}, {{ site.address.region }} {{ site.address.postalCode }}
+                <span v-for="line in addressLines" :key="line" class="block">{{ line }}</span>
               </address>
             </li>
           </ul>

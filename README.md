@@ -43,8 +43,9 @@ If the port is taken the process exits and your requests quietly hit whatever wa
 
 Everything editable lives in `app/data/`:
 
-- **`site.ts`** — company name, phone, email, address, hours, licence, service area, social links, primary navigation,
-  headline stats.
+- **`site.ts`** — company name, phone, email, address, hours, KvK and BTW numbers, certifications, service area,
+  social links, primary navigation, headline stats. `addressLines` in the same file encodes the Dutch postal
+  order — street, then postcode before city — so templates never compose the address themselves.
 - **`services.ts`** — the four divisions. Each carries a summary, body copy, capabilities, deliverables, FAQs and the
   project slugs to cross-link.
 - **`projects.ts`** — the five case studies. Each carries client, location, year, duration, scale, challenge /
@@ -73,12 +74,21 @@ instead. That is deliberate: a form that silently swallows enquiries is worse th
 
 ## Before launch
 
-Everything in `app/data/` is invented placeholder content. It renders on the visible pages **and** feeds the
-`GeneralContractor` structured data that search engines read to decide whether the business can appear in local
-results — publishing invented name/address/phone data there is actively harmful.
+The **contact details are real** — phone, email and the Anna Blamansingel address belong to the business. Almost
+everything else in `app/data/` is invented placeholder content, and it renders on the visible pages **and** feeds
+the `GeneralContractor` structured data that search engines read to decide whether the business can appear in
+local results. That mix is exactly why the list below matters: a real, verifiable address sitting next to an
+invented registration number or an invented client is more damaging than a page that is obviously a mock-up.
 
-- [ ] **`site.ts`** — replace the `555` phone number, the `flexcontractor.com` email, the street address, the licence
-  number, the insurance wording, the founding year, the service area and the social URLs.
+- [ ] **`site.ts` — what is already real:** the phone number, the email address, the Anna Blamansingel address, the
+  KvK number and the founding year belong to the business. Leave them. Still invented in that file: the service area,
+  the insurance wording, the certifications and the social URLs.
+- [ ] **`site.vat`** — still empty. A BTW-id is a legal identifier that resolves to a specific registered company, so
+  it is left blank rather than invented; it is rendered behind `v-if` in the footer and on the about page, so filling
+  it in is the only change needed. Never put a placeholder number here — it would sit next to a real address in the
+  `GeneralContractor` structured data and point at some other real business.
+- [ ] **`site.certifications`** — VCA**, ISO 9001 and Bouwgarant are asserted, not verified. Confirm each is actually
+  held, or remove it.
 - [ ] **`companyStats`** in `site.ts` — the years / projects / staff / on-time figures are made up.
 - [ ] **`services.ts`** — rewrite summaries, body copy, capabilities, deliverables and FAQ answers to the firm's actual
   scope. Do not ship an FAQ answer you would not stand behind; the FAQ is marked up as structured data.

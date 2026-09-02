@@ -172,7 +172,7 @@ const reset = () => {
               v-model="form.phone"
               autocomplete="tel"
               class="field"
-              placeholder="+1 (555) 123-4567"
+              placeholder="+31 6 12345678"
               type="tel"
           >
         </div>

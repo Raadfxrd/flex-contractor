@@ -235,15 +235,39 @@ Open Graph and Twitter cards. Canonical and `og:url` are absolute and built from
 carry the real origin from runtime config. **A new page that is not derived from `services.ts` or `projects.ts` must be
 added to `STATIC_ROUTES` in sitemap.xml.ts.**
 
-## Placeholder content
+## Real vs placeholder content
 
-`app/data/site.ts`, `services.ts` and `projects.ts` are **invented**: 555 phone number, made-up licence number,
-fictional clients and figures. They feed the visible pages *and*
-the LocalBusiness structured data, where publishing invented name/address/phone data is actively harmful.
-`app/data/projects.ts` also ships five **fabricated testimonials**, added so the case-study layout can be seen with its
-quote block populated. Treat them as the most dangerous content in the repo: invented body copy reads as marketing, but
-an invented quote attributed to a named person at a named company reads as a claim that a specific individual said a
-specific thing. The page renders the block only when a project carries a quote, so deleting the field removes it
-cleanly.
+Some of `app/data/site.ts` is **real**: the phone number, the email address, the Anna
+Blamansingel address, the KvK number and the founding year all belong to the business.
+Everything around them is not.
+
+Still invented, and must be replaced or removed before launch: the service area, the
+insurance wording, the certifications, every figure in `companyStats`, all of
+`services.ts`, and all of `projects.ts` — clients, locations, dates and figures.
+
+`site.vat` is **deliberately empty**. A BTW-id is not marketing copy, it is a legal
+identifier that resolves to a specific registered company; inventing one and attaching it
+to a real, identifiable address — in the `GeneralContractor` structured data no less —
+would point at some other real business. It and `site.kvk` are both rendered behind `v-if`
+in the footer and on the about page, so an empty one is omitted rather than printing a bare
+label. Keep that guard if you touch either surface, and never fill either field with a
+plausible-looking placeholder.
+
+`app/data/projects.ts` also ships five **fabricated testimonials**, added so the case-study
+layout can be seen with its quote block populated. Treat them as the most dangerous content
+in the repo, and more so now that the address and phone number are real: invented body copy
+reads as marketing, but an invented quote attributed to a named person at a named company
+reads as a claim that a specific individual said a specific thing. The page renders the
+block only when a project carries a quote, so deleting the field removes it cleanly.
+
+The site copy is English, and `htmlAttrs.lang` is `en`, deliberately — the *data* is Dutch,
+the language is not. The regulatory references in `services.ts` (NEN 1010, NEN 3140, the
+omgevingsvergunning, monument consent, the Bouwbesluit) and the employment terms in
+`careers.vue` (CAO Bouw & Infra, bpfBOUW, VCA) are Dutch and load-bearing: they stop being
+true if this copy is reused in another country.
+
+`addressLines` in `site.ts` encodes the Dutch postal order — street on one line, then
+postcode *before* city with no comma. Use it rather than composing the address in a
+template; three templates previously hardcoded the US `City, Region ZIP` order.
 
 `README.md` carries the full before-launch checklist. Keep it accurate when you touch these files.
