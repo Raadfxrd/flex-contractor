@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import {onMounted, onUnmounted, ref} from 'vue'
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
 
@@ -12,15 +11,19 @@ interface Props {
   imageAlt: string
   reverse?: boolean
   index: number
+  /** When set, the section links through to the matching service page. */
+  slug?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
   reverse: false,
+  slug: undefined,
 })
 
 const sectionRef = ref<HTMLElement>()
-const titleRef = ref<HTMLElement>()
-const descRef = ref<HTMLElement>()
+const contentRef = ref<HTMLElement>()
+
+const number = computed(() => String(props.index + 1).padStart(2, '0'))
 
 let mm: gsap.MatchMedia
 
@@ -32,31 +35,30 @@ onMounted(() => {
   // Gated on prefers-reduced-motion: when it does not match, the copy renders
   // in place instead of being animated in from opacity 0.
   mm.add('(prefers-reduced-motion: no-preference)', () => {
-    const from = {opacity: 0, x: props.reverse ? -50 : 50}
-    const reveal = {
-      trigger: sectionRef.value,
-      start: 'top 70%',
-      end: 'top 50%',
-    }
-
-    if (titleRef.value) {
-      gsap.fromTo(titleRef.value, from, {
-        opacity: 1, x: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: reveal,
-      })
-    }
-
-    if (descRef.value) {
-      gsap.fromTo(descRef.value, {opacity: 0, x: props.reverse ? -30 : 30}, {
-        opacity: 1, x: 0, duration: 0.8, ease: 'power3.out', delay: 0.1,
-        scrollTrigger: reveal,
+    if (contentRef.value) {
+      /*
+       * Children stagger off one trigger rather than each element carrying its
+       * own ScrollTrigger. On a mandatory-snap page the section arrives at the
+       * top almost instantly, so several independent triggers all fire in the
+       * same frame and the intended sequence collapses -- a timeline keeps it.
+       */
+      gsap.from(contentRef.value.children, {
+        opacity: 0,
+        x: props.reverse ? -40 : 40,
+        duration: 0.75,
+        ease: 'power3.out',
+        stagger: 0.09,
+        scrollTrigger: {
+          trigger: sectionRef.value,
+          start: 'top 70%',
+        },
       })
     }
 
     const overlay = sectionRef.value!.querySelector('.story-overlay')
     if (overlay) {
       gsap.to(overlay, {
-        opacity: 0.3,
+        opacity: 0.45,
         scrollTrigger: {
           trigger: sectionRef.value,
           start: 'top center',
@@ -72,42 +74,56 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <section
-      ref="sectionRef"
-      class="section-container relative w-full h-screen flex items-center"
-  >
-    <!-- Background Image -->
+  <section ref="sectionRef" class="section-container isolate flex items-center">
     <NuxtImg
         :src="imageUrl"
         :alt="imageAlt"
         loading="lazy"
         sizes="xs:100vw sm:100vw md:100vw lg:100vw xl:100vw"
-        class="absolute inset-0 w-full h-full object-cover"
+        class="absolute inset-0 -z-10 h-full w-full object-cover"
     />
 
-    <!-- Overlay Gradient -->
-    <div class="story-overlay absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent"/>
-
-    <!-- Content -->
     <div
         :class="[
-        'relative z-10 px-6 md:px-12 lg:px-20 flex-1 max-w-2xl',
-        reverse ? 'ml-auto text-right' : 'text-left',
-      ]"
-    >
-      <div class="space-y-6">
-        <h2 ref="titleRef" class="section-title text-6xl md:text-7xl font-bold">
-          {{ title }}
-        </h2>
-        <p ref="descRef" class="section-subtitle text-lg md:text-xl font-light max-w-xl">
-          {{ description }}
-        </p>
+          'story-overlay absolute inset-0 -z-10',
+          reverse
+            ? 'bg-gradient-to-l from-ink via-ink/85 to-ink/20'
+            : 'bg-gradient-to-r from-ink via-ink/85 to-ink/20',
+        ]"
+    />
+
+    <div class="wrap">
+      <div :class="['max-w-xl', reverse ? 'ml-auto' : '']">
+        <div ref="contentRef" :class="reverse ? 'text-right' : 'text-left'">
+          <!--
+            The ordinal is the orienting device the palette no longer has a
+            colour to spend on: four sections in sequence, each one numbered.
+          -->
+          <p class="eyebrow">
+            <span class="numeral text-white">{{ number }}</span>
+            <span class="mx-3 text-neutral-700">—</span>
+            <span>Capability</span>
+          </p>
+
+          <h2 class="display-2 mt-6">{{ title }}</h2>
+
+          <div
+              :class="['mt-8 h-px w-16 bg-white/30', reverse ? 'ml-auto' : '']"
+              aria-hidden="true"
+          />
+
+          <p class="lede mt-8">{{ description }}</p>
+
+          <NuxtLink
+              v-if="slug"
+              :to="`/services/${slug}`"
+              class="btn-ghost mt-8 !text-white hover:!text-neutral-300"
+          >
+            <span class="border-b border-white/30 pb-1">Explore {{ title.toLowerCase() }}</span>
+            <span aria-hidden="true">→</span>
+          </NuxtLink>
+        </div>
       </div>
     </div>
   </section>
 </template>
-
-<style scoped>
-/* Story section specific styles */
-</style>
-

@@ -1,163 +1,56 @@
 <script lang="ts" setup>
-// Story sections data
-const storyData = [
-  {
-    title: 'Foundations',
-    description:
-        'We build on solid ground. Our foundation work ensures every project stands strong and lasts for generations. Precision engineering meets attention to detail.',
-    imageUrl:
-        '/img/foundations.jpg',
-    imageAlt: 'Foundation work',
-    index: 0,
-  },
-  {
-    title: 'Electrical',
-    description:
-        'From residential wiring to industrial systems, our electrical experts ensure safety, efficiency, and compliance. Modern technology meets expert craftsmanship.',
-    imageUrl:
-        '/img/electrical.jpg',
-    imageAlt: 'Electrical work',
-    index: 1,
-    reverse: true,
-  },
-  {
-    title: 'Structural Work',
-    description:
-        'The backbone of any project. Our structural engineers design and execute solutions that are both robust and elegant. We turn visions into steel-strong realities.',
-    imageUrl:
-        '/img/structural.jpg',
-    imageAlt: 'Structural work',
-    index: 2,
-  },
-  {
-    title: 'Finishing & Renovation',
-    description:
-        'The final touches that transform spaces into masterpieces. From paint to cabinetry, we handle every detail with perfectionism. Your dream space awaits.',
-    imageUrl:
-        '/img/renovation.avif',
-    imageAlt: 'Finishing work',
-    index: 3,
-    reverse: true,
-  },
-]
+import {services} from '~/data/services'
+import {site} from '~/data/site'
 
-useHead({
-  title: 'Flex Contractor | From foundation to finish',
-  meta: [
-    {
-      name: 'description',
-      content:
-          'Flex Contractor delivers foundations, electrical, structural work, and finishing ' +
-          'and renovation for residential, commercial, and industrial projects.',
-    },
-  ],
+/*
+ * Scroll snapping is opt-in per page, and this is the page that opts in.
+ * Every other route is an ordinary document; a global snap made them jump.
+ */
+useScrollSnap()
+
+useSeo({
+  title: `${site.name} | ${site.tagline}`,
+  description: site.description,
+  path: '/',
+  image: '/img/hero.jpg',
 })
+
+/*
+ * The four story panels are generated from services.ts rather than a second
+ * hand-maintained array, so a service and its homepage panel cannot drift
+ * apart -- and each panel links through to its own page.
+ */
+const storyData = computed(() => services.map((service, index) => ({
+  slug: service.slug,
+  title: service.title,
+  description: service.summary,
+  imageUrl: service.image,
+  imageAlt: service.imageAlt,
+  index,
+  reverse: index % 2 === 1,
+})))
 </script>
 
 <template>
-  <div class="w-full bg-black">
-    <!-- Hero Section -->
+  <div class="w-full bg-ink">
     <Hero/>
 
-    <!-- Story Sections -->
     <StorySection
         v-for="story in storyData"
-        :key="story.index"
+        :key="story.slug"
         :description="story.description"
         :image-alt="story.imageAlt"
         :image-url="story.imageUrl"
         :index="story.index"
-        :reverse="story.reverse || false"
+        :reverse="story.reverse"
+        :slug="story.slug"
         :title="story.title"
     />
 
-    <!-- Process Section -->
-    <ProcessSection id="process-section"/>
+    <ProcessSection/>
 
-    <!-- Portfolio Section -->
-    <PortfolioScroller id="portfolio-section"/>
+    <PortfolioScroller/>
 
-    <!-- Contact Section -->
     <ContactSection/>
-
-    <!-- Footer -->
-    <footer class="w-full bg-black border-t border-gray-800/30 px-6 md:px-12 py-12 no-snap">
-      <div class="max-w-6xl mx-auto">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-          <!-- About -->
-          <div>
-            <h3 class="font-bold text-lg text-white mb-4">Flex Contractor</h3>
-            <p class="text-gray-400 text-sm">
-              Building excellence from foundation to finish.
-            </p>
-          </div>
-
-          <!-- Quick Links -->
-          <div>
-            <h4 class="font-semibold text-white mb-4">Company</h4>
-            <ul class="space-y-2 text-sm">
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  Services
-                </a>
-              </li>
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  Portfolio
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          <!-- Contact Info -->
-          <div>
-            <h4 class="font-semibold text-white mb-4">Contact</h4>
-            <ul class="space-y-2 text-sm">
-              <li class="text-gray-400">+1 (555) 123-4567</li>
-              <li class="text-gray-400">info@flexcontractor.com</li>
-              <li class="text-gray-400">123 Build St, City, State</li>
-            </ul>
-          </div>
-
-          <!-- Social Links -->
-          <div>
-            <h4 class="font-semibold text-white mb-4">Follow Us</h4>
-            <ul class="space-y-2 text-sm">
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  LinkedIn
-                </a>
-              </li>
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  Instagram
-                </a>
-              </li>
-              <li>
-                <a class="text-gray-400 hover:text-accent transition-colors" href="#">
-                  Facebook
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        <!-- Divider -->
-        <div class="border-t border-gray-800/30 pt-8">
-          <p class="text-center text-gray-500 text-sm">
-            © 2026 Flex Contractor. All rights reserved.
-          </p>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>
-
-<style scoped>
-/* Page-specific styles */
-</style>

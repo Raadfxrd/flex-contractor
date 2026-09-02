@@ -1,136 +1,101 @@
 # Flex Contractor
 
-A high-end, scroll-driven portfolio website for a construction company built with **Nuxt 3**, **Vue 3**, **GSAP**, and
-**Tailwind CSS**. This project delivers a cinematic, interactive storytelling experience with smooth animations and
-premium scrolling interactions.
+Marketing site for a general contracting firm. Nuxt 4 + Tailwind + GSAP, built around a scroll-driven homepage with a
+supporting set of ordinary pages.
 
-## Features
+## Stack
 
-### Scroll-Driven Animations
+|           |                                          |
+|-----------|------------------------------------------|
+| Framework | Nuxt 4 (`srcDir` is `app/`)              |
+| Styling   | Tailwind CSS 3 via `@nuxtjs/tailwindcss` |
+| Animation | GSAP + ScrollTrigger                     |
+| Images    | `@nuxt/image` (IPX)                      |
+| Email     | Resend (via a Nitro server route)        |
 
-- **GSAP ScrollTrigger** integration for smooth, performant scroll animations
-- Parallax effects on background images with 0.5x speed ratio
-- Staggered text animations on scroll
-- Horizontal scrolling portfolio section
-- Section pinning and scrubbing animations
-
-### Design System
-
-- **Dark theme** with charcoal/black backgrounds
-- **Orange accent color** (#FFA500) for construction-inspired branding
-- Clean, minimal typography using Inter font
-- Large, bold headings with strong visual hierarchy
-- Generous whitespace and grid-based layout
-
-### Page Sections
-
-1. **Hero Section**: Fullscreen hero with animated headline, subheading, and scroll indicator
-2. **Story Sections (4)**: Foundations, Electrical, Structural Work, Finishing & Renovation
-3. **Process Section**: 3-step visualization (Plan → Build → Deliver)
-4. **Portfolio Showcase**: Horizontal scrolling gallery with hover effects
-5. **Contact Section**: Clean contact form with animations
-6. **Footer**: Company info, links, contact details
-
-## 🛠Tech Stack
-
-- **Nuxt 3** - Vue 3 full-stack framework
-- **Vue 3** - Composition API for component logic
-- **TypeScript** - Type-safe development
-- **Tailwind CSS v3** - Utility-first CSS framework
-- **GSAP 3** - Advanced animations with ScrollTrigger
-- **Vite** - Fast build tool
-
-## Quick Start
+## Getting started
 
 ```bash
-# Install dependencies
-npm install
-
-# Start development server (opens http://localhost:3000)
-npm run dev
-
-# Build for production
-npm run build
+npm install     # postinstall runs `nuxt prepare`
+npm run dev     # http://localhost:3000
 ```
-
-## Project Structure
-
-```
-components/          # Reusable Vue components
-  ├── Hero.vue
-  ├── StorySection.vue
-  ├── ProcessSection.vue
-  ├── PortfolioScroller.vue
-  └── ContactSection.vue
-composables/        # Reusable composition functions
-  ├── useScrollAnimation.ts  # GSAP ScrollTrigger utilities
-  └── useSmoothScroll.ts     # Smooth scroll helpers
-assets/css/         # Global styles
-  └── globals.css
-app/               # Nuxt app root
-  ├── app.vue      # Main component
-  ├── pages/
-  │   └── index.vue # Homepage
-  └── layouts/
-      └── default.vue
-```
-
-## Color Palette
-
-- Primary Background: `#0a0a0a`
-- Secondary Background: `#1a1a1a`
-- Text: `#ffffff`
-- Accent: `#FFA500` (Orange)
-
-## Key Components
-
-All components use GSAP for animations and support responsive, mobile-first design:
-
-- **Hero**: Gradient text, animated scroll indicator
-- **StorySection**: Reusable with parallax, reverse layouts
-- **ProcessSection**: Sequential animations, visual connectors
-- **PortfolioScroller**: Horizontal scrolling with velocity effects
-- **ContactSection**: Form with input animations
-
-## Animation Details
-
-- Parallax: 50% speed ratio relative to scroll
-- Text Fades: Triggered at 60% viewport visibility
-- Horizontal Scroll: Scrubbed 1:1 with user scroll
-- Easing: power2.out for most animations
-- Performance: 60fps hardware-accelerated transforms
-
-## Responsive
-
-- Mobile: Single column, optimized sizes
-- Tablet: Medium spacing, adjusted typography
-- Desktop: Full-width sections, premium styling
-- All sections are fully responsive
-
-## Deployment
 
 ```bash
-# Build production-ready project
-npm run build
-
-# Preview build locally
-npm run preview
+npm run build                          # -> .output/
+PORT=3100 node .output/server/index.mjs   # preview the real build on a free port
 ```
 
-## Development
+Always preview the production build on a port nothing else is using, and check the log line says it is listening there.
+If the port is taken the process exits and your requests quietly hit whatever was already running.
 
-- **TypeScript**: Full type safety
-- **Composition API**: Modern Vue 3 patterns
-- **Scoped Styles**: No CSS conflicts
-- **Auto-imports**: Composables and components
+## Routes
 
-## Resources
+| Route                                        | Source                                               |
+|----------------------------------------------|------------------------------------------------------|
+| `/`                                          | `app/pages/index.vue` — the scroll-driven page       |
+| `/services`, `/services/[slug]`              | driven by `app/data/services.ts`                     |
+| `/projects`, `/projects/[slug]`              | driven by `app/data/projects.ts`                     |
+| `/about`, `/contact`, `/careers`, `/privacy` | static pages                                         |
+| `/sitemap.xml`, `/robots.txt`                | `server/routes/` — generated, not files in `public/` |
+| 404 / 500                                    | `app/error.vue`                                      |
 
-- [Nuxt Docs](https://nuxt.com)
-- [Vue 3](https://vuejs.org)
-- [GSAP](https://gsap.com)
-- [Tailwind CSS](https://tailwindcss.com)
+## Content
 
----
+Everything editable lives in `app/data/`:
 
-**Flex Contractor** - Building excellence from foundation to finish!
+- **`site.ts`** — company name, phone, email, address, hours, licence, service area, social links, primary navigation,
+  headline stats.
+- **`services.ts`** — the four divisions. Each carries a summary, body copy, capabilities, deliverables, FAQs and the
+  project slugs to cross-link.
+- **`projects.ts`** — the five case studies. Each carries client, location, year, duration, scale, challenge /
+  solution / outcome, headline figures and a gallery.
+
+The homepage story panels, the footer service list, the sitemap and the service ↔ project cross-links are all derived
+from these files. Edit the data, not the templates.
+
+## Environment
+
+Copy to `.env` (all optional in development):
+
+```bash
+# Absolute origin. Used for canonical URLs, og:url, sitemap.xml and robots.txt.
+NUXT_PUBLIC_SITE_URL=https://www.flexcontractor.com
+
+# Contact form delivery. All three are required for the form to actually send.
+NUXT_RESEND_API_KEY=re_xxxxxxxxxxxx
+NUXT_CONTACT_TO_EMAIL=enquiries@flexcontractor.com
+NUXT_CONTACT_FROM_EMAIL=website@flexcontractor.com
+```
+
+Without all three email variables the endpoint answers `503 { code: 'not_configured' }`
+and the form tells the visitor plainly that the message was **not** sent, showing the phone number and email address
+instead. That is deliberate: a form that silently swallows enquiries is worse than no form.
+
+## Before launch
+
+Everything in `app/data/` is invented placeholder content. It renders on the visible pages **and** feeds the
+`GeneralContractor` structured data that search engines read to decide whether the business can appear in local
+results — publishing invented name/address/phone data there is actively harmful.
+
+- [ ] **`site.ts`** — replace the `555` phone number, the `flexcontractor.com` email, the street address, the licence
+  number, the insurance wording, the founding year, the service area and the social URLs.
+- [ ] **`companyStats`** in `site.ts` — the years / projects / staff / on-time figures are made up.
+- [ ] **`services.ts`** — rewrite summaries, body copy, capabilities, deliverables and FAQ answers to the firm's actual
+  scope. Do not ship an FAQ answer you would not stand behind; the FAQ is marked up as structured data.
+- [ ] **`projects.ts`** — replace with real, permissioned work. Client names, locations, dates and figures are all
+  fictional.
+- [ ] **Testimonials** — none ship. The type and the case-study page support them; add them only with the
+  client's written permission and their real name and role.
+- [ ] **`careers.vue`** — the four vacancies and the benefits list are placeholders.
+- [ ] **`privacy.vue`** — accurately describes what this codebase does today, but it has not been legally reviewed. Have
+  it checked, and update it the moment you add analytics, a chat widget or any third-party embed.
+- [ ] **`NUXT_PUBLIC_SITE_URL`** — set to the real origin, or every canonical URL and the whole sitemap point at the
+  wrong domain.
+- [ ] **Images** — `public/img` is ~11 MB of sources up to 1.9 MB each. IPX resizes them on first request;
+  pre-optimising the originals removes that cold-transform latency.
+- [ ] **`favicon.ico`** — still the Nuxt default.
+
+## Notes
+
+Architecture, the scroll system's failure modes and the design system are documented in
+`CLAUDE.md`. The manual QA checklist is in `DEVELOPMENT.md`.

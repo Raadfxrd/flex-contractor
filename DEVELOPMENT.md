@@ -1,422 +1,109 @@
-# Development Guide - Flex Contractor
+# Development notes
 
-## Overview
+There is no test runner. Verification is manual — this is the checklist.
 
-This document provides detailed information about the development setup, architecture, and best practices for the Flex
-Contractor portfolio website.
+Architecture and the reasoning behind the scroll system are in `CLAUDE.md`; content and the before-launch checklist are
+in `README.md`.
 
-## 🏗️ Architecture
+## Running a check
 
-### Component Structure
+```bash
+npm run dev                                # http://localhost:3000
 
-```
-App (app.vue)
-├── Hero
-├── StorySection (4x)
-│   ├── ParallaxBackground
-│   ├── FadeInText
-│   └── ScrollTrigger animations
-├── ProcessSection
-│   ├── StepIndicators
-│   └── Sequential animations
-├── PortfolioScroller
-│   ├── HorizontalScroll
-│   ├── ProjectCards
-│   └── VelocityEffects
-├── ContactSection
-│   ├── Form elements
-│   └── Validation
-└── Footer
+npm run build                              # then, on a FREE port:
+PORT=3100 node .output/server/index.mjs    # confirm it logs "Listening on ... :3100"
 ```
 
-### State Management
+Dev and production emit completely different asset URLs, so a bug can exist in one and not the other. Check both when
+you touch CSS, images or the head.
 
-Uses Vue 3 Composition API with ref() and reactive() for local state. No external state management needed as sections
-are independent.
+If the port is already bound the process exits with `EADDRINUSE` and your requests hit the stale server instead — you
+will be testing the previous build without knowing. Free it first:
 
-### Animation Architecture
-
-All animations use GSAP ScrollTrigger for performance:
-
-1. **Hero**: Entrance animations + zoom effect
-2. **Story Sections**: Parallax + text fade-in
-3. **Process**: Sequential step animations
-4. **Portfolio**: Horizontal scroll with skew
-5. **Contact**: Form focus states
-
-## 🎬 GSAP Animation Patterns
-
-### ScrollTrigger Pattern
-
-```typescript
-gsap.to(element, {
-    property: value,
-    scrollTrigger: {
-        trigger: triggerElement,
-        start: 'top center',      // When trigger hits viewport
-        end: 'bottom center',     // Animation end point
-        scrub: 0.5,              // Smooth scrub ratio
-        markers: false,          // Debug markers
-    }
-})
+```bash
+lsof -tiTCP:3100 -sTCP:LISTEN | xargs -r kill
 ```
 
-### Common Settings
+## Scroll behaviour (homepage)
 
-- **scrub**: 0.5 (smooth 0.5s delay)
-- **ease**: power2.out (standard easing)
-- **duration**: 1 (animation length)
-- **delay**: Used for staggered effects
+The homepage is the only page that snaps. Everything here is about `/`.
 
-## 📝 Component Details
+- [ ] Scroll from the top: hero, four story sections and the process section each snap cleanly to the viewport, one per
+  gesture.
+- [ ] Keep scrolling into the portfolio. Snapping stops. The section pins and the track moves horizontally as you
+  scroll.
+- [ ] **Scroll all the way to the very bottom of the footer and stop.** The page must stay there. If it yanks back up to
+  the process section, `.snap-disabled` has come off one of `<html>` / `<body>` — the classic regression.
+- [ ] Scroll back up. Snapping resumes at the process section.
+- [ ] Reload while scrolled half-way down the portfolio. Snapping must already be off — the gate seeds its initial state
+  rather than waiting for a threshold crossing.
+- [ ] Resize the window while the portfolio is pinned. The track's travel distance recomputes and the last card still
+  ends flush.
+- [ ] Tab through the portfolio cards. The track scrolls to follow focus; the section does not shear sideways.
 
-### Hero.vue
+## Pages
 
-**Purpose**: Fullscreen hero section with hero headline
+- [ ] Every route returns 200: `/`, `/services`, each `/services/[slug]`, `/projects`, each `/projects/[slug]`,
+  `/about`, `/contact`, `/careers`, `/privacy`.
+- [ ] A bad slug returns a real **404**, not a 200 with an empty page:
+  `/services/nope`, `/projects/nope`, `/nope`.
+- [ ] No page snaps except `/`. Check `<body class="...">` — `snap-enabled` should appear on `/` only.
+- [ ] Service ↔ project cross-links resolve in both directions.
+- [ ] "Next project" on the last case study wraps round to the first.
 
-**Key Features**:
+## Navigation and exits
 
-- Gradient text headline
-- Animated scroll indicator
-- Background zoom effect
-- Staggered text animations
+- [ ] Header is transparent over the homepage hero and takes a solid background once the hero scrolls past. It is solid
+  immediately on every other page.
+- [ ] Detail pages (`/services/[slug]`, `/projects/[slug]`) show a back arrow to their index. Index pages do not.
+- [ ] Below `lg`: the hamburger opens a full-screen panel; the same button becomes an X and closes it; there is a "Close
+  menu" button at the end of the panel; **Escape**
+  closes it and returns focus to the toggle.
+- [ ] Navigating from inside the panel closes it.
+- [ ] Scrolling over the open panel does not scroll the page behind it.
 
-**Props**: None (static content)
+## Contact form
 
-**Animations**:
+Reachable at `/contact` and at the bottom of `/`.
 
-- Headline: fade-in + slide (from bottom)
-- Subheading: fade-in + slide with delay
-- Scroll indicator: pulsing animation
+- [ ] Submitting empty shows inline errors and moves focus to the first bad field.
+- [ ] A bad email address is rejected client-side and server-side.
+- [ ] **With no `NUXT_RESEND_API_KEY` set**, submitting a valid message shows the
+  "not connected yet" panel with the phone number — *not* a success message. This is the important one: the form must
+  never claim to have sent something it did not.
+- [ ] With delivery configured, a valid message arrives and replying in the inbox goes to the enquirer (`reply_to`).
+- [ ] Six submissions in ten minutes: the sixth is rate-limited.
 
-### StorySection.vue
+Endpoint behaviour can be checked directly:
 
-**Purpose**: Reusable story section with parallax and text animations
-
-**Props**:
-
-```typescript
-interface Props {
-    title: string              // Section title
-    description: string        // Section description
-    imageUrl: string          // Background image URL
-    imageAlt: string          // Image alt text
-    reverse?: boolean         // Flip layout
-    index: number             // Section index
-}
+```bash
+curl -i -X POST localhost:3100/api/contact -H 'content-type: application/json' \
+  -d '{"name":"Test","email":"t@example.com","message":"A message long enough to pass validation."}'
 ```
 
-**Key Features**:
+## Accessibility
 
-- Full-screen background image
-- Parallax scrolling effect
-- Gradient overlay for text readability
-- Reverse layout for visual variety
+- [ ] Tab from the very top: the skip link appears first and jumps to `#main`.
+- [ ] Every interactive element shows a visible focus ring.
+- [ ] With **reduced motion** enabled (macOS: System Settings → Accessibility → Display → Reduce motion): no snapping,
+  no pinning, no reveal animations, and **all content is visible** — nothing stranded at `opacity: 0`. The portfolio
+  degrades to a native horizontal scroller.
+- [ ] The portfolio is usable by keyboard and by touch swipe below `md`.
 
-### ProcessSection.vue
+## Images
 
-**Purpose**: Display 3-step process with sequential animations
+- [ ] After adding any `<NuxtImg>`, grep the rendered HTML for `_ipx/w_1/`. Any hit means a
+  `sizes` attribute is missing its screen keys and that image is being served **one pixel wide**. It fails silently —
+  the build passes and the page renders.
 
-**Data**:
-
-```typescript
-interface Step {
-    number: string    // Display number (01, 02, 03)
-    title: string     // Step title
-    description: string
-    icon: string      // Emoji icon
-}
+```bash
+curl -s localhost:3100/ | grep -o '_ipx/w_1/' | wc -l   # must be 0
 ```
 
-**Animations**:
-
-- Title fade-in
-- Sequential step animations with stagger
-- Connecting line scale animation
-
-### PortfolioScroller.vue
-
-**Purpose**: Horizontal scrolling portfolio gallery
-
-**Key Features**:
-
-- Horizontal scroll animation
-- Velocity-based skewing
-- Project card hover effects
-- Meta information overlay
-
-**Projects Data**:
-
-```typescript
-interface Project {
-    id: number
-    title: string
-    category: string
-    image: string
-}
-```
-
-### ContactSection.vue
-
-**Purpose**: Contact form with smooth interactions
-
-**Form Fields**:
-
-- Full Name (required)
-- Email (required)
-- Phone (optional)
-- Project Type (select)
-- Message (required, textarea)
-
-**Animations**:
-
-- Input focus effects (border color)
-- Button scale on hover
-- Form section animations on scroll
-
-## 🔧 Composables
-
-### useScrollAnimation.ts
-
-**Purpose**: Centralized GSAP ScrollTrigger utilities
-
-**Exports**:
-
-```typescript
-// Register GSAP plugins
-registerScrollTrigger()
-
-// Create parallax effect
-createParallax(element, speed = 0.5, options = {})
-
-// Fade and slide animation
-createFadeIn(element, options = {})
-
-// Horizontal scroll effect
-createHorizontalScroll(container, content, options = {})
-
-// Pin section during scroll
-pinSection(element, options = {})
-
-// Refresh all ScrollTriggers
-refreshScroll()
-
-// Clean up all animations
-killAll()
-```
-
-### useSmoothScroll.ts
-
-**Purpose**: Smooth scroll utilities
-
-**Exports**:
-
-```typescript
-// Smooth scroll to target
-scrollTo(target
-:
-string | number, duration
-:
-number
-)
-
-// Get current scroll position
-getScrollPosition()
-:
-number
-
-// Disable body scroll
-disableScroll()
-
-// Enable body scroll
-enableScroll()
-```
-
-## 🎨 Tailwind CSS Customization
-
-### Custom Colors
-
-```typescript
-colors: {
-    dark: '#0a0a0a',              // Primary background
-        'dark-secondary'
-:
-    '#1a1a1a',  // Secondary background
-        accent
-:
-    '#FFA500',            // Orange accent
-        'accent-gold'
-:
-    '#D4AF37',     // Gold alternative
-}
-```
-
-### Custom Spacing
-
-```typescript
-spacing: {
-    'section'
-:
-    '100vh',  // Fullscreen sections
-}
-```
-
-## 📱 Responsive Breakpoints
-
-All components use Tailwind breakpoints:
-
-- `sm`: 640px
-- `md`: 768px (tablet)
-- `lg`: 1024px
-- `xl`: 1280px
-
-## 🚀 Performance Optimization
-
-### Best Practices
-
-1. **Image Optimization**
-    - Use WebP format where possible
-    - Lazy load below-the-fold images
-    - Use appropriate image sizes
-
-2. **Code Splitting**
-    - Nuxt handles automatic code splitting
-    - Route-based splitting included
-    - Component lazy loading available
-
-3. **Animation Performance**
-    - Use transform and opacity only
-    - Avoid animations on expensive properties
-    - Disable ScrollTrigger markers in production
-
-4. **Bundle Size**
-    - Tree-shake unused GSAP plugins
-    - Minimize CSS classes
-    - Remove dev-only code
-
-## 🧪 Testing
-
-### Manual Testing Checklist
-
-- [ ] Hero animation on page load
-- [ ] Scroll trigger activates at correct viewport position
-- [ ] Parallax effect smooth and 60fps
-- [ ] Story sections fade in properly
-- [ ] Process steps animate sequentially
-- [ ] Portfolio horizontal scroll works
-- [ ] Contact form validates and submits
-- [ ] Mobile responsive on all breakpoints
-- [ ] Animations smooth on slow devices
-- [ ] No console errors
-
-### Browser Support
-
-- Chrome/Edge: Latest 2 versions
-- Firefox: Latest 2 versions
-- Safari: Latest 2 versions
-- Mobile browsers: Latest
-
-## 🐛 Debugging
-
-### Enable ScrollTrigger Markers
-
-In production components, temporarily add:
-
-```typescript
-scrollTrigger: {
-    // ...
-    markers: true,  // Shows trigger zones
-}
-```
-
-### Check ScrollTrigger Status
-
-```typescript
-// In browser console
-gsap.globalTimeline.getChildren()
-ScrollTrigger.getAll()
-```
-
-### Performance Profiling
-
-1. Open DevTools Performance tab
-2. Record while scrolling
-3. Look for Long Tasks (>50ms)
-4. Check FPS (aim for 60fps)
-
-## 📦 Deployment
-
-### Pre-deployment Checklist
-
-- [ ] Run `npm run build` successfully
-- [ ] No console errors in production build
-- [ ] Images optimized
-- [ ] Animations smooth on target devices
-- [ ] Form submission working
-- [ ] All links functional
-- [ ] Meta tags updated
-- [ ] Analytics tracking in place
-
-### Environment Variables
-
-```env
-# .env.production
-NUXT_PUBLIC_API_BASE=https://api.flexcontractor.com
-```
-
-## 🔄 Continuous Integration
-
-### GitHub Actions Setup
-
-```yaml
-name: Build and Deploy
-
-on: [ push ]
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-      - run: npm install
-      - run: npm run build
-      - run: npm run preview  # Test build
-```
-
-## 📚 Resources
-
-- [Nuxt 3 Best Practices](https://nuxt.com/docs/guide/concepts/auto-imports)
-- [GSAP ScrollTrigger Guide](https://gsap.com/docs/v3/Plugins/ScrollTrigger/)
-- [Vue 3 Performance](https://vuejs.org/guide/best-practices/)
-- [Tailwind CSS Design System](https://tailwindcss.com/docs/customization)
-
-## 🤝 Contributing
-
-### Code Style
-
-- Use TypeScript for type safety
-- Scoped styles for CSS isolation
-- Consistent naming conventions
-- Comments for complex logic
-
-### Adding New Features
-
-1. Create feature branch
-2. Implement with TypeScript
-3. Add corresponding styles
-4. Test across breakpoints
-5. Submit pull request
-
-## 📞 Support
-
-For questions about development:
-
-- Check existing component implementations
-- Review GSAP documentation
-- Consult Nuxt/Vue 3 docs
-- Profile with browser DevTools
-
----
-
-**Last Updated**: May 4, 2026
-
+## Styling
+
+Tailwind purges anything it cannot find in `app/**`. A class that only ever appears in a computed string will be
+stripped. After a build, cross-check the classes the pages actually render against the emitted CSS — anything present in
+the HTML with no rule in
+`.output/public/_nuxt/entry.*.css` is a purge miss. (`router-link-active` and
+`router-link-exact-active` are expected: Vue Router adds them and they carry no styles.)
