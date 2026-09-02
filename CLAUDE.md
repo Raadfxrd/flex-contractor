@@ -239,8 +239,10 @@ added to `STATIC_ROUTES` in sitemap.xml.ts.**
 `app/data/site.ts`, `services.ts` and `projects.ts` are **invented**: 555 phone number, made-up licence number,
 fictional clients and figures. They feed the visible pages *and*
 the LocalBusiness structured data, where publishing invented name/address/phone data is actively harmful.
-`app/data/projects.ts` deliberately ships **no** testimonials — the type supports them
-and the page renders them, but a fabricated quote attributed to a named person is a
-different class of placeholder from invented body copy.
+`app/data/projects.ts` also ships five **fabricated testimonials**, added so the case-study layout can be seen with its
+quote block populated. Treat them as the most dangerous content in the repo: invented body copy reads as marketing, but
+an invented quote attributed to a named person at a named company reads as a claim that a specific individual said a
+specific thing. The page renders the block only when a project carries a quote, so deleting the field removes it
+cleanly.
 
 `README.md` carries the full before-launch checklist. Keep it accurate when you touch these files.
