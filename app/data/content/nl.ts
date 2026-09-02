@@ -62,6 +62,10 @@ export const nl: Content = {
             'Flexcontractor B.V. biedt complete renovatie- en bouwdiensten voor zowel '
             + 'commerciële als particuliere eigendommen. Wij zorgen voor elk detail van uw '
             + 'project, van planning tot oplevering, met de hoogste kwaliteitsstandaarden.',
+        range:
+            'Van één opgeknapte kamer tot een high-end verbouwing: wij werken voor elk '
+            + 'budget en zeggen vooraf eerlijk wat daarbinnen haalbaar is. Voor iedereen '
+            + 'zit er iets bij.',
     },
 
     values: {
@@ -81,126 +85,115 @@ export const nl: Content = {
 
     specialisms: {
         eyebrow: 'Onze specialismes',
-        title: 'Twaalf vakgebieden',
+        title: 'Zes vakgebieden',
         lede:
-            'Van een enkele trap tot een volledige verbouwing. Elk specialisme wordt '
-            + 'uitgevoerd door onze eigen vakmensen.',
-        scrollHint: 'Blijf scrollen om alle specialismes te zien',
+            'Wij zijn aannemer voor de hele verbouwing, niet voor één onderdeel ervan. '
+            + 'Deze zes gebieden dekken samen alles wat er bij een woning of bedrijfspand '
+            + 'komt kijken, en u belt er maar één partij voor.',
+        scrollHint: 'Blijf scrollen om alle vakgebieden te zien',
         swipeHint: 'Swipe of scroll opzij',
         items: [
             {
-                slug: 'grindvloer-steentapijt',
-                title: 'Grindvloer en steentapijt',
+                slug: 'verbouwing-en-uitbouw',
+                title: 'Verbouwing en uitbouw',
                 description:
-                    'Flexcontractor B.V. is uw expert voor het aanleggen van duurzame en '
-                    + 'stijlvolle grindvloeren en steentapijten. Ideaal voor zowel commerciële '
-                    + 'ruimtes als particuliere woningen. Wij bieden een breed scala aan '
-                    + 'kleuren en patronen die perfect passen bij uw interieur.',
-            },
-            {
-                slug: 'aanbouw-en-uitbouw',
-                title: 'Aanbouw en uitbouw',
-                description:
-                    'Of u nu meer ruimte wilt creëren voor uw gezin of uw bedrijf wilt '
-                    + 'uitbreiden, Flexcontractor B.V. zorgt voor hoogwaardige aanbouw- en '
-                    + 'uitbouwprojecten. Van vergunningaanvragen tot de laatste afwerking, wij '
-                    + 'regelen alles.',
+                    'Meer ruimte, een andere indeling, of een heel ander gebruik van hetzelfde '
+                    + 'pand. Wij verzorgen het volledige traject, van de eerste schets en de '
+                    + 'vergunningaanvraag tot de laatste afwerking.',
+                includes: [
+                    'Aanbouw en uitbouw',
+                    'Dakopbouw en dakkapel',
+                    'Doorbraken en indelingswijzigingen',
+                    'Vergunningaanvraag en tekeningen',
+                ],
                 image: '/img/verbouwing.jpg',
                 imageAlt:
                     'Woning tijdens de sloopfase van een verbouwing, met blootliggend '
                     + 'houtskelet en een ladder',
             },
             {
-                slug: 'tuin-of-dakterras',
-                title: 'Tuin of dakterras',
+                slug: 'keuken-en-badkamer',
+                title: 'Keuken en badkamer',
                 description:
-                    'Geniet optimaal van uw buitenruimte met een professioneel aangelegd tuin '
-                    + 'of dakterras. Flexcontractor B.V. biedt op maat gemaakte ontwerpen die '
-                    + 'uw wensen en budget respecteren, voor een functionele en esthetische '
-                    + 'buitenomgeving.',
-            },
-            {
-                slug: 'zwevende-trap',
-                title: 'Zwevende trap',
-                description:
-                    'Voor een moderne en onderhoudsvriendelijke vloer kiest u een zwevende '
-                    + 'vloer van Flexcontractor B.V. Geschikt voor zowel woonhuizen als '
-                    + 'kantoren, deze vloeren bieden uitstekende isolatie en geluidsdemping.',
-            },
-            {
-                slug: 'traprenovatie',
-                title: 'Traprenovatie of nieuwe trap',
-                description:
-                    'Geef uw trap een nieuw leven met onze traprenovatiediensten, of laat een '
-                    + 'volledig nieuwe trap installeren. Flexcontractor B.V. levert vakmanschap '
-                    + 'dat zowel veiligheid als stijl garandeert.',
-                image: '/img/trap-en-vloer.jpg',
-                imageAlt:
-                    'Open woonruimte met een houten trap met zwevende treden en een '
-                    + 'houten vloer',
-            },
-            {
-                slug: 'alle-soorten-vloeren',
-                title: 'Alle soorten vloeren',
-                description:
-                    'Van parket tot laminaat, Flexcontractor B.V. legt alle soorten vloeren met '
-                    + 'precisie en zorg. Wij adviseren u graag over de beste opties voor uw '
-                    + 'specifieke situatie en zorgen voor een vakkundige installatie.',
-            },
-            {
-                slug: 'dakopbouw-of-dakkapel',
-                title: 'Dakopbouw of dakkapel',
-                description:
-                    'Verhoog de waarde en functionaliteit van uw woning met een dakopbouw of '
-                    + 'dakkapel van Flexcontractor B.V. Onze oplossingen zorgen voor extra '
-                    + 'ruimte en lichtinval, afgestemd op uw wensen.',
-            },
-            {
-                slug: 'raam-en-deurkozijnen',
-                title: 'Raam- en deurkozijnen',
-                description:
-                    'Voeg karakter en detail toe aan uw woning met op maat gemaakte raam- en '
-                    + 'deurlijsten van Flexcontractor B.V. Onze vakmensen zorgen voor een '
-                    + 'perfecte afwerking die bijdraagt aan de uitstraling van uw interieur.',
-                image: '/img/afwerking.jpg',
-                imageAlt: 'Strakke moderne keuken met lichte kastenwand en houten vloer',
-            },
-            {
-                slug: 'keuken-installatie',
-                title: 'Keuken installatie',
-                description:
-                    'Van ontwerp tot installatie, Flexcontractor B.V. zorgt voor uw '
-                    + 'droomkeuken. Wij werken met hoogwaardige materialen en apparatuur om een '
-                    + 'functionele en stijlvolle keuken te creëren die perfect bij uw leefstijl '
-                    + 'past.',
+                    'De twee ruimtes waar het meeste samenkomt: leidingwerk, electra, tegelwerk '
+                    + 'en maatwerk, allemaal op enkele vierkante meters en allemaal zichtbaar '
+                    + 'zodra er iets niet klopt. Wij leveren ze compleet, van ontwerp tot '
+                    + 'aansluiting.',
+                includes: [
+                    'Keukenontwerp en installatie',
+                    'Badkamer en sanitair',
+                    'Tegel- en voegwerk',
+                    'Aansluiten van water, afvoer en electra',
+                ],
                 image: '/img/keuken.jpg',
                 imageAlt:
                     'Moderne keuken met donkere houten kasten, wit werkblad en zwarte '
                     + 'hanglampen',
             },
             {
-                slug: 'vloerverwarming',
-                title: 'Vloerverwarming',
+                slug: 'vloeren-en-trappen',
+                title: 'Vloeren en trappen',
                 description:
-                    'Geniet van het comfort van vloerverwarming, geïnstalleerd door '
-                    + 'Flexcontractor B.V. Wij bieden energie-efficiënte oplossingen die zorgen '
-                    + 'voor een gelijkmatige warmteverdeling in uw woning of kantoor.',
+                    'Alles waar u dagelijks overheen loopt. Van één vloer tot een complete trap, '
+                    + 'in materialen die passen bij het gebruik van de ruimte en bij wat u wilt '
+                    + 'uitgeven.',
+                includes: [
+                    'Parket, laminaat en PVC',
+                    'Grindvloer en steentapijt',
+                    'Zwevende en geïsoleerde vloeren',
+                    'Traprenovatie en nieuwe trappen',
+                ],
+                image: '/img/trap-en-vloer.jpg',
+                imageAlt:
+                    'Open woonruimte met een houten trap met zwevende treden en een houten vloer',
             },
             {
-                slug: 'electra-en-loodgieterswerk',
-                title: 'Electra en loodgieterswerk',
+                slug: 'timmerwerk-en-afwerking',
+                title: 'Timmerwerk en afwerking',
                 description:
-                    'Voor betrouwbaar electra en loodgieterswerk kunt u rekenen op de expertise '
-                    + 'van Flexcontractor B.V. Of het nu gaat om een complete installatie of '
-                    + 'reparatiewerkzaamheden, wij garanderen veiligheid en kwaliteit.',
+                    'De fase waarop een verbouwing wordt beoordeeld. Maatwerk in plaats van '
+                    + 'standaardmaten, en een opleverlijst die opengaat bij het eerste '
+                    + 'montagewerk in plaats van pas bij de oplevering.',
+                includes: [
+                    'Raam- en deurkozijnen',
+                    'Betimmering en maatwerkkasten',
+                    'Stuc-, schilder- en spuitwerk',
+                    'Plafonds en wandafwerking',
+                ],
+                image: '/img/afwerking.jpg',
+                imageAlt: 'Strakke moderne keuken met lichte kastenwand en houten vloer',
             },
             {
-                slug: 'warmtewinning',
-                title: 'Warmtewinning',
+                slug: 'installaties',
+                title: 'Installaties',
                 description:
-                    'Voor duurzame energieoplossingen zoals warmtepompen en zonneboilers kunt u '
-                    + 'bij Flexcontractor B.V. terecht. Wij helpen u de juiste systemen te '
-                    + 'kiezen en installeren ze vakkundig voor maximale energiebesparing.',
+                    'Alles wat achter de wand zit en het verschil maakt tussen een ruimte die '
+                    + 'werkt en een ruimte die er alleen goed uitziet. Aangelegd, getest en '
+                    + 'gedocumenteerd volgens NEN 1010.',
+                includes: [
+                    'Electra en groepenkast',
+                    'Loodgieterswerk en sanitair',
+                    'Vloerverwarming',
+                    'Warmtepompen en zonneboilers',
+                ],
+                image: '/img/installaties.jpg',
+                imageAlt:
+                    'Radiator met koperen leidingen en losse bedrading tegen een witte wand '
+                    + 'tijdens een verbouwing',
+            },
+            {
+                slug: 'buitenruimte',
+                title: 'Buitenruimte',
+                description:
+                    'De ruimte die het vaakst als laatste aan bod komt en daarna het meest '
+                    + 'gebruikt wordt. Tuin, dakterras of balkon, ingericht op wat u er '
+                    + 'werkelijk wilt doen.',
+                includes: [
+                    'Tuinaanleg en bestrating',
+                    'Dakterras en balkon',
+                    'Schuttingen en bergingen',
+                    'Buitenverlichting en buitenkranen',
+                ],
             },
         ],
     },

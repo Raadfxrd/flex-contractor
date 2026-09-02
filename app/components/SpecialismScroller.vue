@@ -192,7 +192,19 @@ onUnmounted(() => {
           <div class="flex flex-1 flex-col p-6">
             <span class="numeral text-xs text-brand">{{ String(i + 1).padStart(2, '0') }}</span>
             <h3 class="mt-3 font-display text-xl font-bold leading-tight text-white">{{ item.title }}</h3>
-            <p class="mt-3 text-sm leading-relaxed text-neutral-400">{{ item.description }}</p>
+            <p class="mt-3 flex-1 text-sm leading-relaxed text-neutral-400">{{ item.description }}</p>
+
+            <!--
+              The specific trades stay visible. Grouping twelve narrow
+              specialisms into six broad areas is what stops the site reading
+              as a jobbing specialist, but somebody searching for "dakkapel"
+              still needs to see the word on the page.
+            -->
+            <ul class="mt-5 space-y-1.5 border-t border-white/10 pt-4">
+              <li v-for="line in item.includes" :key="line" class="text-xs text-neutral-500">
+                {{ line }}
+              </li>
+            </ul>
           </div>
         </li>
       </ul>
