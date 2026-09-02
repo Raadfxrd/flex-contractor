@@ -5,9 +5,9 @@
 @tailwind utilities;
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
 }
 
 /*
@@ -24,41 +24,41 @@
  * overflow and snap properties here on <html>, and leave <body> auto-height.
  */
 html {
-    width: 100%;
-    overflow-x: hidden;
-    background-color: #0a0a0a;
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
+	width: 100%;
+	overflow-x: hidden;
+	background-color: #0a0a0a;
+	color: #ffffff;
+	font-family: 'Inter', sans-serif;
 
-    /*
-     * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens
-     * to end near a snap point, which reads as snapping that works half the
-     * time. The section-by-section feel needs mandatory.
-     *
-     * The usual objection to mandatory -- that it traps you on content taller
-     * than the viewport -- does not apply here, because every snap point is a
-     * full-screen section. The two sections that are or can be taller than the
-     * viewport (contact, footer) opt out with .no-snap, and snapping is switched
-     * off entirely from the portfolio down (see PortfolioScroller).
-     */
-    scroll-snap-type: y mandatory;
-    scroll-padding-top: 0;
+	/*
+	 * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens
+	 * to end near a snap point, which reads as snapping that works half the
+	 * time. The section-by-section feel needs mandatory.
+	 *
+	 * The usual objection to mandatory -- that it traps you on content taller
+	 * than the viewport -- does not apply here, because every snap point is a
+	 * full-screen section. The two sections that are or can be taller than the
+	 * viewport (contact, footer) opt out with .no-snap, and snapping is switched
+	 * off entirely from the portfolio down (see PortfolioScroller).
+	 */
+	scroll-snap-type: y mandatory;
+	scroll-padding-top: 0;
 
-    /*
-     * Deliberately NOT `scroll-behavior: smooth`. It fights `scroll-snap-type:
-     * y mandatory` and breaks ScrollTrigger's scrub. Use useSmoothScroll() or
-     * an explicit scrollTo({behavior:'smooth'}) where a smooth jump is wanted.
-     */
+	/*
+	 * Deliberately NOT `scroll-behavior: smooth`. It fights `scroll-snap-type:
+	 * y mandatory` and breaks ScrollTrigger's scrub. Use useSmoothScroll() or
+	 * an explicit scrollTo({behavior:'smooth'}) where a smooth jump is wanted.
+	 */
 }
 
 body {
-    width: 100%;
-    min-height: 100vh;
-    background-color: #0a0a0a;
-    -webkit-overflow-scrolling: touch;
+	width: 100%;
+	min-height: 100vh;
+	background-color: #0a0a0a;
+	-webkit-overflow-scrolling: touch;
 
-    /* See the note on <html>: mirrored so either propagation model works. */
-    scroll-snap-type: y mandatory;
+	/* See the note on <html>: mirrored so either propagation model works. */
+	scroll-snap-type: y mandatory;
 }
 
 /*
@@ -68,57 +68,57 @@ body {
  */
 html.snap-disabled,
 body.snap-disabled {
-    scroll-snap-type: none !important;
+	scroll-snap-type: none !important;
 }
 
 .snap-disabled .section-container,
 .snap-disabled .no-snap {
-    scroll-snap-align: none !important;
-    scroll-snap-stop: normal !important;
+	scroll-snap-align: none !important;
+	scroll-snap-stop: normal !important;
 }
 
 @layer components {
-    .section-container {
-        @apply w-full h-screen relative;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-    }
+	.section-container {
+		@apply w-full h-screen relative;
+		scroll-snap-align: start;
+		scroll-snap-stop: always;
+	}
 
-    /*
-     * Must stay declared AFTER .section-container: both are single-class
-     * selectors, so source order is what lets an element carry
-     * `section-container no-snap` and opt out of snapping.
-     */
-    .no-snap {
-        scroll-snap-align: none;
-        scroll-snap-stop: normal;
-    }
+	/*
+	 * Must stay declared AFTER .section-container: both are single-class
+	 * selectors, so source order is what lets an element carry
+	 * `section-container no-snap` and opt out of snapping.
+	 */
+	.no-snap {
+		scroll-snap-align: none;
+		scroll-snap-stop: normal;
+	}
 
-    .section-title {
-        @apply text-6xl md:text-7xl font-bold text-white leading-tight;
-    }
+	.section-title {
+		@apply text-6xl md:text-7xl font-bold text-white leading-tight;
+	}
 
-    .section-subtitle {
-        @apply text-xl md:text-2xl text-gray-300 font-light;
-    }
+	.section-subtitle {
+		@apply text-xl md:text-2xl text-gray-300 font-light;
+	}
 
-    .gradient-overlay {
-        @apply absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent;
-    }
+	.gradient-overlay {
+		@apply absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent;
+	}
 
-    .scroll-indicator {
-        @apply absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2;
-    }
+	.scroll-indicator {
+		@apply absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2;
+	}
 }
 
 /* Smooth page transition */
 .layout-enter-active, .layout-leave-active {
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+	transition: opacity 0.5s ease-out, transform 0.5s ease-out;
 }
 
 .layout-enter-from, .layout-leave-to {
-    opacity: 0;
-    transform: translateY(10px);
+	opacity: 0;
+	transform: translateY(10px);
 }
 
 /*
@@ -127,20 +127,20 @@ body.snap-disabled {
  * via gsap.matchMedia() in each component.
  */
 @media (prefers-reduced-motion: reduce) {
-    html,
-    body {
-        scroll-snap-type: none;
-    }
+	html,
+	body {
+		scroll-snap-type: none;
+	}
 
-    .section-container {
-        scroll-snap-align: none;
-        scroll-snap-stop: normal;
-    }
+	.section-container {
+		scroll-snap-align: none;
+		scroll-snap-stop: normal;
+	}
 
-    *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
+	*, *::before, *::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
 }

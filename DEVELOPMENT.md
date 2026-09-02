@@ -31,7 +31,7 @@ App (app.vue)
 
 ### State Management
 
-Uses Vue 3 Composition API with ref() and reactive() for local state. No external state management needed as sections
+Uses Vue 3 Composition API with ref () and reactive () for local state. No external state management needed as sections
 are independent.
 
 ### Animation Architecture
