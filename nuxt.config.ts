@@ -4,7 +4,18 @@ export default defineNuxtConfig({
     devtools: {enabled: true},
     modules: ['@nuxtjs/tailwindcss', '@nuxt/image'],
 
-    css: ['~~/assets/css/globals.css'],
+    /*
+     * globals.css is handed to the Tailwind module as its `cssPath` rather than
+     * being pushed onto the `css:` array. The module injects a virtual
+     * stylesheet carrying the three @tailwind directives when it cannot find a
+     * cssPath of its own -- listing ours here means there is exactly one copy
+     * of the Tailwind output in the bundle instead of two.
+     *
+     * `~/` (not `~~/`) is correct now: assets/ moved inside srcDir (app/).
+     */
+    tailwindcss: {
+        cssPath: '~/assets/css/globals.css',
+    },
 
     image: {
         /*
