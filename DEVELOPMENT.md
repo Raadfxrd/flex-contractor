@@ -50,6 +50,16 @@ The homepage is the only page that snaps. Everything here is about `/`.
   ends flush.
 - [ ] Tab through the portfolio cards. The track scrolls to follow focus; the section does not shear sideways.
 
+## Languages
+
+- [ ] `/` is Dutch, `/en` is English, and the header toggle moves between the *same* page in each.
+- [ ] `<html lang>` is `nl-NL` on Dutch pages and `en-GB` on English ones — not one value everywhere.
+- [ ] Every page carries three `hreflang` alternates (`nl-NL`, `en-GB`, `x-default`) and a canonical that
+      matches its own URL, not the other locale's.
+- [ ] Navigate around in English: no link silently drops you back onto a Dutch page.
+- [ ] The testimonials on `/en` carry the "translated from the original Dutch" note; the Dutch ones do not.
+
+
 ## Pages
 
 - [ ] Every route returns 200: `/`, `/services`, each `/services/[slug]`, `/projects`, each `/projects/[slug]`,

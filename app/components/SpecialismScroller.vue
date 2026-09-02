@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import gsap from 'gsap'
 import {ScrollTrigger} from 'gsap/ScrollTrigger'
-import {projects} from '~/data/projects'
 
 gsap.registerPlugin(ScrollTrigger)
+
+const c = useContent()
+const localePath = useLocalePath()
 
 const sectionRef = ref<HTMLElement>()
 const trackRef = ref<HTMLElement>()
@@ -26,8 +28,9 @@ onMounted(() => {
 
   /*
    * Every scroll-snap point on the page (hero, the four story sections, the
-   * process section) sits ABOVE this component. From here down there are none:
-   * the portfolio is pinned, and contact and the footer both opt out.
+   * values section) sits ABOVE this component. From here down there are none:
+   * this section is pinned, and testimonials, contact and the footer all opt
+   * out.
    *
    * So rather than coordinating with the pin frame by frame, switch snapping
    * off wholesale for the whole region: one threshold, crossed once.
@@ -56,11 +59,15 @@ onMounted(() => {
   snapGate = ScrollTrigger.create({
     trigger: sectionRef.value,
     /*
-     * 'top 80%', not 'top center'. Between the process section's snap position
-     * and this threshold, mandatory snapping is still live with the process
-     * section as the only reachable snap point, so that gap is a zone the
-     * scroll can get pulled back into. 80% leaves only a fifth of a viewport of
-     * it while still letting the process section snap normally either way.
+     * 'top 80%', not 'top center'. Between the previous section's snap position
+     * and this threshold, mandatory snapping is still live with that section as
+     * the only reachable snap point, so the gap is a zone the scroll can get
+     * pulled back into. 80% leaves only a fifth of a viewport of it while still
+     * letting the previous section snap normally either way.
+     *
+     * NOTE: useScrollSnap()'s wheel handler also animates the page across this
+     * gap in one move, which is what stops a discrete mouse notch getting stuck
+     * on the last snap point. The two work together; do not remove either.
      */
     start: 'top 80%',
     end: 'max',
@@ -72,7 +79,7 @@ onMounted(() => {
      * (ScrollTrigger.js:1681). With `end: 'max'`, scrolling to the very bottom
      * of the page puts progress at exactly 1, so isActive flips back to false
      * there -- which would re-arm mandatory snapping at the one place with no
-     * snap points below it, snapping the page back up to the process section.
+     * snap points below it, snapping the page back up.
      */
     onEnter: () => setSnapDisabled(true),
     onLeaveBack: () => setSnapDisabled(false),
@@ -87,7 +94,6 @@ onMounted(() => {
 
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px)', () => {
     const track = trackRef.value!
-    const section = sectionRef.value!
     const distance = () => Math.max(0, track.scrollWidth - window.innerWidth)
 
     pinned.value = true
@@ -96,7 +102,7 @@ onMounted(() => {
       x: () => -distance(),
       ease: 'none',
       scrollTrigger: {
-        trigger: section,
+        trigger: sectionRef.value,
         start: 'top top',
         // Travel exactly as far as the content overflows, recomputed on
         // resize via invalidateOnRefresh.
@@ -106,45 +112,12 @@ onMounted(() => {
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onUpdate: (self) => {
-          if (progressRef.value) {
-            gsap.set(progressRef.value, {scaleX: self.progress})
-          }
+          if (progressRef.value) gsap.set(progressRef.value, {scaleX: self.progress})
         },
       },
     })
 
-    /*
-     * Keyboard parity with the mouse.
-     *
-     * Each card is a link, so tabbing eventually lands on one that the pin has
-     * translated off-screen. The browser's own scroll-into-view then looks for
-     * the nearest scrollable ancestor: <section> is `overflow-hidden`, which is
-     * still programmatically scrollable, so it silently shifts its scrollLeft
-     * and the pinned layout skews.
-     *
-     * Instead: drive the PAGE scroll to the position whose pin progress brings
-     * that card into view, and reset the ancestor's own scroll offsets back to
-     * zero in case the UA got there first. Tabbing now moves the track exactly
-     * as scrolling does.
-     */
-    const st = tween.scrollTrigger!
-
-    const onFocusIn = (event: FocusEvent) => {
-      const card = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-card-index]')
-      if (!card) return
-
-      const index = Number(card.dataset.cardIndex)
-      const progress = projects.length > 1 ? index / (projects.length - 1) : 0
-
-      window.scrollTo({top: st.start + progress * (st.end - st.start)})
-      section.scrollLeft = 0
-      section.scrollTop = 0
-    }
-
-    section.addEventListener('focusin', onFocusIn)
-
     return () => {
-      section.removeEventListener('focusin', onFocusIn)
       pinned.value = false
       tween.scrollTrigger?.kill()
       tween.kill()
@@ -162,23 +135,20 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <section
-      ref="sectionRef"
-      class="relative flex h-screen w-full flex-col overflow-hidden bg-ink"
-  >
+  <section ref="sectionRef" class="relative flex h-screen w-full flex-col overflow-hidden bg-ink">
     <div class="wrap shrink-0 pt-[calc(var(--header-h)+2rem)]">
       <div class="flex flex-wrap items-end justify-between gap-6">
         <div>
-          <p class="eyebrow">Selected work</p>
-          <h2 class="display-2 mt-5">Portfolio</h2>
+          <p class="eyebrow">{{ c.specialisms.eyebrow }}</p>
+          <h2 class="display-2 mt-5">{{ c.specialisms.title }}</h2>
         </div>
 
         <div class="flex items-center gap-6">
           <p class="hidden max-w-xs text-sm text-neutral-500 sm:block">
-            {{ pinned ? 'Keep scrolling to move through the work.' : 'Swipe sideways to see the work.' }}
+            {{ pinned ? c.specialisms.scrollHint : c.specialisms.swipeHint }}
           </p>
-          <NuxtLink to="/projects" class="btn-secondary !px-5 !py-2.5 !text-[0.6875rem]">
-            All projects
+          <NuxtLink :to="localePath('/specialisms')" class="btn-secondary !px-5 !py-2.5 !text-[0.6875rem]">
+            {{ c.actions.allSpecialisms }}
           </NuxtLink>
         </div>
       </div>
@@ -191,51 +161,39 @@ onUnmounted(() => {
         ]"
         :tabindex="pinned ? -1 : 0"
         role="group"
-        aria-label="Selected projects"
+        :aria-label="c.specialisms.title"
     >
-      <ul
-          ref="trackRef"
-          class="flex w-max list-none items-stretch gap-6 px-6 md:gap-10 md:px-10 lg:px-16"
-      >
+      <ul ref="trackRef" class="flex w-max list-none items-stretch gap-6 px-6 md:gap-8 md:px-10 lg:px-16">
         <li
-            v-for="(project, i) in projects"
-            :key="project.slug"
-            :data-card-index="i"
-            class="group relative w-[19rem] shrink-0 snap-start md:w-[30rem]"
+            v-for="(item, i) in c.specialisms.items"
+            :key="item.slug"
+            class="flex w-[17rem] shrink-0 snap-start flex-col border border-white/10 bg-surface md:w-[22rem]"
         >
-          <NuxtLink :to="`/projects/${project.slug}`" class="block">
-            <div class="relative h-[20rem] w-full overflow-hidden bg-surface md:h-[30rem]">
-              <NuxtImg
-                  :src="project.image"
-                  :alt="project.imageAlt"
-                  :loading="i === 0 ? 'eager' : 'lazy'"
-                  sizes="xs:304px sm:304px md:480px lg:480px xl:480px"
-                  width="480"
-                  height="480"
-                  class="h-full w-full object-cover transition-transform duration-700 ease-out-expo group-hover:scale-[1.04]"
-              />
-              <div class="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent"/>
-            </div>
+          <!--
+            Only four of the twelve carry a photo. Rather than pad the rest with
+            a placeholder, the card simply runs as type — which keeps the row
+            honest about what we actually have images of.
 
-            <!--
-              Caption sits below the image rather than inside a hover-only
-              overlay: hover does not exist on touch, so an overlay-only caption
-              is invisible to every phone visitor.
-            -->
-            <div class="mt-5 flex items-baseline gap-4 border-t border-white/10 pt-5">
-              <span class="numeral shrink-0 text-xs text-neutral-600">
-                {{ String(i + 1).padStart(2, '0') }}
-              </span>
-              <div>
-                <h3 class="display-3 leading-tight transition-colors group-hover:text-neutral-300">
-                  {{ project.title }}
-                </h3>
-                <p class="mt-1.5 text-sm text-neutral-500">
-                  {{ project.category }} · {{ project.year }}
-                </p>
-              </div>
-            </div>
-          </NuxtLink>
+            These sources are 1280px, so `sizes` caps well under it.
+          -->
+          <div v-if="item.image" class="relative h-44 w-full overflow-hidden bg-surface-2 md:h-52">
+            <NuxtImg
+                :src="item.image"
+                :alt="item.imageAlt ?? ''"
+                :loading="i === 0 ? 'eager' : 'lazy'"
+                sizes="xs:272px sm:272px md:352px lg:352px xl:352px"
+                width="352"
+                height="208"
+                class="h-full w-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-surface/80 to-transparent"/>
+          </div>
+
+          <div class="flex flex-1 flex-col p-6">
+            <span class="numeral text-xs text-brand">{{ String(i + 1).padStart(2, '0') }}</span>
+            <h3 class="mt-3 font-display text-xl font-bold leading-tight text-white">{{ item.title }}</h3>
+            <p class="mt-3 text-sm leading-relaxed text-neutral-400">{{ item.description }}</p>
+          </div>
         </li>
       </ul>
     </div>
@@ -243,7 +201,7 @@ onUnmounted(() => {
     <!-- Progress rail: only meaningful while scroll drives the track -->
     <div v-show="pinned" class="wrap shrink-0 pb-10">
       <div class="h-px w-full bg-white/15">
-        <div ref="progressRef" class="h-px w-full origin-left scale-x-0 bg-white"/>
+        <div ref="progressRef" class="h-px w-full origin-left scale-x-0 bg-brand"/>
       </div>
     </div>
   </section>

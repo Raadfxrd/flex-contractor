@@ -1,15 +1,32 @@
 <script setup lang="ts">
-import {primaryNav, site} from '~/data/site'
+import {site} from '~/data/site'
 
 const route = useRoute()
+const c = useContent()
+const localePath = useLocalePath()
+const switchLocalePath = useSwitchLocalePath()
+const {locale} = useI18n()
+
+const nav = computed(() => [
+  {label: c.value.nav.services, to: localePath('/services')},
+  {label: c.value.nav.specialisms, to: localePath('/specialisms')},
+  {label: c.value.nav.about, to: localePath('/about')},
+  {label: c.value.nav.careers, to: localePath('/careers')},
+])
+
+/** The other locale — this site has exactly two, so "the other one" is well defined. */
+const otherLocale = computed(() => (locale.value === 'nl' ? 'en' : 'nl'))
 
 /*
  * The homepage opens on a full-bleed photographic hero, so the header sits
  * transparently over it and only takes a background once the hero has scrolled
  * past. Every other page starts on a solid ground, so the header is opaque from
- * the first frame -- otherwise the wordmark floats over the page heading.
+ * the first frame -- otherwise the logo floats over the page heading.
+ *
+ * Compared against the localised home path, not '/': in English the homepage is
+ * '/en', and a bare '/' test would make the header opaque over the English hero.
  */
-const isHome = computed(() => route.path === '/')
+const isHome = computed(() => route.path === localePath('/'))
 const scrolled = ref(false)
 const menuOpen = ref(false)
 
@@ -60,23 +77,30 @@ watch(() => route.fullPath, () => {
       ]"
   >
     <div class="wrap flex h-[var(--header-h)] items-center justify-between gap-6">
-      <!-- Wordmark -->
-      <NuxtLink
-          to="/"
-          class="font-display text-base uppercase tracking-[0.14em] text-white"
-          :aria-label="`${site.name} — home`"
-      >
-        <span class="font-extrabold">Flex</span><span class="font-medium text-neutral-400"> Contractor</span>
+      <!--
+        The logo is a real image now. It is only 200px wide, which is fine at
+        this height (36px tall renders well under 2x) but not enough for any
+        larger use -- an SVG would be better if one exists.
+      -->
+      <NuxtLink :to="localePath('/')" class="flex items-center" :aria-label="`${site.name} — home`">
+        <NuxtImg
+            src="/logo.png"
+            :alt="site.name"
+            width="200"
+            height="186"
+            format="webp"
+            sizes="xs:104px sm:104px md:112px lg:112px xl:112px"
+            class="h-9 w-auto md:h-10"
+        />
       </NuxtLink>
 
-      <!-- Desktop navigation -->
       <nav class="hidden items-center gap-8 lg:flex" aria-label="Primary">
         <NuxtLink
-            v-for="item in primaryNav"
+            v-for="item in nav"
             :key="item.to"
             :to="item.to"
             class="font-display text-xs uppercase tracking-eyebrow text-neutral-400 transition-colors hover:text-white"
-            active-class="!text-white"
+            active-class="!text-brand"
         >
           {{ item.label }}
         </NuxtLink>
@@ -84,9 +108,23 @@ watch(() => route.fullPath, () => {
 
       <div class="flex items-center gap-3">
         <!--
+          Language toggle. A real link to the same page in the other locale, not
+          a client-side state flip: each language has its own indexable URL, so
+          this has to be navigable, shareable and crawlable.
+        -->
+        <NuxtLink
+            :to="switchLocalePath(otherLocale)"
+            class="hidden font-display text-xs uppercase tracking-eyebrow text-neutral-400 transition-colors hover:text-white sm:inline"
+            :hreflang="otherLocale"
+        >
+          {{ otherLocale === 'en' ? 'EN' : 'NL' }}
+        </NuxtLink>
+
+        <span class="hidden h-4 w-px bg-white/15 sm:block" aria-hidden="true"/>
+
+        <!--
           The phone number is a link, not text, and it is in the header on every
-          page. For a contractor it is the highest-intent action on the site and
-          it used to be reachable only by scrolling seven viewports to the footer.
+          page. For a contractor it is the highest-intent action on the site.
         -->
         <a
             :href="site.phoneHref"
@@ -95,16 +133,10 @@ watch(() => route.fullPath, () => {
           {{ site.phone }}
         </a>
 
-        <NuxtLink to="/contact" class="btn-primary hidden !px-5 !py-2.5 !text-[0.6875rem] sm:inline-flex">
-          Request a quote
+        <NuxtLink :to="localePath('/contact')" class="btn-primary hidden !px-5 !py-2.5 !text-[0.6875rem] sm:inline-flex">
+          {{ c.actions.requestQuote }}
         </NuxtLink>
 
-        <!--
-          Mobile menu toggle. It is also the close button: the icon swaps to an
-          X in place, so the control that opened the panel is exactly where a
-          visitor looks to shut it. Bordered while open so it reads as a
-          pressed, dismissable control rather than as decoration.
-        -->
         <button
             ref="toggleRef"
             type="button"
@@ -114,11 +146,10 @@ watch(() => route.fullPath, () => {
             ]"
             :aria-expanded="menuOpen"
             aria-controls="mobile-menu"
-            :aria-label="menuOpen ? 'Close menu' : 'Open menu'"
+            :aria-label="menuOpen ? c.actions.closeMenu : c.actions.openMenu"
             @click="menuOpen ? closeMenu() : (menuOpen = true)"
         >
-          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75"
-               aria-hidden="true">
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
             <path v-if="!menuOpen" stroke-linecap="round" d="M3 6h18M3 12h18M3 18h18"/>
             <path v-else stroke-linecap="round" d="M5 5l14 14M19 5L5 19"/>
           </svg>
@@ -126,11 +157,6 @@ watch(() => route.fullPath, () => {
       </div>
     </div>
 
-    <!--
-      Full-screen panel rather than a dropdown. `overscroll-contain` keeps a
-      wheel or swipe over the panel from scrolling the page behind it, which
-      matters more than usual here because the page behind may be mid-snap.
-    -->
     <Transition
         enter-active-class="transition-opacity duration-200"
         leave-active-class="transition-opacity duration-150"
@@ -144,7 +170,7 @@ watch(() => route.fullPath, () => {
       >
         <nav class="wrap flex flex-col py-8" aria-label="Primary (mobile)">
           <NuxtLink
-              v-for="item in primaryNav"
+              v-for="item in nav"
               :key="item.to"
               :to="item.to"
               class="border-b border-white/10 py-5 font-display text-2xl font-bold tracking-tight text-white"
@@ -152,17 +178,18 @@ watch(() => route.fullPath, () => {
             {{ item.label }}
           </NuxtLink>
 
-          <NuxtLink to="/contact" class="btn-primary mt-8 w-full">Request a quote</NuxtLink>
+          <NuxtLink :to="localePath('/contact')" class="btn-primary mt-8 w-full">
+            {{ c.actions.requestQuote }}
+          </NuxtLink>
 
           <a :href="site.phoneHref" class="btn-secondary mt-3 w-full">{{ site.phone }}</a>
 
-          <!--
-            A second, explicit way out at the end of the panel. On a tall phone
-            the X in the header is a thumb-stretch away once you have scrolled
-            the menu, and Escape is not available without a keyboard.
-          -->
-          <button class="btn-ghost mt-8 self-start" type="button" @click="closeMenu">
-            <span aria-hidden="true">&#10005;</span> Close menu
+          <NuxtLink :to="switchLocalePath(otherLocale)" :hreflang="otherLocale" class="btn-ghost mt-6 self-start">
+            {{ c.actions.switchLanguage }}
+          </NuxtLink>
+
+          <button class="btn-ghost mt-2 self-start" type="button" @click="closeMenu">
+            <span aria-hidden="true">&#10005;</span> {{ c.actions.closeMenu }}
           </button>
         </nav>
       </div>

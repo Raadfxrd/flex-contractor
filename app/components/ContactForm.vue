@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import {services} from '~/data/services'
 import {site} from '~/data/site'
 
+const c = useContent()
+const localePath = useLocalePath()
+
 /*
- * This form previously console.log()ed and then alert()ed "Thank you for your
- * inquiry! We will get back to you soon." -- a prospect believed they had made
- * contact and nobody ever heard from them. That is worse than having no form,
- * so the two failure modes are now distinct and both are honest:
+ * This form once console.log()ed and then alert()ed a thank-you -- a prospect
+ * believed they had made contact and nobody ever heard from them. That is worse
+ * than having no form, so the failure modes are distinct and all honest:
  *
  *   - delivery configured but the send failed  -> "could not send, try again"
- *   - delivery not configured on the server    -> tell the visitor plainly and
- *                                                 surface the phone and email
+ *   - delivery not configured on the server    -> say so plainly, and surface
+ *                                                 the phone number and email
  *
  * Neither path ever claims a message was received when it was not.
  */
@@ -32,17 +33,18 @@ const form = reactive({
 
 const validate = () => {
   const errors: Record<string, string> = {}
+  const t = c.value.form.errors
 
-  if (!form.name.trim()) errors.name = 'Please tell us your name.'
+  if (!form.name.trim()) errors.name = t.name
   if (!form.email.trim()) {
-    errors.email = 'We need an email address to reply to.'
+    errors.email = t.emailMissing
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(form.email.trim())) {
-    errors.email = 'That does not look like a complete email address.'
+    errors.email = t.emailInvalid
   }
   if (!form.message.trim()) {
-    errors.message = 'Please tell us a little about the project.'
+    errors.message = t.messageMissing
   } else if (form.message.trim().length < 20) {
-    errors.message = 'A sentence or two helps us route this to the right team.'
+    errors.message = t.messageShort
   }
 
   fieldErrors.value = errors
@@ -70,16 +72,13 @@ const submit = async () => {
       status.value = 'unavailable'
     } else {
       status.value = 'error'
-      errorMessage.value = error?.data?.message
-          || 'Something went wrong sending your message. Please try again.'
+      errorMessage.value = error?.data?.message || c.value.form.errors.generic
     }
   }
 }
 
 const reset = () => {
-  Object.assign(form, {
-    name: '', email: '', phone: '', projectType: '', message: '', companyWebsite: '',
-  })
+  Object.assign(form, {name: '', email: '', phone: '', projectType: '', message: '', companyWebsite: ''})
   fieldErrors.value = {}
   status.value = 'idle'
 }
@@ -87,26 +86,20 @@ const reset = () => {
 
 <template>
   <div>
-    <!-- Success -->
     <div v-if="status === 'success'" class="border border-white/15 bg-surface p-8 md:p-10">
-      <p class="eyebrow">Message sent</p>
-      <h3 class="display-3 mt-4">Thank you — we have it.</h3>
+      <p class="eyebrow">{{ c.form.success.eyebrow }}</p>
+      <h3 class="display-3 mt-4">{{ c.form.success.title }}</h3>
       <p class="body-copy mt-4">
-        Someone from the team will reply within one working day. If it is urgent,
-        call us on
+        {{ c.form.success.body }}
         <a :href="site.phoneHref" class="text-white underline underline-offset-4">{{ site.phone }}</a>.
       </p>
-      <button type="button" class="btn-secondary mt-8" @click="reset">Send another message</button>
+      <button type="button" class="btn-secondary mt-8" @click="reset">{{ c.form.success.again }}</button>
     </div>
 
-    <!-- Delivery not wired up on the server -->
     <div v-else-if="status === 'unavailable'" class="border border-white/15 bg-surface p-8 md:p-10">
-      <p class="eyebrow">Form unavailable</p>
-      <h3 class="display-3 mt-4">This form is not connected yet.</h3>
-      <p class="body-copy mt-4">
-        Your message was <strong class="text-white">not</strong> sent. Please reach us directly
-        in the meantime — we will pick it up straight away.
-      </p>
+      <p class="eyebrow">{{ c.form.unavailable.eyebrow }}</p>
+      <h3 class="display-3 mt-4">{{ c.form.unavailable.title }}</h3>
+      <p class="body-copy mt-4">{{ c.form.unavailable.body }}</p>
       <div class="mt-8 flex flex-col gap-3 sm:flex-row">
         <a :href="site.phoneHref" class="btn-primary">{{ site.phone }}</a>
         <a :href="site.emailHref" class="btn-secondary">{{ site.email }}</a>
@@ -121,91 +114,67 @@ const reset = () => {
       -->
       <div class="absolute left-[-9999px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
         <label for="company-website">Company website</label>
-        <input
-            id="company-website"
-            v-model="form.companyWebsite"
-            type="text"
-            tabindex="-1"
-            autocomplete="off"
-        >
+        <input id="company-website" v-model="form.companyWebsite" type="text" tabindex="-1" autocomplete="off">
       </div>
 
       <div class="grid gap-6 md:grid-cols-2">
         <div>
-          <label class="field-label" for="name">Full name *</label>
+          <label class="field-label" for="name">{{ c.form.name }}</label>
           <input
-              id="name"
-              v-model="form.name"
+              id="name" v-model="form.name" type="text" autocomplete="name"
               :class="['field', fieldErrors.name ? 'field-error' : '']"
               :aria-invalid="!!fieldErrors.name"
               :aria-describedby="fieldErrors.name ? 'name-error' : undefined"
-              autocomplete="name"
-              placeholder="Jordan Rivera"
-              type="text"
+              :placeholder="c.form.namePlaceholder"
           >
-          <p v-if="fieldErrors.name" id="name-error" class="mt-2 text-sm text-red-400">
-            {{ fieldErrors.name }}
-          </p>
+          <p v-if="fieldErrors.name" id="name-error" class="mt-2 text-sm text-red-400">{{ fieldErrors.name }}</p>
         </div>
 
         <div>
-          <label class="field-label" for="email">Email address *</label>
+          <label class="field-label" for="email">{{ c.form.email }}</label>
           <input
-              id="email"
-              v-model="form.email"
+              id="email" v-model="form.email" type="email" autocomplete="email"
               :class="['field', fieldErrors.email ? 'field-error' : '']"
               :aria-invalid="!!fieldErrors.email"
               :aria-describedby="fieldErrors.email ? 'email-error' : undefined"
-              autocomplete="email"
-              placeholder="jordan@company.com"
-              type="email"
+              :placeholder="c.form.emailPlaceholder"
           >
-          <p v-if="fieldErrors.email" id="email-error" class="mt-2 text-sm text-red-400">
-            {{ fieldErrors.email }}
-          </p>
+          <p v-if="fieldErrors.email" id="email-error" class="mt-2 text-sm text-red-400">{{ fieldErrors.email }}</p>
         </div>
 
         <div>
-          <label class="field-label" for="phone">Phone number</label>
+          <label class="field-label" for="phone">{{ c.form.phone }}</label>
           <input
-              id="phone"
-              v-model="form.phone"
-              autocomplete="tel"
-              class="field"
-              placeholder="+31 6 12345678"
-              type="tel"
+              id="phone" v-model="form.phone" type="tel" autocomplete="tel"
+              class="field" :placeholder="c.form.phonePlaceholder"
           >
         </div>
 
         <div>
-          <label class="field-label" for="projectType">Project type</label>
+          <label class="field-label" for="projectType">{{ c.form.projectType }}</label>
           <select id="projectType" v-model="form.projectType" class="field">
-            <option value="">Select a project type</option>
-            <option v-for="service in services" :key="service.slug" :value="service.slug">
+            <option value="">{{ c.form.projectTypePlaceholder }}</option>
+            <option v-for="service in c.services.items" :key="service.slug" :value="service.slug">
               {{ service.title }}
             </option>
-            <option value="other">Something else</option>
+            <option value="other">{{ c.form.other }}</option>
           </select>
         </div>
 
         <div class="md:col-span-2">
-          <label class="field-label" for="message">About the project *</label>
+          <label class="field-label" for="message">{{ c.form.message }}</label>
           <textarea
-              id="message"
-              v-model="form.message"
+              id="message" v-model="form.message" rows="6"
               :class="['field resize-y', fieldErrors.message ? 'field-error' : '']"
               :aria-invalid="!!fieldErrors.message"
               :aria-describedby="fieldErrors.message ? 'message-error' : undefined"
-              placeholder="Location, rough size, and what stage you are at."
-              rows="6"
+              :placeholder="c.form.messagePlaceholder"
           />
-          <p v-if="fieldErrors.message" id="message-error" class="mt-2 text-sm text-red-400">
-            {{ fieldErrors.message }}
-          </p>
+          <p v-if="fieldErrors.message" id="message-error" class="mt-2 text-sm text-red-400">{{ fieldErrors.message }}</p>
         </div>
       </div>
 
-      <!-- aria-live so the failure is announced, not just displayed. -->
+      <!-- role=alert so the failure is announced, not just displayed. -->
       <p
           v-if="status === 'error'"
           class="mt-6 border border-red-400/40 bg-red-400/5 px-4 py-3 text-sm text-red-300"
@@ -216,14 +185,13 @@ const reset = () => {
 
       <div class="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
         <button :disabled="status === 'submitting'" class="btn-primary disabled:opacity-60" type="submit">
-          {{ status === 'submitting' ? 'Sending…' : 'Send enquiry' }}
+          {{ status === 'submitting' ? c.form.submitting : c.form.submit }}
         </button>
         <p class="text-xs text-neutral-500">
-          We reply within one working day. See our
-          <NuxtLink to="/privacy" class="text-neutral-400 underline underline-offset-4 hover:text-white">
-            privacy policy
-          </NuxtLink>
-          .
+          {{ c.form.privacyNote }}
+          <NuxtLink :to="localePath('/privacy')" class="text-neutral-400 underline underline-offset-4 hover:text-white">
+            {{ c.form.privacyLink }}
+          </NuxtLink>.
         </p>
       </div>
     </form>
