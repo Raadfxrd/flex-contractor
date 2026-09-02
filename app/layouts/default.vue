@@ -31,7 +31,9 @@ useHead(() => ({
       email: site.email,
       foundingDate: String(site.founded),
       image: `${origin}/img/keuken.jpg`,
-      logo: `${origin}/logo.png`,
+      // The BLACK variant here on purpose: this is the logo search engines
+      // render in a knowledge panel, and they composite it on white.
+      logo: `${origin}/logo-black.png`,
       address: {
         '@type': 'PostalAddress',
         streetAddress: site.address.street,

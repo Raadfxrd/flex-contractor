@@ -28,19 +28,19 @@ export const nl: Content = {
 
     nav: {
         services: 'Diensten',
-        specialisms: 'Specialismes',
+        specialisms: 'Specialisaties',
         about: 'Over ons',
         contact: 'Contact',
         careers: 'Werken bij',
     },
 
     actions: {
-        requestQuote: 'Vrijblijvende offerte',
-        seeWork: 'Bekijk specialismes',
+        requestQuote: 'Vraag offerte aan',
+        seeWork: 'Bekijk specialisaties',
         readMore: 'Lees meer',
-        allSpecialisms: 'Alle specialismes',
+        allSpecialisms: 'Alle specialisaties',
         backToServices: 'Alle diensten',
-        backToSpecialisms: 'Alle specialismes',
+        backToSpecialisms: 'Alle specialisaties',
         callUs: 'Bel ons',
         skipToContent: 'Naar de inhoud',
         openMenu: 'Menu openen',
@@ -84,7 +84,7 @@ export const nl: Content = {
     },
 
     specialisms: {
-        eyebrow: 'Onze specialismes',
+        eyebrow: 'Onze specialisaties',
         title: 'Zes vakgebieden',
         lede:
             'Wij zijn aannemer voor de hele verbouwing, niet voor één onderdeel ervan. '
@@ -194,6 +194,10 @@ export const nl: Content = {
                     'Schuttingen en bergingen',
                     'Buitenverlichting en buitenkranen',
                 ],
+                image: '/img/outdoor.jpg',
+                imageAlt:
+                    'Rozenpergola met rode klimrozen over een metalen boogconstructie, '
+                    + 'met een grindpad naar een sierhek',
             },
         ],
     },
@@ -602,12 +606,12 @@ export const nl: Content = {
         notFoundTitle: 'Deze pagina bestaat niet.',
         notFoundBody:
             'De pagina is mogelijk verplaatst of de link is verouderd. Onze diensten, '
-            + 'specialismes en contactgegevens staan er nog gewoon.',
+            + 'specialisaties en contactgegevens staan er nog gewoon.',
         genericTitle: 'Er ging iets mis.',
         genericBody:
             'Er is een onverwachte fout opgetreden aan onze kant. Probeer het opnieuw of bel '
             + 'ons rechtstreeks.',
         home: 'Terug naar home',
-        specialisms: 'Bekijk specialismes',
+        specialisms: 'Bekijk specialisaties',
     },
 }

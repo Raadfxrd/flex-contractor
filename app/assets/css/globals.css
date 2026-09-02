@@ -30,7 +30,7 @@
  * overflow is `visible` in BOTH axes. Because <html> sets `overflow-x: hidden`,
  * that propagation is off -- so a 100%-tall <body> with `overflow-y: auto`
  * scrolls internally while `window.scrollY` stays pinned at 0. Keep the
- * overflow and snap properties here on <html>, and leave <body> auto-height.
+ * overflow properties here on <html>, and leave <body> auto-height.
  */
 html {
 	width: 100%;
@@ -43,9 +43,9 @@ html {
 
 	/*
 	 * Deliberately NOT `scroll-behavior: smooth`. It fights
-	 * `scroll-snap-type: y mandatory` and breaks ScrollTrigger's scrub.
+	 * ScrollTrigger's scrub, which drives the pinned horizontal section.
 	 * Use an explicit scrollTo({behavior:'smooth'}) where a smooth jump is
-	 * wanted -- and only on pages that are not snapping.
+	 * wanted.
 	 */
 }
 
@@ -58,72 +58,20 @@ body {
 	-webkit-overflow-scrolling: touch;
 }
 
-/* ── Scroll snapping ──────────────────────────────────────────────────────
- *
- * Snapping is OPT-IN PER PAGE, not global. Only the scroll-driven homepage
- * wants it; /about, /services/*, /projects/* and the rest are ordinary
- * documents that would jump around if a full-screen block happened to carry
- * .section-container.
- *
- * The opt-in is `useScrollSnap()`, which sets the class through useHead(), so
- * it is present in the server-rendered HTML (no unsnapped first paint) and is
- * removed automatically on route change.
- *
- * It goes on BOTH <html> and <body>: UAs disagree about whether the viewport
- * reads scroll-snap-type off the root or has it propagated up from body, and
- * it is ignored on whichever element is not the scroll container.
- *
- * `mandatory`, not `proximity`. Proximity only snaps when a scroll happens to
- * end near a snap point, which reads as snapping that works half the time.
- * The usual objection to mandatory -- that it traps you on content taller than
- * the viewport -- does not apply, because every snap point is a full-screen
- * section, and the taller ones (contact, footer) opt out with .no-snap.
- */
-html.snap-enabled,
-body.snap-enabled {
-	scroll-snap-type: y mandatory;
-}
-
 /*
- * Two independent reasons to stand snapping down. They are separate classes so
- * they can be set and cleared without clobbering each other:
+ * NOTE: there is deliberately no scroll snapping here.
  *
- *   .snap-disabled   PortfolioScroller owns this. From the portfolio section
- *                    down the page is pinned, and a pin and the snap engine
- *                    otherwise fight over scroll position.
+ * The page used `scroll-snap-type: y mandatory` with a runtime gate and a
+ * wheel handler that animated section-to-section transitions. It was removed
+ * because it made the page feel slow and unresponsive: mandatory snapping
+ * takes the scroll away from the reader, and every mechanism added to make
+ * that feel smooth added latency of its own.
  *
- *   .snap-animating  useScrollSnap() owns this, for the length of one
- *                    section-to-section wheel transition. `mandatory` snapping
- *                    would re-target on every frame of that tween and fight it
- *                    to a standstill.
- *
- * Both must beat .snap-enabled, hence !important rather than source order.
+ * `.section-container` is now purely a layout class -- a full-viewport block.
+ * If snapping is ever reconsidered, the trap that cost the most time was that
+ * a pin and the snap engine fight over scroll position, and mandatory snap
+ * does not animate at all for a discrete mouse wheel.
  */
-html.snap-disabled,
-body.snap-disabled,
-html.snap-animating,
-body.snap-animating {
-	scroll-snap-type: none !important;
-}
-
-.snap-enabled .section-container {
-	scroll-snap-align: start;
-	scroll-snap-stop: always;
-}
-
-/*
- * Declared AFTER .section-container so an element can carry both
- * `section-container no-snap` and opt out -- they are equal specificity, so
- * source order is what decides.
- */
-.snap-enabled .no-snap,
-.snap-disabled .section-container,
-.snap-disabled .no-snap,
-.snap-animating .section-container,
-.snap-animating .no-snap {
-	scroll-snap-align: none !important;
-	scroll-snap-stop: normal !important;
-}
 
 @layer components {
 	/* ── Layout ─────────────────────────────────────────────────────────── */
@@ -306,6 +254,13 @@ body.snap-animating {
 
 /* Page transition: opacity only -- anything that moves the page vertically
  * during a route change fights ScrollTrigger's measurements. */
+/*
+ * Page transition. Opacity only -- anything that moves the page vertically
+ * during a route change fights ScrollTrigger's measurements.
+ *
+ * The transition is configured in app.vue, not nuxt.config, because its
+ * `onAfterLeave` hook is what hands the language over between pages.
+ */
 .page-enter-active,
 .page-leave-active {
 	transition: opacity 0.25s ease-out;
@@ -317,22 +272,14 @@ body.snap-animating {
 }
 
 /*
- * Respect a reduced-motion preference: no snapping, no smooth scrolling, and
+ * Respect a reduced-motion preference: no smooth scrolling, and
  * transitions collapse to near-instant. GSAP animations are gated separately
  * via gsap.matchMedia() in each component.
  */
 @media (prefers-reduced-motion: reduce) {
 	html,
 	body,
-	html.snap-enabled,
-	body.snap-enabled {
-		scroll-snap-type: none;
-	}
 
-	.snap-enabled .section-container {
-		scroll-snap-align: none;
-		scroll-snap-stop: normal;
-	}
 
 	*, *::before, *::after {
 		animation-duration: 0.01ms !important;

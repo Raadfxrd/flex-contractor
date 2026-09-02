@@ -16,8 +16,25 @@ onMounted(() => {
   mm = gsap.matchMedia()
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     if (!gridRef.value) return
-    gsap.from(gridRef.value.children, {
-      opacity: 0, y: 28, duration: 0.7, ease: 'power3.out', stagger: 0.12,
+    /*
+     * `set()` then `to()`, deliberately -- not `from()`.
+     *
+     * A `from()` tween that carries a ScrollTrigger does not apply its start
+     * values until ScrollTrigger's first update, and `create()` defers that
+     * to the next frame. Switching language remounts the whole page, so that
+     * leaves one painted frame where the incoming copy is fully visible
+     * before it is yanked to opacity 0 and animated in -- which reads as the
+     * text flashing in the wrong place.
+     *
+     * `gsap.set()` cannot be deferred: it lands in the same frame as
+     * onMounted, before the browser paints. Both calls sit inside the
+     * matchMedia context, so mm.revert() still restores everything, and
+     * under reduced motion neither runs and the content renders in place.
+     */
+    gsap.set(gridRef.value.children, {opacity: 0, y: 28})
+
+    gsap.to(gridRef.value.children, {
+      opacity: 1, y: 0, duration: 0.7, ease: 'power3.out', stagger: 0.12,
       scrollTrigger: {trigger: sectionRef.value, start: 'top 75%'},
     })
   })
@@ -27,12 +44,7 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <!--
-    `.no-snap`: three quote cards stack to a column on mobile and run taller
-    than the viewport, and a mandatory snap point on a block you cannot see the
-    bottom of traps the scroll.
-  -->
-  <section ref="sectionRef" class="no-snap border-t border-white/10 bg-ink">
+  <section ref="sectionRef" class="border-t border-white/10 bg-ink">
     <div class="wrap band">
       <div class="max-w-2xl">
         <p class="eyebrow">{{ c.testimonials.eyebrow }}</p>

@@ -1,12 +1,6 @@
 <script lang="ts" setup>
 const c = useContent()
 
-/*
- * Scroll snapping is opt-in per page, and this is the page that opts in.
- * Every other route is an ordinary document; a global snap made them jump.
- */
-useScrollSnap()
-
 useSeo({
   title: c.value.meta.title,
   description: c.value.meta.description,

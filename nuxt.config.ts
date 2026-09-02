@@ -35,12 +35,16 @@ export default defineNuxtConfig({
             {code: 'nl', language: 'nl-NL', name: 'Nederlands'},
             {code: 'en', language: 'en-GB', name: 'English'},
         ],
-        detectBrowserLanguage: {
-            useCookie: true,
-            cookieKey: 'i18n_locale',
-            alwaysRedirect: false,
-            redirectOn: 'root',
-        },
+        /*
+         * Browser detection is OFF: `/` is always Dutch.
+         *
+         * With it on, a visitor whose browser reports English was redirected
+         * from `/` to `/en` before they saw anything -- which for a firm whose
+         * customers are Dutch homeowners is the wrong default, and it made the
+         * site look English-first to anyone testing it. English is reachable
+         * from the header toggle and by its own URLs; it is just not guessed at.
+         */
+        detectBrowserLanguage: false,
     },
 
     image: {
@@ -89,7 +93,13 @@ export default defineNuxtConfig({
          * during a route change fights ScrollTrigger's measurements on the
          * scroll-driven homepage.
          */
-        pageTransition: {name: 'page', mode: 'out-in'},
+        /*
+         * The page transition is configured in app.vue, not here: its
+         * `onAfterLeave` hook is what hands the displayed language over between
+         * pages, and that hook needs the Nuxt context. Leaving this `false`
+         * keeps app.vue the single source -- the prop takes precedence anyway.
+         */
+        pageTransition: false,
         layoutTransition: false,
 
         head: {

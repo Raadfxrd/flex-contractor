@@ -21,21 +21,37 @@ onMounted(() => {
   // so content renders in place rather than stranded at opacity 0.
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     /*
-     * One timeline off one trigger. Giving every card its own ScrollTrigger
-     * with a hand-tuned `delay` does not work on a snapping page: the section
-     * arrives at the top in a single frame, so they all resolve together and
-     * the stagger never reads.
+     * One timeline off one trigger, rather than a ScrollTrigger per card with
+     * hand-tuned `delay`s. Independent triggers on elements this close together
+     * resolve within a frame or two of each other, so the stagger never reads.
      */
     const tl = gsap.timeline({
       defaults: {ease: 'power3.out'},
       scrollTrigger: {trigger: sectionRef.value, start: 'top 75%'},
     })
 
+    /*
+     * `set()` then `to()`, deliberately -- not `from()`.
+     *
+     * A `from()` tween that carries a ScrollTrigger does not apply its start
+     * values until ScrollTrigger's first update, and `create()` defers that
+     * to the next frame. Switching language remounts the whole page, so that
+     * leaves one painted frame where the incoming copy is fully visible
+     * before it is yanked to opacity 0 and animated in -- which reads as the
+     * text flashing in the wrong place.
+     *
+     * `gsap.set()` cannot be deferred: it lands in the same frame as
+     * onMounted, before the browser paints. Both calls sit inside the
+     * matchMedia context, so mm.revert() still restores everything, and
+     * under reduced motion neither runs and the content renders in place.
+     */
     if (headerRef.value) {
-      tl.from(headerRef.value.children, {opacity: 0, y: 24, duration: 0.7, stagger: 0.1})
+      gsap.set(headerRef.value.children, {opacity: 0, y: 24})
+      tl.to(headerRef.value.children, {opacity: 1, y: 0, duration: 0.7, stagger: 0.1})
     }
     if (gridRef.value) {
-      tl.from(gridRef.value.children, {opacity: 0, y: 24, duration: 0.6, stagger: 0.06}, '-=0.4')
+      gsap.set(gridRef.value.children, {opacity: 0, y: 24})
+      tl.to(gridRef.value.children, {opacity: 1, y: 0, duration: 0.6, stagger: 0.06}, '-=0.4')
     }
   })
 })
@@ -59,7 +75,7 @@ onUnmounted(() => mm?.revert())
       </div>
 
       <!--
-        Eight items on one snapped screen, so the cards stay short: a title and
+        Eight items on one full-viewport screen, so the cards stay short: a title and
         one line each. A hairline top rule per column does the separating work
         instead of borders, which would box in an already dense grid.
       -->

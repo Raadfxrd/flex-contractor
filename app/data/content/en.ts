@@ -190,6 +190,10 @@ export const en: Content = {
                     'Fencing and outbuildings',
                     'Outdoor lighting and taps',
                 ],
+                image: '/img/outdoor.jpg',
+                imageAlt:
+                    'Rose pergola with red climbing roses over a metal arched frame, with a '
+                    + 'gravel path leading to an ornamental gate',
             },
         ],
     },

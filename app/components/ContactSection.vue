@@ -19,8 +19,25 @@ onMounted(() => {
   // so content renders in place rather than stranded at opacity 0.
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     if (!contentRef.value) return
-    gsap.from(contentRef.value.children, {
-      opacity: 0, y: 28, duration: 0.8, ease: 'power3.out', stagger: 0.12,
+    /*
+     * `set()` then `to()`, deliberately -- not `from()`.
+     *
+     * A `from()` tween that carries a ScrollTrigger does not apply its start
+     * values until ScrollTrigger's first update, and `create()` defers that
+     * to the next frame. Switching language remounts the whole page, so that
+     * leaves one painted frame where the incoming copy is fully visible
+     * before it is yanked to opacity 0 and animated in -- which reads as the
+     * text flashing in the wrong place.
+     *
+     * `gsap.set()` cannot be deferred: it lands in the same frame as
+     * onMounted, before the browser paints. Both calls sit inside the
+     * matchMedia context, so mm.revert() still restores everything, and
+     * under reduced motion neither runs and the content renders in place.
+     */
+    gsap.set(contentRef.value.children, {opacity: 0, y: 28})
+
+    gsap.to(contentRef.value.children, {
+      opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12,
       scrollTrigger: {trigger: sectionRef.value, start: 'top 70%'},
     })
   })
@@ -34,11 +51,10 @@ onUnmounted(() => mm?.revert())
     `min-h-screen`, not `h-screen`. The form is five fields tall: at a fixed
     100vh on a short viewport (a phone in landscape, or any browser with large
     text) the content overflowed and collided with the footer below it.
-    `.no-snap` keeps it out of the snap sequence for the same reason.
   -->
   <section
       ref="sectionRef"
-      class="no-snap flex min-h-screen w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
+      class="flex min-h-screen w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
   >
     <div class="wrap">
       <div class="grid gap-14 lg:grid-cols-12 lg:gap-20">

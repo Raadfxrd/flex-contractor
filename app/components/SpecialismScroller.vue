@@ -21,75 +21,16 @@ const progressRef = ref<HTMLElement>()
 const pinned = ref(false)
 
 let mm: gsap.MatchMedia
-let snapGate: ScrollTrigger | undefined
 
 onMounted(() => {
   if (!sectionRef.value || !trackRef.value) return
 
   /*
-   * Every scroll-snap point on the page (hero, the four story sections, the
-   * values section) sits ABOVE this component. From here down there are none:
-   * this section is pinned, and testimonials, contact and the footer all opt
-   * out.
-   *
-   * So rather than coordinating with the pin frame by frame, switch snapping
-   * off wholesale for the whole region: one threshold, crossed once.
-   *
-   * Created outside the matchMedia block on purpose: it must hold on mobile
-   * and under reduced motion too, where there is no pin at all.
+   * No snap gate here any more. This component used to own a ScrollTrigger
+   * whose only job was toggling `.snap-disabled` on <html> and <body>, because
+   * a pin and the mandatory-snap engine fight over scroll position. Snapping is
+   * gone, so the pin is now the only thing driving the scroll in this region.
    */
-  /*
-   * `!!` is load-bearing. ScrollTrigger only assigns `isActive` inside its
-   * update(), which create() defers -- so it reads back `undefined` here. And
-   * classList.toggle(name, undefined) is spec'd to behave as if the second
-   * argument were omitted: it FLIPS the class instead of forcing it off. That
-   * silently disabled snapping on every page load until the first toggle
-   * fired with a real boolean.
-   */
-  const setSnapDisabled = (off: boolean) => {
-    /*
-     * Both elements: globals.css sets scroll-snap-type on html AND body
-     * (UAs disagree about whether the viewport reads it off the root or has it
-     * propagated up from body), and the disable selector covers both.
-     */
-    document.documentElement.classList.toggle('snap-disabled', off)
-    document.body.classList.toggle('snap-disabled', off)
-  }
-
-  snapGate = ScrollTrigger.create({
-    trigger: sectionRef.value,
-    /*
-     * 'top 80%', not 'top center'. Between the previous section's snap position
-     * and this threshold, mandatory snapping is still live with that section as
-     * the only reachable snap point, so the gap is a zone the scroll can get
-     * pulled back into. 80% leaves only a fifth of a viewport of it while still
-     * letting the previous section snap normally either way.
-     *
-     * NOTE: useScrollSnap()'s wheel handler also animates the page across this
-     * gap in one move, which is what stops a discrete mouse notch getting stuck
-     * on the last snap point. The two work together; do not remove either.
-     */
-    start: 'top 80%',
-    end: 'max',
-    /*
-     * A one-way switch on the start threshold -- deliberately NOT keyed off
-     * `self.isActive`.
-     *
-     * ScrollTrigger computes `isActive` as `progress > 0 && progress < 1`
-     * (ScrollTrigger.js:1681). With `end: 'max'`, scrolling to the very bottom
-     * of the page puts progress at exactly 1, so isActive flips back to false
-     * there -- which would re-arm mandatory snapping at the one place with no
-     * snap points below it, snapping the page back up.
-     */
-    onEnter: () => setSnapDisabled(true),
-    onLeaveBack: () => setSnapDisabled(false),
-    // Covers loading part-way down, and re-derives after images and the pin
-    // below change the layout.
-    onRefresh: (self) => setSnapDisabled(self.scroll() >= self.start),
-  })
-
-  setSnapDisabled(window.scrollY >= snapGate.start)
-
   mm = gsap.matchMedia()
 
   mm.add('(prefers-reduced-motion: no-preference) and (min-width: 768px)', () => {
@@ -126,12 +67,7 @@ onMounted(() => {
   })
 })
 
-onUnmounted(() => {
-  snapGate?.kill()
-  mm?.revert()
-  document.documentElement.classList.remove('snap-disabled')
-  document.body.classList.remove('snap-disabled')
-})
+onUnmounted(() => mm?.revert())
 </script>
 
 <template>
