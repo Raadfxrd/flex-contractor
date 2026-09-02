@@ -1,10 +1,4 @@
 <script lang="ts" setup>
-import Hero from '../../components/Hero.vue'
-import StorySection from '../../components/StorySection.vue'
-import ProcessSection from '../../components/ProcessSection.vue'
-import PortfolioScroller from '../../components/PortfolioScroller.vue'
-import ContactSection from '../../components/ContactSection.vue'
-
 // Story sections data
 const storyData = [
   {

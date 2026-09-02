@@ -2,12 +2,15 @@ import type {Config} from 'tailwindcss'
 import defaultTheme from 'tailwindcss/defaultTheme'
 
 export default {
+    /*
+     * `components/`, `composables/` and `assets/` now live INSIDE the Nuxt 4
+     * srcDir (app/), so @nuxtjs/tailwindcss injects globs that already cover
+     * them. This explicit glob is a belt-and-braces duplicate of that -- a
+     * union, so it is harmless, and it means a new class-bearing directory
+     * under app/ can never silently get purged.
+     */
     content: [
-        // `components/` and `composables/` sit OUTSIDE the Nuxt 4 srcDir
-        // (app/), so the module's own globs miss them. Everything under app/
-        // is added automatically by @nuxtjs/tailwindcss.
-        './components/**/*.{js,vue,ts}',
-        './composables/**/*.{js,ts}',
+        './app/**/*.{js,ts,vue}',
     ],
     theme: {
         extend: {
