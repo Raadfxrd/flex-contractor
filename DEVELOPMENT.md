@@ -26,29 +26,18 @@ lsof -tiTCP:3100 -sTCP:LISTEN | xargs -r kill
 
 ## Scroll behaviour (homepage)
 
-The homepage is the only page that snaps. Everything here is about `/`.
+The page scrolls normally — there is no snapping. If the page ever grabs the scroll and pulls it to a
+section boundary, snapping has been reintroduced somewhere and should not have been.
 
-- [ ] Scroll from the top: hero, four story sections and the process section each snap cleanly to the viewport, one per
-  gesture.
-- [ ] **Check with a real mouse, not only a trackpad.** One wheel notch must *glide* to the next section over about
-  0.75s — not teleport. This is the regression a trackpad hides completely, because a trackpad gets an animated settle
-  out of CSS snap for free and a mouse does not.
-- [ ] Spin the wheel hard: one gesture advances exactly one section, and trackpad momentum does not chain three at once.
-- [ ] **At the process section ("Three stages"), wheel down with a mouse.** The page must glide on into the portfolio.
-  If it snaps back to the process section on every notch, the downward exit has regressed — this is the boundary a
-  trackpad hides, because a trackpad flick trips the portfolio's snap gate mid-gesture and a mouse notch does not.
-- [ ] Interrupt a transition mid-glide (wheel the other way, or grab the scrollbar). The page must stay responsive — if
-  the wheel goes dead, the busy lock is not being released on interrupt.
-- [ ] Keep scrolling into the portfolio. Snapping stops. The section pins and the track moves horizontally as you
-  scroll.
-- [ ] **Scroll all the way to the very bottom of the footer and stop.** The page must stay there. If it yanks back up to
-  the process section, `.snap-disabled` has come off one of `<html>` / `<body>` — the classic regression.
-- [ ] Scroll back up. Snapping resumes at the process section.
-- [ ] Reload while scrolled half-way down the portfolio. Snapping must already be off — the gate seeds its initial state
-  rather than waiting for a threshold crossing.
-- [ ] Resize the window while the portfolio is pinned. The track's travel distance recomputes and the last card still
-  ends flush.
-- [ ] Tab through the portfolio cards. The track scrolls to follow focus; the section does not shear sideways.
+- [ ] Scroll from the top with a **mouse wheel**, not just a trackpad. It should feel like any other page:
+      no resistance, no jumping to section edges, no delay before the page moves.
+- [ ] Keep scrolling to the specialisms. The section pins and the track moves sideways as you scroll.
+- [ ] Below `md`, or with reduced motion on, the specialism track is a plain horizontal scroller you can
+      swipe — and it still snaps card to card **horizontally**. That carousel snap is intentional.
+- [ ] Resize the window while the specialisms are pinned. The track's travel distance recomputes and the
+      last card still ends flush.
+- [ ] Scroll to the very bottom of the footer and stop. The page stays there.
+
 
 ## Languages
 
@@ -66,7 +55,7 @@ The homepage is the only page that snaps. Everything here is about `/`.
   `/about`, `/contact`, `/careers`, `/privacy`.
 - [ ] A bad slug returns a real **404**, not a 200 with an empty page:
   `/services/nope`, `/projects/nope`, `/nope`.
-- [ ] No page snaps except `/`. Check `<body class="...">` — `snap-enabled` should appear on `/` only.
+- [ ] No page grabs the scroll. Every route scrolls like an ordinary document.
 - [ ] Service ↔ project cross-links resolve in both directions.
 - [ ] "Next project" on the last case study wraps round to the first.
 
@@ -104,9 +93,9 @@ curl -i -X POST localhost:3100/api/contact -H 'content-type: application/json' \
 
 - [ ] Tab from the very top: the skip link appears first and jumps to `#main`.
 - [ ] Every interactive element shows a visible focus ring.
-- [ ] With **reduced motion** enabled (macOS: System Settings → Accessibility → Display → Reduce motion): no snapping,
-  no pinning, no reveal animations, and **all content is visible** — nothing stranded at `opacity: 0`. The portfolio
-  degrades to a native horizontal scroller.
+- [ ] With **reduced motion** enabled (macOS: System Settings → Accessibility → Display → Reduce motion):
+      no pinning, no reveal animations, and **all content visible** — nothing stranded at `opacity: 0`.
+      The specialisms degrade to a native horizontal scroller.
 - [ ] The portfolio is usable by keyboard and by touch swipe below `md`.
 
 ## Images

@@ -111,95 +111,36 @@ Three things that are easy to get wrong:
 in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
 
 
-### Scroll system
+### Scrolling
 
-Scrolling is the homepage's core feature and is split across three cooperating mechanisms.
+**There is no scroll snapping.** The page scrolls normally.
 
-1. **CSS scroll-snap, opted in per page** (`app/assets/css/globals.css`). Snap is
-   `y mandatory`, declared on `html.snap-enabled` **and** `body.snap-enabled` (UAs disagree about whether the viewport
-   reads it off the root or has it propagated up from body; it is ignored on whichever is not the scroll container).
+It used to: `scroll-snap-type: y mandatory` opted in per page, a runtime gate that stood snapping down for
+the pinned region, and a wheel handler that animated section-to-section transitions because mandatory snap
+does not animate at all for a discrete mouse wheel. It was removed for being sluggish — mandatory snapping
+takes the scroll away from the reader, and each mechanism added to make that feel smooth added latency of
+its own. Do not reintroduce it without a specific reason; the removal was a deliberate call, not an
+oversight.
 
-   The class comes from `useScrollSnap()`, called by `app/pages/index.vue` **and nowhere else**. It is applied through
-   `useHead()` rather than a `classList` write, so it is in the server-rendered HTML (no unsnapped first paint) and
-   unhead removes it on route change. Snapping used to be unconditional on `html`/`body`; that was fine while the site
-   was one page, but it applies to every route, so any ordinary page with a full-height block started jumping.
+What remains:
 
-   Do not "soften" this to `proximity` — proximity only snaps when a scroll happens to end near a snap point, which
-   reads as snapping that works half the time.
+- **`.section-container`** is now purely a layout class — `w-full h-screen relative`. It carries no scroll
+  behaviour. Full-viewport sections are a layout choice, nothing more, and a new one needs no opt-in class.
+- **`.no-snap` is gone.** Nothing needs to opt out of anything.
+- **The root element is still the one and only scroll container**, carrying `overflow-x: hidden`. Never give
+  `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`, body's overflow does not
+  propagate to the viewport, so body would scroll internally while `window.scrollY` — which ScrollTrigger
+  reads — stayed pinned at 0.
+- **`scroll-behavior: smooth` is still deliberately absent.** It breaks ScrollTrigger's scrub, which drives
+  the pinned horizontal section. Use an explicit `scrollTo({behavior:'smooth'})` where a smooth jump is
+  wanted.
 
-   `useScrollSnap()` also installs an **animated wheel handler**, because CSS snap on its own does not animate for a
-   plain mouse. `mandatory` snapping only animates the settle when the browser is animating the scroll in the first
-   place: a trackpad emits a stream of small deltas so the browser eases into the snap point, but a mouse emits one
-   large discrete notch — the scroll lands instantly and the snap engine re-targets in the same frame, so the page
-   appears to teleport. There is no animation being skipped; the browser never started one.
+**The pinned horizontal scroll survives** (`app/components/SpecialismScroller.vue`). The section pins and the
+track translates by exactly its overflow width, driven by scroll position. Below `md`, or under reduced
+motion, it degrades to a native `overflow-x-auto` scroller (the `pinned` ref switches the wrapper's
+overflow), and that fallback keeps its own **horizontal** CSS snap — `snap-x` on the track, `snap-start` on
+the cards. That is a carousel, unrelated to the page-level system that was removed, and it should stay.
 
-   `scroll-behavior: smooth` does **not** fix this. Per spec, it applies to navigation and scripted scrolls only,
-   explicitly *not* to input scrolling — and it breaks ScrollTrigger's scrub as a bonus. So the handler calls
-   `preventDefault` on the wheel event, finds the next snap point in the direction of travel, and tweens the
-   scroll position itself.
-
-   Four things that handler must keep doing:
-    - **Stand CSS snap down for the length of the tween** via `.snap-animating`. It is
-      `mandatory`, so it re-targets on every frame and fights the tween to a standstill. That class is separate from
-      `.snap-disabled` so the two owners never clobber each other.
-    - **Handle the downward exit explicitly.** Below the last snap point there are no more snap points, but CSS snapping
-      stays armed until the portfolio gate fires at `top 80%` — about a fifth of a viewport further down. Handing that
-      boundary back to native scrolling does not work: one mouse notch (~100px) never reaches the gate, so
-      `mandatory` snapping finds the section you just left as the only candidate and yanks straight back. Every notch
-      gets undone and the page is stuck. A trackpad escapes only because one flick travels far enough to trip the gate
-      mid-gesture — which is exactly why this reads as "works on trackpad, broken on mouse". The handler therefore
-      animates all the way to the bottom of the last snapping section, clearing the gate by a full viewport. Going *up*,
-      and at the top of the hero, native scrolling is still correct and the handler must not `preventDefault`.
-    - **Call `ScrollTrigger.update()` before dropping `.snap-animating`.** The gate only runs off scroll events; without
-      a forced update the exit tween can finish before the gate has processed the final position, and re-arming snap a
-      full viewport below its nearest snap point hauls the page back up.
-    - **Release the busy lock on interrupt, not just on complete.** A killed tween that never clears the flag leaves the
-      page unable to respond to the wheel at all.
-
-   It is gated on `prefers-reduced-motion: no-preference` — under reduced motion CSS snapping is already off and the
-   page is a plain document.
-
-   Details: the **root element is the one and only scroll container**, and carries
-   `overflow-x: hidden`. Never give `<body>` a height plus `overflow-y`: because `<html>`'s overflow is not `visible`,
-   body's overflow does not propagate to the viewport, so body would scroll internally while `window.scrollY` — which
-   the snap logic and ScrollTrigger both read — stayed pinned at 0. `scroll-behavior: smooth` is deliberately absent for
-   the same reason (it fights mandatory snap and breaks scrub). `.section-container` is the snap point; `.no-snap` opts
-   out. **Every new full-screen section on the homepage needs one of those two classes**, or it will snap unpredictably.
-
-2. **Runtime snap gate.** Every snap point on the homepage (hero, the four story sections, the process section) sits
-   *above* `PortfolioScroller`; below it there are none, since the portfolio is pinned and contact and the footer both
-   carry `.no-snap`. So
-   `PortfolioScroller` owns a single `ScrollTrigger` (`start: 'top 80%'`, `end: 'max'`)
-   that toggles `.snap-disabled` on **both `<html>` and `<body>`** for that whole region.
-   `.snap-disabled` beats `.snap-enabled` with `!important`.
-
-   Three traps, all of which have already caused bugs here — any moment `.snap-disabled` is missing while scrolled below
-   the process section, mandatory snapping yanks the page back up to it:
-    - **Toggle both elements.** Leaving either one snapping re-arms the yank.
-    - **Do not key the gate off `self.isActive`.** ScrollTrigger computes it as
-      `progress > 0 && progress < 1` (ScrollTrigger.js:1681), so with `end: 'max'` it flips back to `false` at the very
-      bottom of the page. The gate uses `onEnter`/`onLeaveBack`
-      as a one-way switch on the start threshold instead, with `onRefresh` re-deriving from
-      `self.scroll() >= self.start`.
-    - **Never pass a possibly-`undefined` force to `classList.toggle`** — that is spec'd to *flip* the class rather than
-      force it off.
-
-   It is created outside the `matchMedia` block so it still holds on mobile and under reduced motion, where there is no
-   pin, and its initial state is seeded explicitly because `onToggle` only fires on a change. `index.vue` has no scroll
-   logic at all.
-
-3. **Pinned horizontal scroll** (`app/components/PortfolioScroller.vue`) — the section pins and the track translates by
-   exactly its overflow width, driven by scroll position. Below
-   `md`, or under reduced motion, it degrades to a native `overflow-x-auto` scroller (`pinned` ref switches the
-   wrapper's overflow). A pinned section must **not** also carry
-   `.section-container`.
-
-   The cards are links to case studies, which creates a keyboard trap the pin does not handle on its own: tabbing to a
-   card the pin has translated off-screen makes the browser scroll the nearest scrollable ancestor (the
-   `overflow-hidden` `<section>`, which is still programmatically scrollable) and the layout skews. A `focusin` handler
-   drives the *page*
-   scroll to the position whose pin progress reveals that card, and resets the ancestor's own scroll offsets. Keep it if
-   you touch the cards.
 
 ### GSAP
 
@@ -217,7 +158,7 @@ on reduced motion — when the query does not match anything, nothing runs, so c
 than stranded at `opacity: 0`. Keep that shape for new animated components.
 
 Prefer **one timeline off one trigger** to several elements each carrying their own ScrollTrigger with hand-tuned
-`delay`s. On a mandatory-snap page the section arrives at the top almost instantly, so independent triggers all resolve
+`delay`s. Independent triggers on elements this close together all resolve
 in the same frame and the intended stagger never actually reads.
 
 ### Images

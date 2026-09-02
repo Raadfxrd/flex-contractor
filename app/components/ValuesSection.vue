@@ -21,10 +21,9 @@ onMounted(() => {
   // so content renders in place rather than stranded at opacity 0.
   mm.add('(prefers-reduced-motion: no-preference)', () => {
     /*
-     * One timeline off one trigger. Giving every card its own ScrollTrigger
-     * with a hand-tuned `delay` does not work on a snapping page: the section
-     * arrives at the top in a single frame, so they all resolve together and
-     * the stagger never reads.
+     * One timeline off one trigger, rather than a ScrollTrigger per card with
+     * hand-tuned `delay`s. Independent triggers on elements this close together
+     * resolve within a frame or two of each other, so the stagger never reads.
      */
     const tl = gsap.timeline({
       defaults: {ease: 'power3.out'},
@@ -59,7 +58,7 @@ onUnmounted(() => mm?.revert())
       </div>
 
       <!--
-        Eight items on one snapped screen, so the cards stay short: a title and
+        Eight items on one full-viewport screen, so the cards stay short: a title and
         one line each. A hairline top rule per column does the separating work
         instead of borders, which would box in an already dense grid.
       -->

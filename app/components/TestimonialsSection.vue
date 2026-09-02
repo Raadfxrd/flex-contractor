@@ -27,12 +27,7 @@ onUnmounted(() => mm?.revert())
 </script>
 
 <template>
-  <!--
-    `.no-snap`: three quote cards stack to a column on mobile and run taller
-    than the viewport, and a mandatory snap point on a block you cannot see the
-    bottom of traps the scroll.
-  -->
-  <section ref="sectionRef" class="no-snap border-t border-white/10 bg-ink">
+  <section ref="sectionRef" class="border-t border-white/10 bg-ink">
     <div class="wrap band">
       <div class="max-w-2xl">
         <p class="eyebrow">{{ c.testimonials.eyebrow }}</p>

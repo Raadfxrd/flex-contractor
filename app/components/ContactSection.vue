@@ -34,11 +34,10 @@ onUnmounted(() => mm?.revert())
     `min-h-screen`, not `h-screen`. The form is five fields tall: at a fixed
     100vh on a short viewport (a phone in landscape, or any browser with large
     text) the content overflowed and collided with the footer below it.
-    `.no-snap` keeps it out of the snap sequence for the same reason.
   -->
   <section
       ref="sectionRef"
-      class="no-snap flex min-h-screen w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
+      class="flex min-h-screen w-full items-center border-t border-white/10 bg-gradient-to-b from-surface-2 to-ink py-24"
   >
     <div class="wrap">
       <div class="grid gap-14 lg:grid-cols-12 lg:gap-20">
