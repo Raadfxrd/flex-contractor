@@ -8,8 +8,9 @@
  * added deliberately so the case-study layout can be seen with its quote block
  * populated -- they are placeholder copy, not statements anyone made.
  *
- * This is the highest-risk placeholder in the repository. Invented body copy
- * reads as marketing; an invented quote attributed to a named person at a named
+ * This is the highest-risk placeholder in the repository, and more so now that
+ * the company address and phone number are real: invented body copy reads as
+ * marketing, but an invented quote attributed to a named person at a named
  * company reads as a claim that a specific individual said a specific thing.
  * Replace or delete every one before the site goes live, and only publish a
  * real quote with the client's written permission and their real name and role.
@@ -30,75 +31,76 @@ export interface Project {
     image: string
     imageAlt: string
     /** Additional images for the case-study gallery. */
-    gallery: {src: string, alt: string}[]
+    gallery: { src: string, alt: string }[]
     /** One line, used on cards and as the meta description. */
     summary: string
     challenge: string
     solution: string
     outcome: string
     /** Two to four headline figures for the case study. */
-    facts: {value: string, label: string}[]
-    testimonial?: {quote: string, name: string, role: string}
+    facts: { value: string, label: string }[]
+    testimonial?: { quote: string, name: string, role: string }
 }
 
 export const projects: Project[] = [
     {
-        slug: 'meridian-office-tower',
-        title: 'Meridian Office Tower',
+        slug: 'zuidas-office-tower',
+        title: 'Zuidas Office Tower',
         category: 'Commercial',
-        client: 'Meridian Property Group',
-        location: 'Springfield, IL',
+        client: 'Meridiaan Vastgoed',
+        location: 'Amsterdam Zuid',
         year: '2024',
         duration: '26 months',
-        size: '184,000 sq ft',
+        size: '17,100 m²',
         services: ['foundations', 'structural'],
         image: '/img/office.jpg',
         imageAlt: 'Glazed office tower photographed from street level',
         gallery: [
             {src: '/img/structural.jpg', alt: 'Steel frame during erection'},
-            {src: '/img/foundations.jpg', alt: 'Piled raft foundation before the pour'},
+            {src: '/img/foundations.jpg', alt: 'Pile caps and raft before the pour'},
         ],
         summary:
             'A fourteen-storey speculative office building delivered on a constrained '
-            + 'city-centre plot with live rail infrastructure on two boundaries.',
+            + 'Zuidas plot, hard against the rail corridor and the A10.',
         challenge:
-            'The plot sat between an operational rail cutting and a Victorian terrace, '
-            + 'leaving no room for a conventional crane base or a full site compound. '
-            + 'Ground conditions were made ground over stiff clay, with a perched water '
-            + 'table two metres below the proposed slab.',
+            'The plot sat between the Amsterdam Zuid rail corridor and a nineteenth-century '
+            + 'terrace, leaving no room for a conventional crane base or a full site '
+            + 'compound. Ground conditions were the usual Amsterdam profile -- made ground '
+            + 'over soft clay and peat, with the water table barely a metre below the '
+            + 'proposed slab, so nothing could be founded at shallow depth.',
         solution:
-            'We took the substructure to a piled raft, cast against the retained face '
-            + 'rather than in open cut, which removed the need to encroach on the rail '
-            + 'boundary entirely. The frame was erected using a luffing jib tower crane '
-            + 'placed inside the footprint and climbed with the structure, and deliveries '
-            + 'ran to a booked slot system between 06:00 and 09:00 to keep the terrace '
-            + 'street clear the rest of the day.',
+            'The substructure went onto driven piles with a capping raft cast against the '
+            + 'retained face rather than in open cut, which removed any need to encroach on '
+            + 'the rail boundary. The frame was erected with a luffing jib crane placed '
+            + 'inside the footprint and climbed with the structure, and deliveries ran to a '
+            + 'booked slot system between 06:00 and 09:00 to keep the terrace street clear '
+            + 'for the rest of the day.',
         outcome:
-            'Practical completion was achieved two weeks inside the contract date with no '
-            + 'reportable incidents and no encroachment notices from the rail operator. '
-            + 'The building let to seventy percent occupancy before handover.',
+            'Oplevering was achieved two weeks inside the contract date with no reportable '
+            + 'incidents and no objection raised by the rail operator. The building let to '
+            + 'seventy percent occupancy before handover.',
         facts: [
             {value: '14', label: 'Storeys'},
-            {value: '184k', label: 'Sq ft delivered'},
+            {value: '17,100', label: 'm² delivered'},
             {value: '26', label: 'Months on site'},
             {value: '0', label: 'Reportable incidents'},
         ],
         testimonial: {
             quote:
-                'The rail boundary was the reason two other contractors declined to bid. Flex '
-                + 'came back with a sequence that never crossed it, and then actually built to '
-                + 'that sequence. Handing over ahead of the date on a site that constrained is '
-                + 'not something we expected.',
-            name: 'Alethea Marchetti',
-            role: 'Development Director, Meridian Property Group',
+                'The rail boundary was the reason two other contractors declined to bid. '
+                + 'Flex came back with a sequence that never crossed it, and then actually '
+                + 'built to that sequence. Handing over ahead of the date on a plot that '
+                + 'constrained is not something we expected.',
+            name: 'Annemieke van der Velden',
+            role: 'Development Director, Meridiaan Vastgoed',
         },
     },
     {
-        slug: 'harbour-point-residences',
-        title: 'Harbour Point Residences',
+        slug: 'havenkwartier-residences',
+        title: 'Havenkwartier Residences',
         category: 'Residential',
-        client: 'Harbour Point Development',
-        location: 'Decatur, IL',
+        client: 'Havenkwartier Ontwikkeling',
+        location: 'Zaandam',
         year: '2023',
         duration: '19 months',
         size: '96 units',
@@ -113,19 +115,19 @@ export const projects: Project[] = [
             'Ninety-six apartments across four blocks, taken from frame handover to '
             + 'occupied in nineteen months on a fixed-price package.',
         challenge:
-            'The developer needed a single package covering electrical services and the '
-            + 'entire fit-out, with a phased handover so the first block could be let '
-            + 'while the last was still being finished. Any drift in the early blocks '
-            + 'would compound across the sequence.',
+            'The developer needed a single package covering the electrical installation and '
+            + 'the entire fit-out, with a phased oplevering so the first block could be let '
+            + 'while the last was still being finished. Any drift in the early blocks would '
+            + 'compound across the sequence.',
         solution:
             'We ran the four blocks as four overlapping programmes rather than one long '
             + 'one, with a dedicated first-fix crew moving through ahead of a finishing '
-            + 'crew. Distribution was pre-assembled off site so each block\'s plant room '
-            + 'could be energised in a single day rather than a fortnight.',
+            + 'crew. Distribution boards were pre-assembled off site so each block could be '
+            + 'energised and tested to NEN 1010 in a single day rather than a fortnight.',
         outcome:
-            'The first block handed over at month eleven and was fully let before the '
-            + 'final block completed. All ninety-six units passed local authority '
-            + 'inspection at first visit.',
+            'The first block handed over at month eleven and was fully let before the final '
+            + 'block completed. All ninety-six units passed gemeente inspection at the first '
+            + 'visit.',
         facts: [
             {value: '96', label: 'Units delivered'},
             {value: '4', label: 'Phased handovers'},
@@ -134,22 +136,22 @@ export const projects: Project[] = [
         ],
         testimonial: {
             quote:
-                'Four blocks, four handovers, and the first one was letting while the last was '
-                + 'still in first fix. That only works if the early phases hold, and they held. '
-                + 'We were never once waiting on them to tell us where they were.',
-            name: 'Desmond Achterberg',
-            role: 'Project Director, Harbour Point Development',
+                'Four blocks, four handovers, and the first one was letting while the last '
+                + 'was still in first fix. That only works if the early phases hold, and '
+                + 'they held. We were never once waiting on them to tell us where they were.',
+            name: 'Sander Bruinsma',
+            role: 'Project Director, Havenkwartier Ontwikkeling',
         },
     },
     {
-        slug: 'northgate-industrial-park',
-        title: 'Northgate Industrial Park',
+        slug: 'westpoort-logistics-hub',
+        title: 'Westpoort Logistics Hub',
         category: 'Industrial',
-        client: 'Northgate Logistics',
-        location: 'Bloomington, IL',
+        client: 'Noordgate Logistiek',
+        location: 'Amsterdam Westpoort',
         year: '2024',
         duration: '14 months',
-        size: '240,000 sq ft',
+        size: '22,300 m²',
         services: ['foundations', 'electrical'],
         image: '/img/industrial.jpg',
         imageAlt: 'Interior of a large industrial distribution facility',
@@ -158,25 +160,24 @@ export const projects: Project[] = [
             {src: '/img/electrical.jpg', alt: 'Three-phase industrial power installation'},
         ],
         summary:
-            'A distribution facility with a laser-levelled slab and three-phase power '
-            + 'sized for automated handling equipment installed after handover.',
+            'A distribution facility with a laser-levelled slab and three-phase power sized '
+            + 'for automated handling equipment installed after handover.',
         challenge:
             'The slab had to meet a flatness tolerance tight enough for very-narrow-aisle '
-            + 'racking, over a footprint of 240,000 square feet, on a site that had '
-            + 'previously been agricultural and drained badly. The tenant\'s automation '
-            + 'contractor also needed final power positions that were not confirmed until '
-            + 'month nine.',
+            + 'racking, over 22,300 m² of reclaimed polder ground that drained badly and '
+            + 'settled unevenly. The tenant’s automation contractor also could not '
+            + 'confirm final power positions until month nine.',
         solution:
-            'We ground-stabilised the platform and installed an attenuation system before '
-            + 'any slab work, then poured in laser-screeded bays with flatness surveyed bay '
-            + 'by bay rather than at completion. Power was installed as an overhead busbar '
-            + 'grid rather than fixed drops, so the automation contractor\'s late positions '
-            + 'became a tap-off exercise instead of a rewire.',
+            'We ground-improved the platform and installed an attenuation system before any '
+            + 'slab work, then poured in laser-screeded bays with flatness surveyed bay by '
+            + 'bay rather than at completion. Power went in as an overhead busbar grid '
+            + 'rather than fixed drops, so the late positions became a tap-off exercise '
+            + 'instead of a rewire.',
         outcome:
             'Every bay met the specified flatness classification on first survey. The '
-            + 'tenant\'s automation fit-out started four days after handover.',
+            + 'tenant’s automation fit-out started four days after handover.',
         facts: [
-            {value: '240k', label: 'Sq ft of slab'},
+            {value: '22,300', label: 'm² of slab'},
             {value: '14', label: 'Months on site'},
             {value: '100%', label: 'Bays passed first survey'},
             {value: '4 days', label: 'Handover to fit-out'},
@@ -184,21 +185,21 @@ export const projects: Project[] = [
         testimonial: {
             quote:
                 'Our automation contractor changed the power positions in month nine and it '
-                + 'cost us four days, not four weeks, because the busbar had been specified for '
-                + 'exactly that. Somebody thought about it before we had to.',
-            name: 'Rosalind Ferreira-Nkemdirim',
-            role: 'Head of Operations, Northgate Logistics',
+                + 'cost us four days, not four weeks, because the busbar had been specified '
+                + 'for exactly that. Somebody thought about it before we had to.',
+            name: 'Fatima El Amrani',
+            role: 'Head of Operations, Noordgate Logistiek',
         },
     },
     {
-        slug: 'ashcombe-house',
-        title: 'Ashcombe House',
+        slug: 'herengracht-canal-house',
+        title: 'Herengracht Canal House',
         category: 'Renovation',
         client: 'Private client',
-        location: 'Springfield, IL',
+        location: 'Amsterdam Centrum',
         year: '2025',
         duration: '11 months',
-        size: '7,400 sq ft',
+        size: '690 m²',
         services: ['renovation', 'structural'],
         image: '/img/luxury.jpg',
         imageAlt: 'Renovated luxury interior with bespoke joinery',
@@ -207,47 +208,50 @@ export const projects: Project[] = [
             {src: '/img/structural.jpg', alt: 'Steel beam installed to open up a ground floor'},
         ],
         summary:
-            'A full renovation of a 1920s residence, opening up the ground floor while '
-            + 'retaining and restoring the original stair, panelling and plasterwork.',
+            'A full renovation of a seventeenth-century canal house, opening up the ground '
+            + 'floor while retaining and restoring the original stair, panelling and '
+            + 'ornamental plaster.',
         challenge:
-            'The client wanted a contemporary open ground floor inside a house whose value '
-            + 'lay in its period detail. Three load-bearing walls needed to come out, and '
-            + 'the original lath-and-plaster ceilings above them had to survive the process '
-            + 'intact.',
+            'The client wanted a contemporary open ground floor inside a rijksmonument '
+            + 'whose value lay in its period detail. Three load-bearing walls needed to come '
+            + 'out, the original stucco ceilings above them had to survive the process '
+            + 'intact, and every intervention needed to clear both the monument consent and '
+            + 'the omgevingsvergunning before a tool was lifted.',
         solution:
             'The temporary works were designed to prop off the floor above at close centres '
             + 'so the ceilings were supported continuously rather than spanning between '
             + 'props. Beams went in one at a time over eight weeks, with movement monitored '
-            + 'weekly. Panelling and cornice were removed, catalogued, restored off site and '
-            + 'reinstated.',
+            + 'weekly against a baseline survey agreed with Monumenten en Archeologie. '
+            + 'Panelling and cornice were removed, catalogued, restored off site and '
+            + 'reinstated to their original positions.',
         outcome:
-            'All three walls were removed with no cracking to the retained ceilings. The '
-            + 'restored joinery was reinstated to its original positions.',
+            'All three walls were removed with no cracking to the retained ceilings, and the '
+            + 'consent conditions were discharged without a single revision.',
         facts: [
             {value: '3', label: 'Walls removed'},
-            {value: '7,400', label: 'Sq ft renovated'},
+            {value: '690', label: 'm² renovated'},
             {value: '11', label: 'Months on site'},
             {value: '0mm', label: 'Recorded movement'},
         ],
         testimonial: {
             quote:
                 'I was told the ceilings would probably crack and that we should accept it. '
-                + 'They did not crack. The propping went in at closer centres than anyone else '
-                + 'proposed and it took eight weeks instead of three, and I would make that trade '
-                + 'again.',
-            name: 'Imogen Vasquez-Lindqvist',
+                + 'They did not crack. The propping went in at closer centres than anyone '
+                + 'else proposed and it took eight weeks instead of three, and I would make '
+                + 'that trade again.',
+            name: 'Joost Vermeulen',
             role: 'Homeowner',
         },
     },
     {
-        slug: 'crescent-retail-centre',
-        title: 'Crescent Retail Centre',
+        slug: 'amstelplein-retail-centre',
+        title: 'Amstelplein Retail Centre',
         category: 'Commercial',
-        client: 'Crescent Asset Management',
-        location: 'Champaign, IL',
+        client: 'Amstel Vastgoedbeheer',
+        location: 'Amstelveen',
         year: '2023',
         duration: '22 months',
-        size: '310,000 sq ft',
+        size: '28,800 m²',
         services: ['structural', 'renovation'],
         image: '/img/shopping-mall.jpg',
         imageAlt: 'Interior atrium of a modern shopping centre',
@@ -271,18 +275,18 @@ export const projects: Project[] = [
             'Twenty-two months of structural and finishing work with zero unplanned trading '
             + 'hours lost, and no tenant compensation claims.',
         facts: [
-            {value: '310k', label: 'Sq ft refurbished'},
+            {value: '28,800', label: 'm² refurbished'},
             {value: '0', label: 'Trading days lost'},
             {value: '11', label: 'Atrium cut segments'},
             {value: '22', label: 'Months on site'},
         ],
         testimonial: {
             quote:
-                'Twenty-two months of structural work above our busiest walkway and we did not '
-                + 'lose a single trading hour. The hoarding line went up and came down every '
-                + 'night without fail. Our tenants never had cause to raise it with us.',
-            name: 'Terrence Oyelaran',
-            role: 'Centre Manager, Crescent Asset Management',
+                'Twenty-two months of structural work above our busiest walkway and we did '
+                + 'not lose a single trading hour. The hoarding line went up and came down '
+                + 'every night without fail. Our tenants never had cause to raise it with us.',
+            name: 'Ruben Doerga',
+            role: 'Centre Manager, Amstel Vastgoedbeheer',
         },
     },
 ]

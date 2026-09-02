@@ -5,8 +5,8 @@ import {services} from '~/data/services'
 useSeo({
   title: 'About | Flex Contractor',
   description:
-      `A general contractor working across Illinois since ${site.founded}, with `
-      + 'directly employed trades across foundations, electrical, structural work and finishing.',
+      `A general contractor working across Amsterdam and Noord-Holland since ${site.founded}, `
+      + 'with directly employed trades across foundations, electrical, structural work and finishing.',
   path: '/about',
   image: '/img/industrial.jpg',
 })
@@ -45,7 +45,7 @@ const principles = [
         eyebrow="About"
         image="/img/industrial.jpg"
         image-alt=""
-        :lede="`A general contractor working across central Illinois since ${site.founded}.
+        :lede="`A general contractor working across Amsterdam and Noord-Holland since ${site.founded}.
                 Four divisions, ${companyStats[2].value} trades on staff, and one programme
                 per project.`"
         title="Built by the people who build."
@@ -81,9 +81,22 @@ const principles = [
         </div>
 
         <dl class="space-y-8 lg:col-span-7">
+          <!--
+            KvK and BTW ship empty on purpose — see the header note in
+            app/data/site.ts. Guarded so the section simply omits them rather
+            than rendering a label with nothing after it.
+          -->
+          <div v-if="site.kvk" class="border-t border-white/10 pt-6">
+            <dt class="eyebrow">Chamber of Commerce</dt>
+            <dd class="numeral mt-2 text-lg text-white">KvK {{ site.kvk }}</dd>
+          </div>
+          <div v-if="site.vat" class="border-t border-white/10 pt-6">
+            <dt class="eyebrow">VAT identification</dt>
+            <dd class="numeral mt-2 text-lg text-white">{{ site.vat }}</dd>
+          </div>
           <div class="border-t border-white/10 pt-6">
-            <dt class="eyebrow">Licence</dt>
-            <dd class="mt-2 text-lg text-white">{{ site.licence }}</dd>
+            <dt class="eyebrow">Certification</dt>
+            <dd class="mt-2 text-lg text-white">{{ site.certifications.join(' · ') }}</dd>
           </div>
           <div class="border-t border-white/10 pt-6">
             <dt class="eyebrow">Insurance</dt>

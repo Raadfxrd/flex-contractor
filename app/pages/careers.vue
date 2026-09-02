@@ -18,23 +18,23 @@ useSeo({
 const roles = [
   {
     title: 'Site Manager — Commercial',
-    location: 'Springfield, IL',
+    location: 'Amsterdam',
     type: 'Full time',
     summary:
         'Run commercial fit-out and frame packages from mobilisation to handover, with a '
         + 'directly employed team and one programme.',
   },
   {
-    title: 'Approved Electrician',
-    location: 'Bloomington, IL',
+    title: 'Electrician — NEN 1010',
+    location: 'Amsterdam Westpoort',
     type: 'Full time',
     summary:
-        'Industrial and commercial installation, testing and certification. Competent-person '
-        + 'registration supported.',
+        'Industrial and commercial installation, testing and inspection to NEN 1010 and '
+        + 'NEN 3140. Certification renewal paid.',
   },
   {
     title: 'Groundworker / Machine Operator',
-    location: 'Decatur, IL',
+    location: 'Zaandam',
     type: 'Full time',
     summary:
         'Excavation, drainage and reinforced concrete substructure across residential and '
@@ -42,7 +42,7 @@ const roles = [
   },
   {
     title: 'Finishing Carpenter',
-    location: 'Springfield, IL',
+    location: 'Haarlem',
     type: 'Full time',
     summary:
         'Bespoke joinery and second fix on high-specification residential renovation.',
@@ -50,12 +50,12 @@ const roles = [
 ]
 
 const benefits = [
-  'Directly employed, not agency',
-  'Paid training and certification renewal',
-  'Company pension and health cover',
-  'Tools, PPE and vehicle provided',
+  'Directly employed, not via an uitzendbureau',
+  'CAO Bouw & Infra terms and conditions',
+  'Pension through bpfBOUW',
+  'Paid VCA and trade certification renewal',
+  'Tools, PPE, vehicle and reiskostenvergoeding',
   'Overtime paid, not banked',
-  'Work within an hour of home where possible',
 ]
 </script>
 

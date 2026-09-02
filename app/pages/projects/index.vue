@@ -6,7 +6,8 @@ useSeo({
   title: 'Projects | Flex Contractor',
   description:
       'Commercial, residential, industrial and renovation projects delivered across '
-      + 'Illinois — with the constraints, the approach and the outcome for each.',
+      + 'Amsterdam and Noord-Holland — with the constraints, the approach and the '
+      + 'outcome for each.',
   path: '/projects',
   image: '/img/office.jpg',
 })

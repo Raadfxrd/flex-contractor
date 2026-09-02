@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {site} from '~/data/site'
+import {addressLines, site} from '~/data/site'
 
 useSeo({
   title: 'Privacy policy | Flex Contractor',
@@ -11,9 +11,20 @@ useSeo({
 /*
  * PLACEHOLDER POLICY. It accurately describes what the code in this repository
  * actually does today -- the contact endpoint, the honeypot, the rate limiter --
- * but it is not legal advice and has not been reviewed. Have it checked against
- * your jurisdiction before launch, and update it the moment you add analytics,
- * a chat widget, or any third-party embed.
+ * but it is NOT legal advice and has not been reviewed by anyone qualified.
+ *
+ * Written for the Dutch/EU position: the AVG (the Netherlands' implementation
+ * of the GDPR), a one-month response window for data subject requests, and the
+ * Autoriteit Persoonsgegevens as the supervisory authority.
+ *
+ * Two things to settle before launch:
+ *   1. Where the transactional email provider actually stores and processes
+ *      messages. Resend is US-based, which makes it an international transfer
+ *      that needs naming here and a processor agreement behind it.
+ *   2. Whether a verwerkersovereenkomst is in place with that provider.
+ *
+ * Update this the moment you add analytics, a chat widget, or any third-party
+ * embed.
  */
 const updated = 'September 2026'
 </script>
@@ -42,18 +53,21 @@ const updated = 'September 2026'
           <h2 class="display-3">Why we collect it</h2>
           <p class="body-copy mt-4">
             To reply to your enquiry and, if it becomes a project, to carry out the work.
-            That is the only purpose. We do not sell it, share it for marketing, or add you
-            to a mailing list.
+            That is the only purpose. Our legal basis under the AVG is that processing is
+            necessary to take steps at your request before entering into a contract. We do
+            not sell your information, share it for marketing, or add you to a mailing list.
           </p>
         </div>
 
         <div>
           <h2 class="display-3">How it reaches us</h2>
           <p class="body-copy mt-4">
-            Submissions are sent to our email inbox through a transactional email provider.
-            Your message is not written to a database on this website. Our server keeps a
-            short-lived record of request timing per IP address to limit automated abuse of
-            the form; it holds no message content and is discarded within minutes.
+            Submissions are sent to our email inbox through a transactional email provider,
+            which acts as our processor. Your message is not written to a database on this
+            website. Our server keeps a short-lived record of request timing per IP address
+            to limit automated abuse of the form; it holds no message content and is
+            discarded within minutes. We use no analytics, advertising or tracking cookies,
+            and there are no third-party embeds on any page.
           </p>
         </div>
 
@@ -69,10 +83,16 @@ const updated = 'September 2026'
         <div>
           <h2 class="display-3">Your rights</h2>
           <p class="body-copy mt-4">
-            You can ask us what we hold about you, ask for it to be corrected, or ask us to
-            delete it. Write to
+            Under the AVG you can ask us what we hold about you, ask for it to be corrected
+            or deleted, ask us to restrict or stop processing it, and ask for a copy in a
+            portable form. Write to
             <a :href="site.emailHref" class="text-white underline underline-offset-4">{{ site.email }}</a>
-            and we will respond within thirty days.
+            and we will respond within one month.
+          </p>
+          <p class="body-copy mt-4">
+            If you are not satisfied with how we have handled your request, you have the
+            right to lodge a complaint with the Autoriteit Persoonsgegevens, the Dutch data
+            protection authority.
           </p>
         </div>
 
@@ -80,8 +100,7 @@ const updated = 'September 2026'
           <h2 class="display-3">Contact</h2>
           <address class="body-copy mt-4 not-italic">
             {{ site.legalName }}<br>
-            {{ site.address.street }}<br>
-            {{ site.address.locality }}, {{ site.address.region }} {{ site.address.postalCode }}<br>
+            <span v-for="line in addressLines" :key="line">{{ line }}<br></span>
             <a :href="site.emailHref" class="text-white underline underline-offset-4">{{ site.email }}</a>
           </address>
         </div>

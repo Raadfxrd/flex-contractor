@@ -1,45 +1,54 @@
 /*
  * ═══════════════════════════════════════════════════════════════════════════
- * PLACEHOLDER BUSINESS DETAILS -- REPLACE EVERY VALUE BEFORE LAUNCH.
- *
- * These are invented. The phone number is the reserved 555 range, the licence
- * and insurance figures are made up, and the address is not a real place.
- * They render in the header, the footer, the contact page and -- importantly --
- * in the LocalBusiness structured data, which is what search engines read to
- * decide whether to show the business in local results. Publishing invented
- * values there is worse than publishing none.
+ * STILL INVENTED (must be replaced or removed before launch):
+ *   founding year, service area, insurance wording, certifications, and every
+ *   figure in `companyStats`.
  *
  * See "Before launch" in README.md for the full checklist.
  * ═══════════════════════════════════════════════════════════════════════════
  */
 export const site = {
     name: 'Flex Contractor',
-    legalName: 'Flex Contractor LLC',
+    legalName: 'Flex Contractor B.V.',
     tagline: 'From foundation to finish',
     description:
         'Flex Contractor delivers foundations, electrical, structural work, and '
-        + 'finishing and renovation for residential, commercial, and industrial projects.',
+        + 'finishing and renovation for residential, commercial, and industrial '
+        + 'projects across Amsterdam and Noord-Holland.',
 
-    phone: '+1 (555) 123-4567',
-    phoneHref: 'tel:+15551234567',
+    phone: '+31 6 38929808',
+    phoneHref: 'tel:+31638929808',
     email: 'info@flexcontractor.com',
     emailHref: 'mailto:info@flexcontractor.com',
 
     address: {
-        street: '123 Build Street',
-        locality: 'Springfield',
-        region: 'IL',
-        postalCode: '62701',
-        country: 'US',
+        street: 'Anna Blamansingel 182',
+        postalCode: '1102 SW',
+        locality: 'Amsterdam',
+        region: 'Noord-Holland',
+        country: 'NL',
     },
 
-    hours: 'Monday to Friday, 7:00 – 17:00',
-    founded: 2004,
-    licence: 'IL-GC-104829',
-    insurance: 'General liability and workers compensation carried on every project',
+    hours: 'Monday to Friday, 07:00 – 17:00',
+    founded: 2006,
 
-    serviceArea: [
-        'Springfield', 'Decatur', 'Bloomington', 'Champaign', 'Peoria', 'Jacksonville',
+    /*
+     * Company registration. `vat` is the BTW-id, in the form NL000000000B01.
+     * Both are rendered behind `v-if` in the footer and on the about page, so
+     * an empty one is omitted rather than printing a bare label -- and so a
+     * legal identifier is never invented just to fill the slot.
+     */
+    kvk: '77100468',
+    vat: '',
+
+    /* PLACEHOLDER */ insurance:
+        'CAR and liability cover carried on every project',
+
+    /* PLACEHOLDER -- confirm each of these is actually held before publishing. */
+    certifications: ['VCA** certified', 'ISO 9001', 'Bouwgarant affiliated'],
+
+    /* PLACEHOLDER */ serviceArea: [
+        'Amsterdam', 'Amstelveen', 'Haarlem', 'Zaanstad', 'Hoofddorp', 'Almere',
     ],
 
     social: [
@@ -49,6 +58,20 @@ export const site = {
     ],
 } as const
 
+/*
+ * The postal address as it is actually written in the Netherlands: street and
+ * number on one line, then postcode and city on the next -- no comma, and the
+ * postcode BEFORE the city. That is the opposite of the "City, Region ZIP"
+ * order the templates previously hardcoded in three separate places.
+ *
+ * Derived here rather than repeated per template, so the ordering is a
+ * one-line change if the company ever moves country.
+ */
+export const addressLines = [
+    site.address.street,
+    `${site.address.postalCode} ${site.address.locality}`,
+] as const
+
 /** Primary navigation. Drives the header, the mobile menu and the footer. */
 export const primaryNav = [
     {label: 'Services', to: '/services'},
@@ -57,7 +80,7 @@ export const primaryNav = [
     {label: 'Careers', to: '/careers'},
 ] as const
 
-/** Headline figures. Shown on the homepage and the about page. */
+/* PLACEHOLDER -- every one of these figures is invented. */
 export const companyStats = [
     {value: '20+', label: 'Years in business'},
     {value: '480', label: 'Projects delivered'},
