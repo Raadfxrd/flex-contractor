@@ -14,12 +14,14 @@ useSeo({
         :eyebrow="c.specialisms.eyebrow"
         :lede="c.specialisms.lede"
         :title="c.specialisms.title"
-        image="/img/trap-en-vloer.jpg"
+        image="/img/installaties.jpg"
         image-alt=""
     />
 
     <section class="wrap band">
-      <ul class="grid gap-px bg-white/10 md:grid-cols-2 lg:grid-cols-3">
+      <p class="lede max-w-3xl border-l-2 border-brand pl-6">{{ c.intro.range }}</p>
+
+      <ul class="mt-16 grid gap-px bg-white/10 md:grid-cols-2 lg:grid-cols-3">
         <li v-for="(item, i) in c.specialisms.items" :key="item.slug" class="flex flex-col bg-ink">
           <div v-if="item.image" class="relative aspect-[16/10] w-full overflow-hidden bg-surface">
             <!-- 1280px sources: `sizes` caps at 600 so the 2x request stays inside them. -->
@@ -36,6 +38,13 @@ useSeo({
             <span class="numeral text-xs text-brand">{{ String(i + 1).padStart(2, '0') }}</span>
             <h2 class="display-3 mt-3">{{ item.title }}</h2>
             <p class="body-copy mt-4 flex-1">{{ item.description }}</p>
+
+            <ul class="mt-6 space-y-2 border-t border-white/10 pt-5">
+              <li v-for="line in item.includes" :key="line" class="flex gap-3 text-sm text-neutral-400">
+                <span class="mt-2 h-px w-3 shrink-0 bg-brand" aria-hidden="true"/>
+                <span>{{ line }}</span>
+              </li>
+            </ul>
           </div>
         </li>
       </ul>

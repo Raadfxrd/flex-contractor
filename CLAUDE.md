@@ -38,6 +38,16 @@ State is module-level data, not a store:
   area. `addressLines` encodes the Dutch postal order (street, then postcode *before* city, no comma) so no
   template composes an address itself.
 
+The twelve individual trades the live site lists (staircases, door frames, gravel floors …) are grouped
+into **six capability areas** in `specialisms`, with every original trade preserved verbatim in that area's
+`includes` list. The narrow framing read as a jobbing specialist rather than a firm that takes on a whole
+renovation; the `includes` list keeps the specific words on the page for anyone searching for one of them.
+
+`intro.range` carries the positioning statement — high-end through to everyday work — and is rendered on the
+homepage, `/services` and `/specialisms`. It is the reason the six service types run from a one-day job to a
+complete renovation.
+
+
 The homepage panels, the footer, the sitemap and the form's project-type list are all derived from those
 files — **add content there, not in a template**, or the copies drift.
 
@@ -213,20 +223,25 @@ in the same frame and the intended stagger never actually reads.
 
 Served through `@nuxt/image` (`<NuxtImg>`, IPX provider).
 
-**Sources are two different resolutions, and it matters.** The original stock photography in `public/img` is
-2560px, and `nuxt.config.ts` caps `screens` at `xl: 1280` so the 2x density variant lands exactly on 2560 and
-never upscales. But the four photos taken from the live site — `keuken`, `afwerking`, `trap-en-vloer`,
-`verbouwing` — are only **1280px**. At `xl` the pipeline asks for 2x, so their `sizes` must cap at **600px**
-or IPX enlarges past the source and they go soft.
+**Sources are mixed resolutions, and it matters.** `nuxt.config.ts` caps `screens` at `xl: 1280`, so the 2x
+density variant asks for 2560. Anything smaller than that upscales.
 
-That is why those four are used on cards and story panels with `sizes="…xl:600px"`, and **never full-bleed**.
-`hero.jpg` is 2560px and is the one that carries `100vw`. `public/logo.png` is 200px and is only safe at
-header/footer size.
+| Source | Width | Safe for |
+|---|---|---|
+| `hero.jpg`, `installaties.jpg` | 2560 | full-bleed `100vw` |
+| `keuken`, `afwerking`, `trap-en-vloer`, `verbouwing` | **1280** | cards and story panels only — cap `sizes` at 600px |
+| `logo.png` | **200** | header and footer only |
+
+That is why the four 1280px photos carry `sizes="…xl:600px"` and are **never** full-bleed. After adding an
+image, check the largest requested `w_` against the source width, not just that the page renders.
 
 **`sizes` must be screen-keyed** — `sizes="xs:100vw sm:100vw ..."`. A bare `sizes="100vw"` is parsed by
 `parseSizes` as the breakpoint key `"1px"` and silently emits a **1-pixel-wide** image (`/_ipx/w_1/...`).
-This fails silently: the build passes and the page renders. Grep the rendered HTML for `_ipx/w_1/` after
-adding an image, and check the largest requested `w_` against the source width.
+This fails silently: the build passes and the page renders. Grep for `_ipx/w_1/`.
+
+One specialism area (Buitenruimte / Outdoor space) deliberately ships **without** a photo. The card markup
+guards on `v-if="item.image"`, so an area without one renders as type. That is the intended fallback — do
+not fill the gap with a stock photo that does not match the work or the country.
 
 
 ### Design system

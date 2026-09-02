@@ -8,7 +8,15 @@ withDefaults(defineProps<{
   eyebrow?: string
   title: string
   lede?: string
-  /** Optional full-bleed background image. Without one the block is flat ink. */
+  /**
+   * Optional full-bleed background image. Without one the block is flat ink,
+   * which is a perfectly good result -- several pages use it.
+   *
+   * MUST be a 2560px source. This renders at `100vw`, so at the xl breakpoint
+   * the pipeline requests 2x = 2560; anything smaller is upscaled by IPX into a
+   * larger file with no extra detail. Only `hero.jpg` and `installaties.jpg`
+   * qualify — the four photos from the live site are 1280px and belong on cards.
+   */
   image?: string
   imageAlt?: string
   /*

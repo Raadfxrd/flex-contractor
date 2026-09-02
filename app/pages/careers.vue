@@ -26,8 +26,6 @@ const roles: {title: string, location: string, type: string, summary: string}[] 
         :eyebrow="c.careers.eyebrow"
         :lede="c.careers.lede"
         :title="c.careers.title"
-        image="/img/verbouwing.jpg"
-        image-alt=""
     />
 
     <section class="wrap band">

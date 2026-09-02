@@ -15,12 +15,14 @@ useSeo({
         :eyebrow="c.services.eyebrow"
         :lede="c.services.lede"
         :title="c.services.title"
-        image="/img/verbouwing.jpg"
+        image="/img/hero.jpg"
         image-alt=""
     />
 
     <section class="wrap band">
-      <ul class="grid gap-px bg-white/10 md:grid-cols-2">
+      <p class="lede max-w-3xl border-l-2 border-brand pl-6">{{ c.intro.range }}</p>
+
+      <ul class="mt-16 grid gap-px bg-white/10 md:grid-cols-2">
         <li v-for="service in c.services.items" :key="service.slug" class="bg-ink">
           <NuxtLink
               :to="localePath(`/services/${service.slug}`)"
