@@ -111,12 +111,18 @@ Three things that are easy to get wrong:
 in English the homepage is `/en`, and a bare `'/'` test leaves the header opaque over the English hero.
 
 
-`app/middleware/locale-swap.global.ts` turns the page transition **off** for a language switch. The header,
-footer and `<html lang>` live outside `<NuxtPage>` and re-render the instant the route changes, while
-`mode: 'out-in'` holds the outgoing page for the length of its leave transition — so a fade leaves a window
-with the header in one language and the body in the other. It detects the swap from the route name
-(`<base>___<locale>`) and must assign `to.meta.pageTransition` on **both** branches: `to.meta` belongs to the
-route record, so a bare `if` would leave the fade permanently disabled on any route ever reached by a swap.
+**`app.vue` turns the page transition off for a language switch**, and that is load-bearing rather than
+cosmetic. `useContent()` is reactive to `locale`, so the instant the route changes the page still on screen
+re-renders in the new language; with `mode: 'out-in'` it then sits there fully visible for the length of its
+leave transition before being rebuilt hidden for its entry animation. That was measured at ~50ms of the new
+copy at full opacity, then gone, then fading back in — a very visible flicker. Removing the transition
+collapses the swap into a single frame so the outgoing page is never painted in the wrong language.
+
+Two things that look like they should fix this and, measured, do not: assigning `to.meta.pageTransition` in
+a route middleware (the documented approach — no effect, because `<NuxtPage>`'s `transition` prop takes
+precedence), and giving `<NuxtPage>` a locale-independent `page-key`. The flag must also be set in
+`router.beforeEach` rather than derived from `route.name` in a computed: the computed resolves in the same
+flush as the route update, which is too late and the flicker returns.
 
 
 ### Scrolling
