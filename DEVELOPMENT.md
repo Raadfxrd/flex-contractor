@@ -30,6 +30,20 @@ The homepage is the only page that snaps. Everything here is about `/`.
 
 - [ ] Scroll from the top: hero, four story sections and the process section each snap cleanly to the viewport, one per
   gesture.
+- [ ] **Check with a real mouse, not only a trackpad.** One wheel notch must *glide* to
+      the next section over about 0.75s — not teleport. This is the regression a trackpad
+      hides completely, because a trackpad gets an animated settle out of CSS snap for
+      free and a mouse does not.
+- [ ] Spin the wheel hard: one gesture advances exactly one section, and trackpad
+      momentum does not chain three at once.
+- [ ] **At the process section ("Three stages"), wheel down with a mouse.** The page must
+      glide on into the portfolio. If it snaps back to the process section on every notch,
+      the downward exit has regressed — this is the boundary a trackpad hides, because a
+      trackpad flick trips the portfolio's snap gate mid-gesture and a mouse notch does
+      not.
+- [ ] Interrupt a transition mid-glide (wheel the other way, or grab the scrollbar). The
+      page must stay responsive — if the wheel goes dead, the busy lock is not being
+      released on interrupt.
 - [ ] Keep scrolling into the portfolio. Snapping stops. The section pins and the track moves horizontally as you
   scroll.
 - [ ] **Scroll all the way to the very bottom of the footer and stop.** The page must stay there. If it yanks back up to

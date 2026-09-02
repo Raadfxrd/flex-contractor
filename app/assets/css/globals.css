@@ -85,13 +85,24 @@ body.snap-enabled {
 }
 
 /*
- * Snapping is stood down from the portfolio section down -- a pin and the snap
- * engine otherwise fight over scroll position. PortfolioScroller toggles this
- * class from its own ScrollTrigger. It must beat .snap-enabled, hence the
- * !important rather than relying on source order alone.
+ * Two independent reasons to stand snapping down. They are separate classes so
+ * they can be set and cleared without clobbering each other:
+ *
+ *   .snap-disabled   PortfolioScroller owns this. From the portfolio section
+ *                    down the page is pinned, and a pin and the snap engine
+ *                    otherwise fight over scroll position.
+ *
+ *   .snap-animating  useScrollSnap() owns this, for the length of one
+ *                    section-to-section wheel transition. `mandatory` snapping
+ *                    would re-target on every frame of that tween and fight it
+ *                    to a standstill.
+ *
+ * Both must beat .snap-enabled, hence !important rather than source order.
  */
 html.snap-disabled,
-body.snap-disabled {
+body.snap-disabled,
+html.snap-animating,
+body.snap-animating {
 	scroll-snap-type: none !important;
 }
 
@@ -107,7 +118,9 @@ body.snap-disabled {
  */
 .snap-enabled .no-snap,
 .snap-disabled .section-container,
-.snap-disabled .no-snap {
+.snap-disabled .no-snap,
+.snap-animating .section-container,
+.snap-animating .no-snap {
 	scroll-snap-align: none !important;
 	scroll-snap-stop: normal !important;
 }
